@@ -878,7 +878,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.11';
+window.GQ_VERSION = '4.1.12';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -1024,7 +1024,7 @@ window.CARD_LIST = [
   "cost": 4,
   "text": "This Character have power exact to the current number of cards in your hand.",
   "rarity": "R",
-  "stat": "x/3",
+  "stat": "0/3",
   "cud": 1,
   "pow": 0,
   "mor": 3
@@ -1863,7 +1863,7 @@ window.CARD_LIST = [
   "cost": 4,
   "text": "Choose one: 6/2 or 3/7",
   "rarity": "R",
-  "stat": "*/*",
+  "stat": "6/2 - 3/7",
   "cud": 1,
   "pow": 0,
   "mor": 0
@@ -2744,15 +2744,13 @@ window.CARD_LIST = [
  },
  {
   "code": "EQPBK-001",
-  "type": "Equipment",
+  "type": "Action",
   "el": "ECLIPSE",
   "name": "",
   "cost": 3,
   "text": "Opponent discard all their hand and draw 2 cards.",
   "rarity": "C",
-  "stat": "",
-  "modPow": 0,
-  "modMor": 0
+  "stat": ""
  },
  {
   "code": "MSCBK-017",
@@ -3490,13 +3488,13 @@ window.CHAR_ART = {
   A['PRPBL-001'] = { aiTarget: 'theirs' };
   A['MSCBL-008'] = {
     play: async (E, c) => {
-      const m = await E.chooseMascot(c.pi, { title: 'Heal 5 Morale ให้ Character ฝ่ายเราที่อยู่ที่เดียวกัน', filter: x => x.ctrl === c.pi && x.loc === c.m.loc, optional: true, hint: 'help' });
+      const m = await E.chooseMascot(c.pi, { title: 'Heal 5 HP ให้ Character ฝ่ายเราที่อยู่ที่เดียวกัน', filter: x => x.ctrl === c.pi && x.loc === c.m.loc, optional: true, hint: 'help' });
       if (m) { E.heal(m, 5); E.log(`${E.mName(m)} Heal 5`, 'act'); } // v4.1.5: 3 → 5
     },
   };
   A['MSCBL-009'] = {
     play: async (E, c) => {
-      const ms = await E.chooseMascots(c.pi, 2, { title: 'Heal Morale เต็มให้ Character ฝ่ายเรา', filter: allyOf(c.pi), hint: 'help' });
+      const ms = await E.chooseMascots(c.pi, 2, { title: 'Heal HP เต็มให้ Character ฝ่ายเรา', filter: allyOf(c.pi), hint: 'help' });
       ms.forEach(m => E.heal(m, m.dmg));
     },
   };
@@ -3955,7 +3953,7 @@ window.CHAR_ART = {
       E.log(`${E.def(card).name} กลับมาที่ Backstage`, 'act');
     },
   };
-  A['EQPBK-001'] = { play: async (E, c) => { const o = E.opp(c.pi); const n = E.P(o).hand.length; E.log('EQPBK-001: ฝ่ายตรงข้ามทิ้งการ์ดทั้งมือ แล้วจั่ว 2 ใบ', 'act'); await E.discardFromHand(o, n, { random: true }); await E.draw(o, 2); } }; // v4.1.11: on equip, opponent discards whole hand and draws 2
+  A['EQPBK-001'] = { play: async (E, c) => { /* v4.1.12: Spell */ const o = E.opp(c.pi); const n = E.P(o).hand.length; E.log('EQPBK-001: ฝ่ายตรงข้ามทิ้งการ์ดทั้งมือ แล้วจั่ว 2 ใบ', 'act'); await E.discardFromHand(o, n, { random: true }); await E.draw(o, 2); } }; // v4.1.11: on equip, opponent discards whole hand and draws 2
   A['MSCBK-017'] = {
     preContestNeedsCard: true,
     preContest: async (E, c) => { E.trigger(c.m, 'ต้องทิ้งการ์ด 1 ใบก่อน Contest'); const out = await E.discardFromHand(c.pi, 1, { title: 'Lykyou: ทิ้งการ์ด 1 ใบก่อน Contest' }); return out.length > 0; },
@@ -3988,7 +3986,7 @@ window.CHAR_ART = {
       E.log('King Man: ทำลาย Character ทุกตัวใน Quest อื่น', 'big');
     },
   };
-  A['MSCBK-016'] = { onEnemyEnter: async (E, c) => { E.trigger(c.m, `${E.def(c.entering).name} เข้ามา → เสีย 2 Morale`); await E.damage(c.entering, 2, { pi: c.pi, direct: true }); } }; // v4.1.7: direct Morale loss ignores Armor
+  A['MSCBK-016'] = { onEnemyEnter: async (E, c) => { E.trigger(c.m, `${E.def(c.entering).name} เข้ามา → เสีย 2 HP`); await E.damage(c.entering, 2, { pi: c.pi, direct: true }); } }; // v4.1.7: direct HP loss ignores Armor
   A['PRPBK-003'] = {
     aiTarget: 'mine',
     endTurn: async (E, c) => { E.triggerQ(c.qi, 'PRPBK-003 — 1 Contest Point ใส่ Quest และ Character ทุกตัวที่นี่'); await E.points(c.qi, c.pi, 1, {}); for (const m of E.at(c.qi)) await E.damage(m, 1, { pi: c.pi }); },
@@ -4601,8 +4599,8 @@ window.CHAR_ART = {
 
     async damage(m, n, src = {}) {
       if (!this.inPlay(m) || n <= 0) return 0;
-      if (!src.contest && m.eq.some(e => this.abil(e).onlyContestDamage)) { this.log(`${this.mName(m)} ไม่เสีย Morale (EQPBR-005)`, 'dim'); return 0; }
-      const d = src.direct ? n : Math.max(0, n - this.armor(m)); // v4.1.7: Armor reduces Deal+Contest, not direct Morale loss
+      if (!src.contest && m.eq.some(e => this.abil(e).onlyContestDamage)) { this.log(`${this.mName(m)} ไม่เสีย HP (EQPBR-005)`, 'dim'); return 0; }
+      const d = src.direct ? n : Math.max(0, n - this.armor(m)); // v4.1.7: Armor reduces Deal+Contest, not direct HP loss
       m.dmg += d;
       this.fx('m:' + m.uid, `-${d}`, 'dmg');
       if (d < n) this.log(`${this.mName(m)} Armor ลด ${n - d}`, 'dim');
@@ -5170,6 +5168,7 @@ window.CHAR_ART = {
         if (c.code === 'ACTBK-007' && !E.G.field.some(m => m.ctrl !== pi && m.loc === 'back' && !E.has(m, 'hiding'))) continue;
         if (c.code === 'ACTBK-004' && !E.G.field.some(m => m.ctrl !== pi && !E.has(m, 'hiding') && typeof m.loc === 'number' && E.allyAt(pi, m.loc).some(x => E.def(x).el === 'ECLIPSE'))) continue;
         if (c.code === 'ACTBK-003') { const mv = E.mascotsOf(pi).map(m => val(E, m)), tv = E.mascotsOf(1 - pi).map(m => val(E, m)); if (!tv.length || (mv.length && Math.min(...mv) >= Math.min(...tv) - 1)) continue; }
+        if (c.code === 'EQPBK-001' && E.P(1 - pi).hand.length < 3) continue; // v4.1.12: only worth it vs a decent hand
         if (c.code === 'ACTBK-002' && !p.hand.some(h => h !== c && E.def(h).type === 'Mascot')) continue;
         if (c.code === 'ACTGR-005' && !E.mascotsOf(pi).some(m => m.loc === 'back' && E.moveTargets(m).length)) continue;
         if (c.code === 'ACTGR-006' && E.G.field.filter(m => m.ctrl !== pi && typeof m.loc === 'number').reduce((n, m) => n + val(E, m), 0) < 14) continue;
@@ -5580,6 +5579,7 @@ window.CHAR_ART = {
     let pow = c.pow, mor = c.mor, cud = c.cud, cost = c.cost, morCls = '', powCls = '';
     let powTxt = c.stat ? c.stat.split('/')[0] : '', morTxt = c.stat ? (c.stat.split('/')[1] || '') : '';
     if (c.type === 'Mascot') { powTxt = /^\d+$/.test(powTxt) ? pow : powTxt; morTxt = /^\d+$/.test(morTxt) ? mor : morTxt; }
+    const multiStat = c.type === 'Mascot' && / - /.test(c.stat || '') && !(m && E); // v4.1.12: e.g. Smyle '6/2 - 3/7' until chosen
     if (m && E) {
       pow = E.power(m); const max = E.maxMor(m); mor = E.mor(m); cud = E.cud(m);
       powTxt = pow; morTxt = mor;
@@ -5588,7 +5588,7 @@ window.CHAR_ART = {
     }
     const isM = c.type === 'Mascot';
     const sub = isM ? `${el.sub} · ${c.code}` : `${c.el} · ${c.code}`;
-    const statHTML = isM
+    const statHTML = multiStat ? `<span class="st typ" title="เลือกค่าพลังตอนลง">${esc(c.stat)}</span>` : isM
       ? `<span class="st pow ${powCls}">${svg('fist')}${esc(powTxt)}</span><span class="st mor ${morCls}">${svg('heart')}${esc(morTxt)}</span>`
       : (c.type === 'Equipment' && (c.modPow || c.modMor)
         ? `<span class="st pow">${svg('fist')}${c.modPow >= 0 ? '+' : ''}${c.modPow}</span><span class="st mor">${svg('heart')}${c.modMor >= 0 ? '+' : ''}${c.modMor}</span>`
@@ -5690,7 +5690,7 @@ window.CHAR_ART = {
     { title: 'เทิร์นมี 5 Phase', kind: 'next', hl: () => ['#turn-badge'],
       text: 'ดูแถบมุมซ้ายบน: <b>Upkeep → Ready → Gathering → Action → End</b><br>เกมพาคุณผ่าน 3 Phase แรกให้เอง — <b>Ready</b> Character ตั้งขึ้น · <b>Gathering</b> ได้ <b>Mana หลัก +1</b> และ<b>จั่ว 1 ใบ</b> (ตอนนี้ Mana หลัก = 1 + 1 = <b>2</b>, มือ 6 ใบ) — แล้วถึง <b>Action Phase</b> ที่คุณเป็นคนเล่น' },
     { title: 'การ์ดบนมือ', kind: 'next', hl: () => ['#my-hand'],
-      text: 'ส่วนประกอบการ์ด: <b>อัญมณีมุมซ้ายบน</b> = Cost (Mana ที่ต้องจ่าย) · <b>วงกลมขวาบน</b> = Cuddliness · <b>✊</b> = Contest Power · <b>❤</b> = Morale<br>กรอบเขียว = เล่นได้ตอนนี้' },
+      text: 'ส่วนประกอบการ์ด: <b>อัญมณีมุมซ้ายบน</b> = Cost (Mana ที่ต้องจ่าย) · <b>วงกลมขวาบน</b> = Cuddliness · <b>✊</b> = Contest Power · <b>❤</b> = HP<br>กรอบเขียว = เล่นได้ตอนนี้' },
     { title: 'กดค้างเพื่อดูข้อมูล', done: (E, t) => t.flags.info, allow: { info: true }, hl: E => [handKey(E, 'MSCGR-001')],
       text: 'ลอง<b>กดค้าง</b>ที่การ์ด PONPON (หรือคลิกขวา) เพื่อเปิดหน้าข้อมูลการ์ดใหญ่' },
     { title: 'อ่านข้อมูลการ์ด', done: () => !$('info').classList.contains('on'),
@@ -5706,7 +5706,7 @@ window.CHAR_ART = {
       text: 'CPU ลง <b>LUNAR</b> มาที่ Quest เดียวกับ Ponpon<br>ตาคุณเริ่มด้วย <b>Ready Phase</b> — Ponpon กลับมา <b>Ready</b> (การ์ดตั้ง กรอบเขียว) — และ <b>Gathering Phase</b> ได้ Mana +1 กับการ์ดใหม่ 1 ใบ' },
     { title: 'Contest ใส่ Character', done: E => !theirs(E, 'MSCRD-006'), allow: { mascot: 'MSCGR-021', act: 'contest', target: k => k.startsWith('m:') },
       hl: E => [mKey(mine(E, 'MSCGR-021')), mKey(theirs(E, 'MSCRD-006'))],
-      text: '<b>ลาก PONPON ไปปล่อยบน LUNAR</b> เพื่อ Contest<br>Contest = ใส่แต้มเท่า Contest Power (1) ลด Morale ของเป้าหมาย (1) → <b>Morale หมด = ถูกทำลาย</b>' },
+      text: '<b>ลาก PONPON ไปปล่อยบน LUNAR</b> เพื่อ Contest<br>Contest = ใส่แต้มเท่า Contest Power (1) ลด HP ของเป้าหมาย (1) → <b>HP หมด = ถูกทำลาย</b>' },
     { title: 'ทำลายสำเร็จ!', kind: 'next',
       text: 'Lunar ลงกองทิ้งไปแล้ว — Character ที่ Contest เสร็จจะ Exhaust<br>นอกจาก Contest ใส่ Character ยัง Contest ใส่ <b>Quest</b> เพื่อเก็บแต้มได้ (จะลองเร็ว ๆ นี้)' },
     { title: 'การ์ด Spell', done: E => E.P(ME).discard.some(c => c.code === 'ACTGR-001'), allow: { hand: 'ACTGR-001' }, hl: E => [handKey(E, 'ACTGR-001')],
@@ -6484,7 +6484,7 @@ window.CHAR_ART = {
     if (!r || !E || !$('scr-game').classList.contains('active')) return '';
     if (r.m) {
       const m = r.m, kws = GQ.KW_LIST.filter(k => E.has(m, k));
-      return `Morale ${E.mor(m)}/${E.maxMor(m)} · Power ${E.power(m)} · Cuddliness ${E.cud(m)}${m.dmg ? ` · Damage Token ${m.dmg}` : ''}<br>
+      return `HP ${E.mor(m)}/${E.maxMor(m)} · Power ${E.power(m)} · Cuddliness ${E.cud(m)}${m.dmg ? ` · Damage Token ${m.dmg}` : ''}<br>
         ฝ่าย${esc(E.P(m.ctrl).name)}${m.owner !== m.ctrl ? ' (ยึดมา)' : ''} · ${E.locName(m.loc)} · ${m.ex ? (m.permEx ? 'Exhaust ถาวร' : 'Exhaust (ตะแคง)') : 'Ready (ตั้ง)'}${m.stunned ? ' · <b style="color:#6a4cff">💫 STUN</b> — ไม่ Ready ใน Ready Phase ถัดไป (เหลือ 1 ครั้ง)' : ''}
         ${kws.length || E.armor(m) ? '<br>' + kws.join(', ') + (E.armor(m) ? ` Armor ${E.armor(m)}` : '') : ''}
         ${m.eq.length ? '<br>Equipment ที่แนบ: ' + m.eq.map(e => e.code).join(', ') : ''}`;
@@ -6506,14 +6506,14 @@ window.CHAR_ART = {
   // ---------------------------------------------------------------- big card info (long-press / right-click)
   const KW_TH = {
     Guard: 'ฝ่ายตรงข้ามต้อง Contest Character ตัวนี้ก่อน ถ้าทำได้',
-    Armor: 'เสีย Morale น้อยลงตามตัวเลข ทุกครั้งที่โดน',
+    Armor: 'เสีย HP น้อยลงตามตัวเลข ทุกครั้งที่โดน',
     Splash: 'Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้ามอยู่ Guard จะรับแต้มแทน Quest',
     Stun: 'Character ที่ถูก Stun จะตะแคงและไม่ Ready ใน Ready Phase ครั้งถัดไป',
     Rush: 'ลงมาแล้วพร้อมใช้ทันที และ Move ไม่ทำให้ Exhaust — แต่ Move ได้ครั้งเดียวต่อเทิร์น (หลัง Move ยัง Contest/Show ได้)',
     Hiding: 'ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ (ยกเว้นถูก Character ฝ่ายตรงข้าม Contest)',
     Breakthrough: 'Contest Character แล้วได้แต้มที่ Quest ด้วย',
     'Range Attack': 'Contest เป้าหมายใน Quest ที่อยู่ติดกันได้',
-    Regenarate: 'ฟื้น Morale เต็มเมื่อจบเทิร์น', Regenerate: 'ฟื้น Morale เต็มเมื่อจบเทิร์น',
+    Regenarate: 'ฟื้น HP เต็มเมื่อจบเทิร์น', Regenerate: 'ฟื้น HP เต็มเมื่อจบเทิร์น',
   };
   function closeInfo() { const el = $('info'); el.classList.remove('on'); el.innerHTML = ''; infoNav = null; }
   let infoNav = null;
@@ -6546,7 +6546,7 @@ window.CHAR_ART = {
     const kws = Object.keys(KW_TH).filter(k => (c.text || '').includes(k));
     if (r.m && E) GQ.KW_LIST.forEach(k => { const K = { guard: 'Guard', splash: 'Splash', rush: 'Rush', hiding: 'Hiding', breakthrough: 'Breakthrough', range: 'Range Attack', regen: 'Regenerate' }[k]; if (E.has(r.m, k) && !kws.includes(K)) kws.push(K); });
     const stats = c.type === 'Mascot'
-      ? `<div class="ibig"><span><small>Cost</small><b>${c.cost}</b></span><span><small>✊ Contest Power</small><b>${c.stat.split('/')[0]}</b></span><span><small>❤ Morale</small><b>${c.stat.split('/')[1]}</b></span><span><small>Cuddliness</small><b>${c.cud}</b></span></div>`
+      ? `<div class="ibig"><span><small>Cost</small><b>${c.cost}</b></span>${/ - /.test(c.stat) ? `<span><small>✊ / ❤ (เลือกตอนลง)</small><b>${esc(c.stat)}</b></span>` : `<span><small>✊ Contest Power</small><b>${c.stat.split('/')[0]}</b></span><span><small>❤ HP</small><b>${c.stat.split('/')[1]}</b></span>`}<span><small>Cuddliness</small><b>${c.cud}</b></span></div>`
       : c.type === 'Quest' ? `<div class="ibig"><span><small>Threshold</small><b>${c.threshold}</b></span></div>`
         : `<div class="ibig"><span><small>Cost</small><b>${c.cost}</b></span>${c.type === 'Equipment' && (c.modPow || c.modMor) ? `<span><small>✊ / ❤</small><b>${c.modPow >= 0 ? '+' : ''}${c.modPow} / ${c.modMor >= 0 ? '+' : ''}${c.modMor}</b></span>` : ''}</div>`;
     const how = { Mascot: 'ลงบน Quest หรือ Backstage · ลงทับ Character ชื่อเดียวกันที่ Cost ต่ำกว่า = Empower', Action: 'ใช้แล้วเกิดผลจนครบ แล้วลงกองทิ้ง', Equipment: 'เลือก Character เป้าหมาย แล้ววางการ์ดแนบ — ถ้า Character ถูกทำลาย Equipment ลงกองทิ้งด้วย', 'Set Props': 'เลือก Quest เป้าหมาย แล้ววางการ์ดแนบ — เมื่อ Quest ถึง Threshold Artifact ถูกทำลายลงกองทิ้ง', Quest: 'ไม่อยู่ใน Deck · ใครทำแต้ม Contest ถึง Threshold ก่อนพิชิต' }[c.type];
@@ -6637,7 +6637,7 @@ window.CHAR_ART = {
     const cC = E.canContest(m) && tA('contest'), cM = E.canMove(m) && tA('move'), cS = E.canShow(m) && tA('show');
     const menu = $('popmenu');
     menu.innerHTML = `<div class="t">${esc(d.name)} <span class="dim">${d.code}</span></div>
-      <div class="r">Power ${E.power(m)} · Morale ${E.mor(m)}/${E.maxMor(m)} · ${E.locName(m.loc)}</div>
+      <div class="r">Power ${E.power(m)} · HP ${E.mor(m)}/${E.maxMor(m)} · ${E.locName(m.loc)}</div>
       ${why.length ? `<div class="r" style="color:#c0143c">${why.join(' · ')}</div>` : ''}
       <button class="btn" data-act="c" ${cC ? '' : 'disabled'}>⚔ Contest (${E.power(m)})</button>
       <button class="btn" data-act="m" ${cM ? '' : 'disabled'} ${E.movedNow(m) ? 'title="ย้ายได้ครั้งเดียวต่อเทิร์น"' : ''}>➜ Move ไป Quest อื่น${E.has(m, 'rush') ? ' (Rush)' : ''}${E.movedNow(m) ? ' — ย้ายได้ครั้งเดียวต่อเทิร์น' : ''}</button>
@@ -7758,8 +7758,8 @@ window.CHAR_ART = {
       • Character บน Quest นั้นย้ายไป <b>Backstage</b> ของเจ้าของ แล้วค่อย Move ไป Quest อื่นภายหลัง · <b>Artifact</b> ที่แนบอยู่ถูกทำลาย<br>
       <b>Character</b> (ตัวละคร)<br>
       • เล่นบน Quest (หรือ Backstage) เพื่อ Contest ใน Quest นั้น<br>
-      • มี สี, ประเภท, Cost, Contest Power (✊), Morale (❤), Cuddliness (วงกลมมุมขวาบน) และบางใบมีความสามารถพิเศษ<br>
-      • Morale ลดได้จากการโดน Contest หรือการลดโดยตรง — Morale หมด = ถูกทำลาย ลงกองทิ้ง (Discard Pile)<br>
+      • มี สี, ประเภท, Cost, Contest Power (✊), HP (❤), Cuddliness (วงกลมมุมขวาบน) และบางใบมีความสามารถพิเศษ<br>
+      • HP ลดได้จากการโดน Contest หรือการลดโดยตรง — HP หมด = ถูกทำลาย ลงกองทิ้ง (Discard Pile)<br>
       • <b>Cuddliness</b> = จำนวน Mana ที่ได้เมื่อทำ Action <b>Show</b><br>
       • ลงมาใหม่จะอยู่ในสถานะ<b>เหนื่อย (Exhaust)</b><br>
       • การ์ดใบเดียวกัน (รหัสเดียวกัน) ใส่ใน Deck ได้ไม่เกิน 3 ใบ — ชื่อหลักเดียวกันแต่ต่างรหัสไม่จำกัด<br>
@@ -7788,7 +7788,7 @@ window.CHAR_ART = {
       • Mana ชั่วคราวหายเมื่อจบเทิร์น เหมือน Mana จาก Show<br>
       • ในเกม: คลิกการ์ดในมือ → ปุ่ม <kbd>🗑 ทิ้งเพื่อรับ Mana</kbd></div>
     <h3>Contest — ข้อควรรู้</h3><div class="box">• Contest ใส่ Character ฝ่ายตรงข้ามที่ <b>เหนื่อย (Exhaust)</b> อยู่ได้ตามปกติ<br>• การ Contest <b>ไม่มีการตีกลับ</b> แม้เป้าหมายจะไม่ตาย — ยกเว้นการ์ดที่เขียนไว้ว่าจะ Contest กลับ (เช่น Paody, Look Khunnoo) — ตัวที่ตีกลับได้ <b>จะตีกลับเสมอ แม้โดนตีจนตาย</b><br>• Character ใน Backstage ถูก Contest ไม่ได้</div>
-    <h3>Empower</h3><div class="box">• ลง Character ทับ Character ของเราที่มี<b>ชื่อหลักเดียวกัน</b> แล้วนำใบที่โดนทับลงกองทิ้ง — ใช้ Contest Power, Morale และความสามารถของใบใหม่<br>
+    <h3>Empower</h3><div class="box">• ลง Character ทับ Character ของเราที่มี<b>ชื่อหลักเดียวกัน</b> แล้วนำใบที่โดนทับลงกองทิ้ง — ใช้ Contest Power, HP และความสามารถของใบใหม่<br>
       • ใบใหม่ต้องมี <b>Cost สูงกว่า</b> ใบที่ถูกทับ<b>เท่านั้น</b> — Cost เท่ากันหรือต่ำกว่า <b>Empower ไม่ได้</b><br>
       • จ่าย Mana แค่<b>ส่วนต่าง Cost</b> (Cost ใบใหม่ − Cost ใบที่ถูกทับ)<br>
       • Equipment และแต้ม Contest (Damage) ที่อยู่บนตัวเดิมยังอยู่ครบ<br>
@@ -7804,7 +7804,7 @@ window.CHAR_ART = {
     <h3>Backstage</h3><div class="box">• พื้นที่หน้าผู้เล่นที่ลง Character ได้<br>• เมื่อ Quest ถูกพิชิต Character ทุกตัวบน Quest นั้นย้ายมา Backstage ของเจ้าของอัตโนมัติ<br>• Move จาก Quest กลับมา Backstage ได้ (v4.1.3) · Move จาก Backstage เพื่อออกไป Quest<br>• Character ใน Backstage ถูก Contest ไม่ได้</div>
     <h3>ทอยลูกเต๋าในการ์ด</h3><div class="box">การ์ดที่เขียนว่า <b>Roll d6</b> ระบบจะทอยให้และแสดงผลกลางจอ (เช่น จั่ว/ได้ Mana เท่าครึ่งหนึ่งของแต้มที่ทอย <b>ปัดขึ้น</b>)</div>
     <h3>คำสำคัญ</h3><div class="box">
-      <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน ถ้าทำได้ · <b>Armor X</b> เสีย Morale น้อยลง · <b>Splash</b> Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้าม Guard จะรับแทน · <b>Rush</b> ลงมา/Move ได้โดยไม่ Exhaust แต่ <b>Move ได้ครั้งเดียวต่อเทิร์น</b> (หลัง Move ยัง Contest/Show ได้ตามปกติ · การถูกย้ายโดยผลการ์ดไม่นับ) · <b>Hiding</b> ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม Contest · <b>Breakthrough</b> Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว · <b>Range Attack</b> Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน · <b>Regenerate</b> ฟื้น Morale เต็มเมื่อจบเทิร์น · <b>Stun</b> Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ครั้งถัดไป · <b>Gain control</b> ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา<br>
+      <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน ถ้าทำได้ · <b>Armor X</b> เสีย HP น้อยลง · <b>Splash</b> Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้าม Guard จะรับแทน · <b>Rush</b> ลงมา/Move ได้โดยไม่ Exhaust แต่ <b>Move ได้ครั้งเดียวต่อเทิร์น</b> (หลัง Move ยัง Contest/Show ได้ตามปกติ · การถูกย้ายโดยผลการ์ดไม่นับ) · <b>Hiding</b> ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม Contest · <b>Breakthrough</b> Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว · <b>Range Attack</b> Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน · <b>Regenerate</b> ฟื้น HP เต็มเมื่อจบเทิร์น · <b>Stun</b> Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ครั้งถัดไป · <b>Gain control</b> ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา<br>
       <b>When played</b> เกิดผลทันทีที่ลงการ์ด · <b>Whenever …</b> เกิดผลทุกครั้งที่เงื่อนไขเกิด · <b>End turn / At the end of your turn</b> เกิดผลใน End Phase ของเรา · <b>Play … for free</b> เล่นโดยไม่จ่าย Mana</div>
     <h3>⚡ ความสามารถทำงานเมื่อไร</h3><div class="box">ทุกครั้งที่ความสามารถของการ์ดทำงาน จะมีสัญลักษณ์ <b>⚡</b> เด้งเหนือการ์ด พร้อมบรรทัดสีเหลืองในบันทึกเกม — ถ้าไม่เห็น ⚡ แปลว่าเงื่อนไขยังไม่ครบ (เช่น Rexxa ต้อง Contest <i>Quest</i> ถึงจะจั่ว)</div>
     <h3>วิธีเล่นในเกมนี้</h3><div class="box"><b>ลากวาง</b>การ์ดจากมือไปยังช่องที่ไฮไลต์ (Backstage / ช่องใต้ Quest / Character ชื่อเดียวกันเพื่อ Empower / Character เพื่อติด Equipment / Quest เพื่อวาง Artifact) หรือคลิกการ์ด → <kbd>เล่นการ์ดนี้</kbd> แล้วคลิกที่วาง · <b>ลาก Character</b> ที่พร้อม (กรอบเขียว) ไปที่ศัตรูหรือ Quest เพื่อ Contest หรือไปที่ช่องของ Quest อื่นเพื่อ Move (หรือคลิกเพื่อเลือก Contest / Move / Show) · <b>กดค้าง</b>ที่การ์ด (หรือคลิกขวา) เพื่อเปิดหน้าข้อมูลการ์ดใหญ่ · กด <kbd>จบเทิร์น</kbd> หรือ <kbd>Enter</kbd> เมื่อเสร็จ</div>`;
