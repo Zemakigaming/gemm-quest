@@ -878,7 +878,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.12';
+window.GQ_VERSION = '4.1.13';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -5547,7 +5547,7 @@ window.CHAR_ART = {
   const svg = (k, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${ICON[k] || ''}</svg>`;
 
   // keyword highlighting in ability text
-  const KW_RE = /\b(Guard|Armor \d|Splash|Rush|Hiding|Breakthrough|Range Attack|Regenarate|Regenerate|When played|When Played|Whenever|End turn|At the end of your turn|Complete the Quest)\b/g;
+  const KW_RE = /\b(Guard|Armor \d|Splash|Rush|Hiding|Breakthrough|Ranged Attack|Range Attack|Regenarate|Regenerate|When played|When Played|Whenever|End turn|At the end of your turn|Complete the Quest)\b/g;
   // "FC" no longer exists as a card type — shown as a red "Character" until the card text is updated.
   // Old sheet wording (Mascot / Action card / Set Props / Cheering) is shown in the rulebook-v3 vocabulary.
   function fmtText(t) {
@@ -5678,9 +5678,9 @@ window.CHAR_ART = {
     { title: 'สนามเล่น — Deck และกองทิ้ง', kind: 'next', hl: () => ['[data-key="pile:deck:0"]', '[data-key="pile:disc:0"]'],
       text: 'ฝั่ง<b>ล่าง</b>คือของคุณ ฝั่งบนคือ CPU<br><b>Deck</b> กองการ์ดหลัก — ถ้า Deck เหลือ 0 ใบ = แพ้ทันที<br><b>กองทิ้ง</b> การ์ดที่ใช้แล้วหรือถูกทำลาย' },
     { title: 'ช่อง Character', kind: 'next', hl: () => ['[data-key="zq:0:0"]', '[data-key="zq:0:1"]', '[data-key="zq:0:2"]'],
-      text: 'Character ที่ลงในช่องใต้ Quest ไหน จะแข่ง (<b>Contest</b>) ใน Quest นั้น' },
+      text: 'Character ที่ลงในช่องใต้ Quest ไหน จะแข่ง (<b>Contest</b>) ใน Quest นั้น<br>ใน Quest เดียวกัน ฝ่ายเดียวกันมี Character <b>ชื่อซ้ำกันไม่ได้</b>' },
     { title: 'หลังเวที — Backstage', kind: 'next', hl: () => ['[data-key="zb:0"]'],
-      text: 'ลง Character ไว้ที่นี่ได้ — <b>ปลอดภัย ถูก Contest ไม่ได้</b> แต่ต้องใช้ <b>Move</b> ออกไปที่ Quest ก่อนถึงจะ Contest ได้' },
+      text: 'ลง Character ไว้ที่นี่ได้ — <b>ถูก Contest ไม่ได้</b> แต่ต้องใช้ <b>Move</b> ออกไปที่ Quest ก่อนถึงจะ Contest ได้ (และ Move <b>ถอยกลับ Backstage</b> ได้)<br><span class="dim">Backstage นับเป็นส่วนหนึ่งของ <b>Play Area</b> — ผลการ์ดบางใบยังโดน Character หลังเวทีได้</span>' },
     { title: 'Quest และ Mana', kind: 'next', hl: () => ['.qslot', '.pinfo-box.me'],
       text: 'Quest 3 ใบอยู่ตรงกลาง แต้มของแต่ละฝ่ายแยกกัน (แถบ<span style="color:var(--me)">ฟ้า</span> = คุณ, แถบ<span style="color:var(--cpu)">ชมพู</span> = CPU) ใครถึง <b>Threshold</b> ก่อนพิชิต Quest<br>วงกลมสีรุ้งคือ <b>Mana หลัก</b> — ใช้จ่ายค่าลงการ์ด ได้เพิ่มทุกเทิร์นและเก็บสะสมได้' },
     { title: 'ทอยลูกเต๋า', startSetup: true, done: E => E.G.rolled,
@@ -5699,7 +5699,7 @@ window.CHAR_ART = {
       allow: { hand: 'MSCGR-021', dest: k => k.startsWith('q:') }, hl: E => [handKey(E, 'MSCGR-021'), '[data-key="zq:0:1"]'],
       text: 'คุณมี Mana <b>2</b> — <b>ลาก PONPON (Cost 1)</b> ไปปล่อยที่ช่อง Characterใต้ Quest ช่องกลาง<br><span class="dim">(หรือคลิกการ์ด → เล่นการ์ดนี้ → คลิกช่อง)</span>' },
     { title: 'Character ที่เพิ่งลงจะเหนื่อย', kind: 'next', hl: E => [mKey(mine(E, 'MSCGR-021'))],
-      text: 'Character ที่เพิ่งลงจะอยู่สถานะ <b>Exhaust</b> — การ์ด<b>ตะแคง</b> สั่งงานไม่ได้จนกว่าจะจบเทิร์นของคุณ' },
+      text: 'Character ที่เพิ่งลงจะอยู่สถานะ <b>Exhaust</b> — การ์ด<b>ตะแคง</b> สั่งงานไม่ได้จนกว่าจะจบเทิร์นของคุณ (ยกเว้นตัวที่มี <b>Rush</b>)<br>การ์ดที่เขียนว่า <b>Debut</b> = ความสามารถทำงาน<b>ตอนลงสนาม</b> (When played)' },
     { title: 'จบเทิร์น', done: E => myTurn(E, 3), allow: { end: true }, hl: () => ['#btn-end'],
       text: 'กด <b>จบเทิร์น</b> → <b>End Phase</b> (ผลช่วงจบเทิร์นทำงาน, Mana ชั่วคราวหาย) แล้วเป็นตา CPU<br>พอวนกลับมาถึงตาคุณ เกมจะทำ <b>Ready Phase</b> (Ponpon ตั้งขึ้น) และ <b>Gathering Phase</b> (Mana +1, จั่ว 1) ให้เอง' },
     { title: 'CPU ลง Lunar มาขวาง!', kind: 'next', hl: E => [mKey(theirs(E, 'MSCRD-006')), mKey(mine(E, 'MSCGR-021'))],
@@ -5715,7 +5715,7 @@ window.CHAR_ART = {
       allow: { hand: 'MSCGR-002', dest: k => k === 'back' }, hl: E => [handKey(E, 'MSCGR-002'), '[data-key="zb:0"]'],
       text: 'ตอนนี้มี Mana 3 (2 − 1 + 2) — <b>ลาก BABII</b> (Cost 2) ไปวางที่ <b>Backstage</b> (แถบหลังเวทีด้านล่าง)' },
     { title: 'จบเทิร์นอีกครั้ง', done: E => myTurn(E, 5), allow: { end: true }, hl: () => ['#btn-end'],
-      text: 'Babii อยู่หลังเวทีอย่างปลอดภัย (ถูก Contest ไม่ได้) — กด <b>จบเทิร์น</b>' },
+      text: 'Babii อยู่หลังเวที (ถูก Contest ไม่ได้) — กด <b>จบเทิร์น</b>' },
     { title: 'CPU เก็บแต้ม Quest', kind: 'next', hl: () => ['.qslot'],
       text: 'CPU ลง <b>DOMIIA</b> ที่มี <b>Rush</b> (ลงแล้วใช้ได้ทันที) แล้ว Contest ใส่ Quest — ดูแถบชมพูที่เพิ่มขึ้น' },
     { title: 'Show — หา Mana เพิ่ม', done: E => E.P(ME).temp >= 2, allow: { mascot: 'MSCGR-002', act: 'show' }, hl: E => [mKey(mine(E, 'MSCGR-002'))],
@@ -5732,15 +5732,19 @@ window.CHAR_ART = {
       text: 'แต้มของคุณขึ้นที่แถบฟ้าแล้ว — กด <b>จบเทิร์น</b>' },
     { title: 'Equipment — แนบกับ Character', done: E => { const p = mine(E, 'MSCGR-001'); return p && p.eq.length > 0; },
       allow: { hand: 'EQPGR-002' }, hl: E => [handKey(E, 'EQPGR-002'), mKey(mine(E, 'MSCGR-001'))],
-      text: '<b>ลาก EQUIPMENT (EQPGR-002)</b> ไปปล่อยบน PONPON — การ์ดจะเสียบอยู่ใต้ Character ให้ +1/+1 และ Hiding' },
+      text: '<b>ลาก EQUIPMENT (EQPGR-002)</b> ไปปล่อยบน PONPON — การ์ดจะเสียบอยู่ใต้ Character ให้ +1/+1 และ <b>Hiding</b><br><b>Hiding</b> = ผลการ์ดของ<b>ฝ่ายตรงข้าม</b>เลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม <b>Contest</b> — ผลการ์ดของเราเองยังเลือกได้' },
     { title: 'Move — ออกจากหลังเวที', done: E => { const m = mine(E, 'MSCGR-002'); return m && typeof m.loc === 'number'; },
       allow: { mascot: 'MSCGR-002', act: 'move' }, hl: E => [mKey(mine(E, 'MSCGR-002')), '[data-key="zq:0:0"]', '[data-key="zq:0:1"]', '[data-key="zq:0:2"]'],
-      text: '<b>ลาก BABII</b> จาก Backstage ไปปล่อยที่<b>ช่อง Character</b>ใต้ Quest ไหนก็ได้ = Move' },
+      text: '<b>ลาก BABII</b> จาก Backstage ไปปล่อยที่<b>ช่อง Character</b>ใต้ Quest ไหนก็ได้ = Move<br><span class="dim">Move ใช้ Action ของ Character (Exhaust) — จะย้ายไป Quest อื่น หรือถอยกลับ Backstage ก็ได้</span>' },
+    { title: 'ทิ้งการ์ดเพื่อรับ Mana', done: (E, t) => t.flags.dmana, allow: { dmana: true }, hl: () => ['#my-hand'],
+      text: 'การ์ดที่ยังไม่ได้ใช้ก็แปลงเป็น Mana ได้! <b>คลิกการ์ดใบไหนก็ได้ในมือ</b> → กด <b>🗑 ทิ้งเพื่อรับ Mana</b><br>การ์ดลงกองทิ้ง แล้วได้ <b>Mana ชั่วคราว +1</b> (หายเมื่อจบเทิร์น) — ทำได้ใน Action Phase ของเรา กี่ครั้งก็ได้' },
     { title: 'เก็บแต้มอีกครั้ง', done: E => ponQuestPts(E) >= 9, allow: { mascot: 'MSCGR-001', act: 'contest', target: k => k.startsWith('q:') },
       hl: E => { const p = mine(E, 'MSCGR-001'); return [mKey(p), p && typeof p.loc === 'number' ? `[data-key="q:${p.loc}"]` : null]; },
       text: 'Ponpon แรงขึ้นเป็น 5 แล้ว — <b>ลาก PONPON Contest Quest</b> อีกครั้ง' },
+    { title: 'กฎสำคัญที่ควรรู้', kind: 'next',
+      text: '• <b>HP</b> หมด = ถูกทำลาย ลงกองทิ้ง<br>• <b>Armor X</b> ลดแต้มที่โดน <b>Deal</b> และ <b>Contest</b> ลง X — แต่ไม่ลดการ<b>เสีย HP โดยตรง</b> (เช่น "lose 2 HP")<br>• <b>Stun</b> = Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ถัดไป<br>• <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน · <b>Splash</b> Contest ทุก Quest · <b>Ranged Attack</b> Contest เป้าหมายใน Quest ข้างเคียงได้<br>• ใน Quest เดียวกัน ฝ่ายเดียวกันมีชื่อซ้ำไม่ได้ · ดูกฎทั้งหมดได้ที่ <b>📖 กติกา</b>' },
     { title: 'จบบทฝึกแล้ว! 🎉', kind: 'finish',
-      text: 'อีกนิดเดียวจะถึง Threshold — เมื่อแต้มถึง คุณจะพิชิต Quest, Character บนนั้นกลับ Backstage และผู้แพ้วาง Quest ใหม่แทน<br><b>สรุป:</b> ลากการ์ดลงสนาม · ลาก Character ไป Contest / Move · คลิกเพื่อ Show · กดค้างดูข้อมูล · จบเทิร์นเพื่อรับ Mana และจั่ว<br>เล่นต่อให้จบเกมได้เลย — ต่อจากนี้ CPU จะเล่นเต็มที่' },
+      text: 'อีกนิดเดียวจะถึง Threshold — เมื่อแต้มถึง คุณจะพิชิต Quest, Character บนนั้นกลับ Backstage และผู้แพ้วาง Quest ใหม่แทน<br><b>สรุป:</b> ลากการ์ดลงสนาม · ลาก Character ไป Contest / Move · คลิกเพื่อ Show · ทิ้งการ์ดเพื่อรับ Mana · กดค้างดูข้อมูล · จบเทิร์นเพื่อรับ Mana และจั่ว<br>เล่นต่อให้จบเกมได้เลย — ต่อจากนี้ CPU จะเล่นเต็มที่' },
   ];
 
   // CPU's scripted turns (by game turn number); afterwards the normal AI takes over
@@ -5784,6 +5788,7 @@ window.CHAR_ART = {
     t.allowMascot = (code, act) => !t.active || (allow().mascot === code && allow().act === act);
     t.filterTargets = keys => (!t.active || !allow().target ? keys : keys.filter(allow().target));
     t.allowEnd = () => !t.active || !!allow().end;
+    t.allowDiscard = () => !t.active || !!allow().dmana; // v4.1.13
     t.cpuTurn = E => (t.active ? CPU_SCRIPT[E.G.turn] : null);
 
     // called after every board render and on a timer: check progress, re-apply highlights
@@ -6506,13 +6511,13 @@ window.CHAR_ART = {
   // ---------------------------------------------------------------- big card info (long-press / right-click)
   const KW_TH = {
     Guard: 'ฝ่ายตรงข้ามต้อง Contest Character ตัวนี้ก่อน ถ้าทำได้',
-    Armor: 'เสีย HP น้อยลงตามตัวเลข ทุกครั้งที่โดน',
+    Armor: 'ลดแต้มที่โดน Deal และ Contest ลงตามตัวเลข (ไม่ลดการเสีย HP โดยตรง)',
     Splash: 'Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้ามอยู่ Guard จะรับแต้มแทน Quest',
     Stun: 'Character ที่ถูก Stun จะตะแคงและไม่ Ready ใน Ready Phase ครั้งถัดไป',
     Rush: 'ลงมาแล้วพร้อมใช้ทันที และ Move ไม่ทำให้ Exhaust — แต่ Move ได้ครั้งเดียวต่อเทิร์น (หลัง Move ยัง Contest/Show ได้)',
     Hiding: 'ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ (ยกเว้นถูก Character ฝ่ายตรงข้าม Contest)',
     Breakthrough: 'Contest Character แล้วได้แต้มที่ Quest ด้วย',
-    'Range Attack': 'Contest เป้าหมายใน Quest ที่อยู่ติดกันได้',
+    'Ranged Attack': 'Contest เป้าหมายใน Quest ที่อยู่ติดกันได้',
     Regenarate: 'ฟื้น HP เต็มเมื่อจบเทิร์น', Regenerate: 'ฟื้น HP เต็มเมื่อจบเทิร์น',
   };
   function closeInfo() { const el = $('info'); el.classList.remove('on'); el.innerHTML = ''; infoNav = null; }
@@ -6544,7 +6549,7 @@ window.CHAR_ART = {
       : big;
     const nav = s.list.length > 1 ? `<div class="inav"><button class="btn sm" data-prev>◀</button><span>${s.idx + 1} / ${s.list.length}${attached ? (s.idx === 0 ? ' · ตัวหลัก' : ' · การ์ดที่แนบอยู่') : ''}</span><button class="btn sm" data-next>▶</button></div>` : '';
     const kws = Object.keys(KW_TH).filter(k => (c.text || '').includes(k));
-    if (r.m && E) GQ.KW_LIST.forEach(k => { const K = { guard: 'Guard', splash: 'Splash', rush: 'Rush', hiding: 'Hiding', breakthrough: 'Breakthrough', range: 'Range Attack', regen: 'Regenerate' }[k]; if (E.has(r.m, k) && !kws.includes(K)) kws.push(K); });
+    if (r.m && E) GQ.KW_LIST.forEach(k => { const K = { guard: 'Guard', splash: 'Splash', rush: 'Rush', hiding: 'Hiding', breakthrough: 'Breakthrough', range: 'Ranged Attack', regen: 'Regenerate' }[k]; if (E.has(r.m, k) && !kws.includes(K)) kws.push(K); });
     const stats = c.type === 'Mascot'
       ? `<div class="ibig"><span><small>Cost</small><b>${c.cost}</b></span>${/ - /.test(c.stat) ? `<span><small>✊ / ❤ (เลือกตอนลง)</small><b>${esc(c.stat)}</b></span>` : `<span><small>✊ Contest Power</small><b>${c.stat.split('/')[0]}</b></span><span><small>❤ HP</small><b>${c.stat.split('/')[1]}</b></span>`}<span><small>Cuddliness</small><b>${c.cud}</b></span></div>`
       : c.type === 'Quest' ? `<div class="ibig"><span><small>Threshold</small><b>${c.threshold}</b></span></div>`
@@ -6612,11 +6617,11 @@ window.CHAR_ART = {
     menu.innerHTML = `<div class="t">${esc(cardTitle(d))} <span class="dim">${d.code}</span></div>
       <div class="r">${GQ.TYPE_TH[d.type]} · ค่าใช้ ${cost} Mana${emp.length ? ` · Empower ได้ (${emp.map(m => 'จ่าย ' + E.costOf(ME, card, m)).join(', ')})` : ''}</div>
       ${dests.length ? `<button class="btn primary" data-act="play">▶ เล่นการ์ดนี้</button><div class="r">หรือลากการ์ดไปวางบนกระดานได้เลย</div>` : `<div class="r" style="color:#c0143c">${reason}</div>`}
-      ${myIdle() && !ui.tut ? `<button class="btn sm" data-act="dmana" title="ทิ้งการ์ดใบนี้ลงกองทิ้ง แล้วได้ Mana ชั่วคราว 1 (หายเมื่อจบเทิร์น)">🗑 ทิ้งเพื่อรับ Mana (+1 ชั่วคราว)</button>` : ''}
+      ${myIdle() && (!ui.tut || ui.tut.allowDiscard()) ? `<button class="btn sm" data-act="dmana" title="ทิ้งการ์ดใบนี้ลงกองทิ้ง แล้วได้ Mana ชั่วคราว 1 (หายเมื่อจบเทิร์น)">🗑 ทิ้งเพื่อรับ Mana (+1 ชั่วคราว)</button>` : ''}
       <button class="btn sm" data-act="view">🔍 ดูข้อมูลการ์ด</button>`;
     menu.querySelector('[data-act="view"]').onclick = () => { closeMenu(); openInfo({ code: card.code, hand: card }); };
     const dm = menu.querySelector('[data-act="dmana"]');
-    if (dm) dm.onclick = () => { closeMenu(); doEngine(() => ACT.discardMana(uid)); };
+    if (dm) dm.onclick = () => { closeMenu(); if (ui.tut) ui.tut.event('dmana'); doEngine(() => ACT.discardMana(uid)); };
     const pb = menu.querySelector('[data-act="play"]');
     if (pb) pb.onclick = () => {
       closeMenu();
@@ -7783,7 +7788,7 @@ window.CHAR_ART = {
       • <kbd>Contest</kbd> วางแต้ม Contest เท่า Contest Power ใส่ Character ฝ่ายตรงข้าม 1 ตัวใน Quest เดียวกัน หรือใส่ Quest ที่ยืนอยู่ (แต้มบน Quest ของแต่ละฝ่ายแยกกัน)<br>
       • <kbd>Move</kbd> ย้ายไป Quest อื่น 1 ใบบน Play Area หรือ<b>ถอยกลับ Backstage ของเจ้าของ</b> (ใหม่ v4.1.3 — เดิมทำไม่ได้; ต้อง Ready และจะ Exhaust เหมือน Move ปกติ)<br>
       • <kbd>Show</kbd> ได้ Mana <b>ชั่วคราว</b>เท่า Cuddliness ใช้ได้เฉพาะเทิร์นนี้ (หายเมื่อจบเทิร์น)</div>
-    <h3>🗑 ทิ้งการ์ดเพื่อรับ Mana (กฎทดลอง v4.0.2)</h3><div class="box">• ใน <b>Action Phase</b> ของเรา ทิ้งการ์ดใบใดก็ได้จากมือลงกองทิ้ง เพื่อรับ <b>Mana ชั่วคราว 1</b> (1 ใบ = 1 Mana)<br>
+    <h3>🗑 ทิ้งการ์ดเพื่อรับ Mana</h3><div class="box">• ใน <b>Action Phase</b> ของเรา ทิ้งการ์ดใบใดก็ได้จากมือลงกองทิ้ง เพื่อรับ <b>Mana ชั่วคราว 1</b> (1 ใบ = 1 Mana)<br>
       • ทำกี่ครั้งก็ได้ในเทิร์น · ไม่ใช่ Action ของ Character (ไม่ต้อง Exhaust ใคร)<br>
       • Mana ชั่วคราวหายเมื่อจบเทิร์น เหมือน Mana จาก Show<br>
       • ในเกม: คลิกการ์ดในมือ → ปุ่ม <kbd>🗑 ทิ้งเพื่อรับ Mana</kbd></div>
@@ -7804,7 +7809,7 @@ window.CHAR_ART = {
     <h3>Backstage</h3><div class="box">• พื้นที่หน้าผู้เล่นที่ลง Character ได้<br>• เมื่อ Quest ถูกพิชิต Character ทุกตัวบน Quest นั้นย้ายมา Backstage ของเจ้าของอัตโนมัติ<br>• Move จาก Quest กลับมา Backstage ได้ (v4.1.3) · Move จาก Backstage เพื่อออกไป Quest<br>• Character ใน Backstage ถูก Contest ไม่ได้</div>
     <h3>ทอยลูกเต๋าในการ์ด</h3><div class="box">การ์ดที่เขียนว่า <b>Roll d6</b> ระบบจะทอยให้และแสดงผลกลางจอ (เช่น จั่ว/ได้ Mana เท่าครึ่งหนึ่งของแต้มที่ทอย <b>ปัดขึ้น</b>)</div>
     <h3>คำสำคัญ</h3><div class="box">
-      <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน ถ้าทำได้ · <b>Armor X</b> เสีย HP น้อยลง · <b>Splash</b> Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้าม Guard จะรับแทน · <b>Rush</b> ลงมา/Move ได้โดยไม่ Exhaust แต่ <b>Move ได้ครั้งเดียวต่อเทิร์น</b> (หลัง Move ยัง Contest/Show ได้ตามปกติ · การถูกย้ายโดยผลการ์ดไม่นับ) · <b>Hiding</b> ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม Contest · <b>Breakthrough</b> Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว · <b>Range Attack</b> Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน · <b>Regenerate</b> ฟื้น HP เต็มเมื่อจบเทิร์น · <b>Stun</b> Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ครั้งถัดไป · <b>Gain control</b> ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา<br>
+      <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน ถ้าทำได้ · <b>Armor X</b> ลดแต้มที่โดน Deal/Contest ลง X (ไม่ลดการเสีย HP โดยตรง) · <b>Splash</b> Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้าม Guard จะรับแทน · <b>Rush</b> ลงมา/Move ได้โดยไม่ Exhaust แต่ <b>Move ได้ครั้งเดียวต่อเทิร์น</b> (หลัง Move ยัง Contest/Show ได้ตามปกติ · การถูกย้ายโดยผลการ์ดไม่นับ) · <b>Hiding</b> ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม Contest · <b>Breakthrough</b> Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว · <b>Ranged Attack</b> Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน · <b>Regenerate</b> ฟื้น HP เต็มเมื่อจบเทิร์น · <b>Stun</b> Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ครั้งถัดไป · <b>Gain control</b> ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา<br>
       <b>When played</b> เกิดผลทันทีที่ลงการ์ด · <b>Whenever …</b> เกิดผลทุกครั้งที่เงื่อนไขเกิด · <b>End turn / At the end of your turn</b> เกิดผลใน End Phase ของเรา · <b>Play … for free</b> เล่นโดยไม่จ่าย Mana</div>
     <h3>⚡ ความสามารถทำงานเมื่อไร</h3><div class="box">ทุกครั้งที่ความสามารถของการ์ดทำงาน จะมีสัญลักษณ์ <b>⚡</b> เด้งเหนือการ์ด พร้อมบรรทัดสีเหลืองในบันทึกเกม — ถ้าไม่เห็น ⚡ แปลว่าเงื่อนไขยังไม่ครบ (เช่น Rexxa ต้อง Contest <i>Quest</i> ถึงจะจั่ว)</div>
     <h3>วิธีเล่นในเกมนี้</h3><div class="box"><b>ลากวาง</b>การ์ดจากมือไปยังช่องที่ไฮไลต์ (Backstage / ช่องใต้ Quest / Character ชื่อเดียวกันเพื่อ Empower / Character เพื่อติด Equipment / Quest เพื่อวาง Artifact) หรือคลิกการ์ด → <kbd>เล่นการ์ดนี้</kbd> แล้วคลิกที่วาง · <b>ลาก Character</b> ที่พร้อม (กรอบเขียว) ไปที่ศัตรูหรือ Quest เพื่อ Contest หรือไปที่ช่องของ Quest อื่นเพื่อ Move (หรือคลิกเพื่อเลือก Contest / Move / Show) · <b>กดค้าง</b>ที่การ์ด (หรือคลิกขวา) เพื่อเปิดหน้าข้อมูลการ์ดใหญ่ · กด <kbd>จบเทิร์น</kbd> หรือ <kbd>Enter</kbd> เมื่อเสร็จ</div>`;
