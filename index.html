@@ -384,6 +384,19 @@ button { font-family: inherit; }
 .mstack.tgt > .card.main { box-shadow: 0 0 0 3px #ffcf3f, 0 0 18px 4px rgba(255, 200, 0, .85); animation: pulse 1s ease-in-out infinite; }
 .mstack.dragging, .hslot.dragging { opacity: .35; }
 .zone.mz { --w: var(--cw); }
+/* v4.1.15: 2 fixed Character slots per side per Quest */
+.zone.mz { gap: 8px; }
+@media (max-width: 900px) { .zone.mz { gap: 3px; padding: 2px; } .cslot .ph { font-size: 8px; } .cslot { border-radius: 6px; } }
+.cslot { position: relative; flex: none; width: min(var(--w), calc(50% - 6px)); aspect-ratio: 63 / 88; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+.cslot.empty { border: 2px dashed rgba(38,42,122,.38); background: rgba(255,255,255,.28); }
+.cslot.filled { border: 2px solid transparent; }
+.cslot > .mstack { width: 100%; }
+.cslot .ph { font-size: 10px; font-weight: 700; color: rgba(38,42,122,.45); text-align: center; pointer-events: none; line-height: 1.1; padding: 2px; }
+.zone.tgt .cslot.empty { border-color: rgba(255,170,0,.8); }
+.cslot.free { border: 3px solid #ffb800 !important; background: rgba(255,220,90,.6) !important; box-shadow: 0 0 14px rgba(255,180,0,.9); animation: slotpulse 1.1s ease-in-out infinite; }
+.cslot.free .ph { color: #7a4a00; }
+@keyframes slotpulse { 50% { box-shadow: 0 0 4px rgba(255,180,0,.4); } }
+.zone.mz.full-side { box-shadow: inset 0 0 0 2px rgba(220,60,80,.25); }
 .zone.back { --w: calc(var(--cw) * .66); }
 .zone .mstack + .mstack { margin-left: min(4px, calc((100% - 10px - var(--n) * var(--w)) / (var(--n) - 1))); }
 .zone.back > .lbl { top: 3px; }
@@ -878,7 +891,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.14';
+window.GQ_VERSION = '4.1.15';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -5677,7 +5690,7 @@ window.CHAR_ART = {
       text: 'บทฝึกนี้จะพาเล่นจริงทีละขั้นกับ CPU<br><b>เป้าหมาย:</b> พิชิต Quest ให้ครบ <b>3 ใบ</b> ก่อน — หรือทำให้ Deck ฝ่ายตรงข้ามหมด' },
     { title: 'สนามเล่น — Deck และกองทิ้ง', kind: 'next', hl: () => ['[data-key="pile:deck:0"]', '[data-key="pile:disc:0"]'],
       text: 'ฝั่ง<b>ล่าง</b>คือของคุณ ฝั่งบนคือ CPU<br><b>Deck</b> กองการ์ดหลัก — ถ้า Deck เหลือ 0 ใบ = แพ้ทันที<br><b>กองทิ้ง</b> การ์ดที่ใช้แล้วหรือถูกทำลาย' },
-    { title: 'ช่อง Character', kind: 'next', hl: () => ['[data-key="zq:0:0"]', '[data-key="zq:0:1"]', '[data-key="zq:0:2"]'],
+    { title: 'ช่อง Character', kind: 'next', hl: () => ['[data-key="zq:0:0"]', '[data-key="zq:0:1"]', '[data-key="zq:0:2"]', '.zone.mz .cslot'],
       text: 'Character ที่ลงในช่องใต้ Quest ไหน จะแข่ง (<b>Contest</b>) ใน Quest นั้น<br>ใน Quest เดียวกัน แต่ละฝ่ายมี Character ได้<b>ไม่เกิน 2 ตัว</b> และ<b>ชื่อซ้ำกันไม่ได้</b> (Backstage ไม่จำกัด · Empower วางทับไม่นับเพิ่ม)' },
     { title: 'หลังเวที — Backstage', kind: 'next', hl: () => ['[data-key="zb:0"]'],
       text: 'ลง Character ไว้ที่นี่ได้ — <b>ถูก Contest ไม่ได้</b> แต่ต้องใช้ <b>Move</b> ออกไปที่ Quest ก่อนถึงจะ Contest ได้ (และ Move <b>ถอยกลับ Backstage</b> ได้)<br><span class="dim">Backstage นับเป็นส่วนหนึ่งของ <b>Play Area</b> — ผลการ์ดบางใบยังโดน Character หลังเวทีได้</span>' },
@@ -5696,7 +5709,7 @@ window.CHAR_ART = {
     { title: 'อ่านข้อมูลการ์ด', done: () => !$('info').classList.contains('on'),
       text: 'หน้านี้มีค่าพลัง ความสามารถ และคำอธิบายคำสำคัญ ใช้ได้กับการ์ดทุกใบตลอดเกม<br>อ่านเสร็จ <b>คลิกที่ว่างหรือปุ่มปิด</b>' },
     { title: 'ลง Character ตัวแรก', done: E => { const m = mine(E, 'MSCGR-021'); return m && typeof m.loc === 'number'; },
-      allow: { hand: 'MSCGR-021', dest: k => k.startsWith('q:') }, hl: E => [handKey(E, 'MSCGR-021'), '[data-key="zq:0:1"]'],
+      allow: { hand: 'MSCGR-021', dest: k => k.startsWith('q:') }, hl: E => [handKey(E, 'MSCGR-021'), '[data-key="zq:0:1"]', '[data-key="zq:0:1"] .cslot.empty'],
       text: 'คุณมี Mana <b>2</b> — <b>ลาก PONPON (Cost 1)</b> ไปปล่อยที่ช่อง Characterใต้ Quest ช่องกลาง<br><span class="dim">(หรือคลิกการ์ด → เล่นการ์ดนี้ → คลิกช่อง)</span>' },
     { title: 'Character ที่เพิ่งลงจะเหนื่อย', kind: 'next', hl: E => [mKey(mine(E, 'MSCGR-021'))],
       text: 'Character ที่เพิ่งลงจะอยู่สถานะ <b>Exhaust</b> — การ์ด<b>ตะแคง</b> สั่งงานไม่ได้จนกว่าจะจบเทิร์นของคุณ (ยกเว้นตัวที่มี <b>Rush</b>)<br>การ์ดที่เขียนว่า <b>Debut</b> = ความสามารถทำงาน<b>ตอนลงสนาม</b> (When played)' },
@@ -5734,7 +5747,7 @@ window.CHAR_ART = {
       allow: { hand: 'EQPGR-002' }, hl: E => [handKey(E, 'EQPGR-002'), mKey(mine(E, 'MSCGR-001'))],
       text: '<b>ลาก EQUIPMENT (EQPGR-002)</b> ไปปล่อยบน PONPON — การ์ดจะเสียบอยู่ใต้ Character ให้ +1/+1 และ <b>Hiding</b><br><b>Hiding</b> = ผลการ์ดของ<b>ฝ่ายตรงข้าม</b>เลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม <b>Contest</b> — ผลการ์ดของเราเองยังเลือกได้' },
     { title: 'Move — ออกจากหลังเวที', done: E => { const m = mine(E, 'MSCGR-002'); return m && typeof m.loc === 'number'; },
-      allow: { mascot: 'MSCGR-002', act: 'move' }, hl: E => [mKey(mine(E, 'MSCGR-002')), '[data-key="zq:0:0"]', '[data-key="zq:0:1"]', '[data-key="zq:0:2"]'],
+      allow: { mascot: 'MSCGR-002', act: 'move' }, hl: E => [mKey(mine(E, 'MSCGR-002')), '[data-key="zq:0:0"]', '[data-key="zq:0:1"]', '[data-key="zq:0:2"]', '.zone.mz.me .cslot.empty'],
       text: '<b>ลาก BABII</b> จาก Backstage ไปปล่อยที่<b>ช่อง Character</b>ใต้ Quest ไหนก็ได้ = Move<br><span class="dim">Move ใช้ Action ของ Character (Exhaust) — จะย้ายไป Quest อื่น หรือถอยกลับ Backstage ก็ได้</span>' },
     { title: 'ทิ้งการ์ดเพื่อรับ Mana', done: (E, t) => t.flags.dmana, allow: { dmana: true }, hl: () => ['#my-hand'],
       text: 'การ์ดที่ยังไม่ได้ใช้ก็แปลงเป็น Mana ได้! <b>คลิกการ์ดใบไหนก็ได้ในมือ</b> → กด <b>🗑 ทิ้งเพื่อรับ Mana</b><br>การ์ดลงกองทิ้ง แล้วได้ <b>Mana ชั่วคราว +1</b> (หายเมื่อจบเทิร์น) — ทำได้ใน Action Phase ของเรา กี่ครั้งก็ได้' },
@@ -6283,11 +6296,22 @@ window.CHAR_ART = {
       const stun = m.stunned ? `<div class="stun-badge" title="Stun: ไม่ Ready ใน Ready Phase ถัดไปของ ${esc(E.P(m.ctrl).name)} (เหลือ 1 ครั้ง)">💫 STUN <small>×1</small></div><div class="stun-tint"></div>` : '';
       return `<div class="${cls}" data-key="${key}">${eqs}${cov}${R.card(m.code, { m, E, cls: 'main' })}${shown}${stun}</div>`;
     };
+    // v4.1.15: exactly G.cap (2) visible slots per side per Quest; empty ones are outlined placeholders
+    const slots = (pi, qi, ms, hl) => {
+      const n = Math.max(G.cap || 2, ms.length); let out = '', freeMarked = false;
+      for (let i = 0; i < n; i++) {
+        const m = ms[i];
+        if (m) { out += `<div class="cslot filled" data-slot="${i}">${mstack(m)}</div>`; continue; }
+        const nextFree = hl && !freeMarked; if (nextFree) freeMarked = true;
+        out += `<div class="cslot empty ${nextFree ? 'free' : ''}" data-slot="${i}"><span class="ph">${nextFree ? '⬇ วางที่นี่' : 'ช่อง ' + (i + 1)}</span></div>`;
+      }
+      return out;
+    };
     const zone = (pi, qi) => {
       const ms = G.field.filter(m => m.ctrl === pi && m.loc === qi);
       const hl = pi === ME && T && T.dest && isT('q:' + qi);
       return `<div class="zone mz ${pi === ME ? 'me' : 'opp'} ${hl ? 'tgt' : ''}" style="grid-area:${pi === ME ? 'mz' : 'oz'}${qi};--n:${Math.max(1, ms.length)}" data-key="zq:${pi}:${qi}">
-        <span class="lbl">Character ${qi + 1}</span>${ms.map(mstack).join('')}</div>`;
+        <span class="lbl">Character ${qi + 1}</span>${slots(pi, qi, ms, hl)}</div>`;
     };
     const back = pi => {
       const ms = G.field.filter(m => m.ctrl === pi && m.loc === 'back');
