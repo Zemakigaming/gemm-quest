@@ -800,7 +800,7 @@ button { font-family: inherit; }
       <h3>คู่ต่อสู้ (CPU)</h3>
       <div class="deck-pick" id="pick-cpu"></div>
       <div class="ai-level" style="margin:10px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>ระดับความยากของ CPU:</b> <button class="chip" data-ailv="easy">ง่าย</button><button class="chip" data-ailv="normal">ปกติ</button><button class="chip" data-ailv="hard">ยาก</button><small class="dim">ยาก = คำนวณป้องกัน/ขัดขวาง และมองล่วงหน้า</small></div>
-      <div class="cap-rule" style="margin:4px 0 10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>กฎทดลอง:</b> <button class="chip" data-cap2>จำกัด 2 ตัว/Quest</button><small class="dim">Character ฝ่ายละไม่เกิน 2 ตัวต่อ 1 Quest (ใช้กับโหมดออนไลน์ตามเครื่องเจ้าของห้อง)</small></div>
+      <div class="cap-rule dim" style="margin:4px 0 10px"><small>กฎ: Character ฝ่ายละไม่เกิน <b>2 ตัว</b> ต่อ 1 Quest (Backstage ไม่จำกัด)</small></div>
     </div>
   </div>
   <div class="setup-go"><button class="btn big primary" id="btn-start">เริ่มเกม ▶</button></div>
@@ -878,7 +878,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.13';
+window.GQ_VERSION = '4.1.14';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -3276,7 +3276,7 @@ window.CHAR_ART = {
   // image path -> embedded data URI in the single-file build, otherwise the path itself
   const asset = p => (window.ASSET_DATA && window.ASSET_DATA[p]) || p;
 
-  window.GQ = { DECK_ALIAS, resolveDeckId, ELEMENTS, EL_ORDER, TYPE_TH, TYPE_LABEL, termFix, TYPE_ORDER, ART, DB, cardTitle, shuffle, validateDeck, STARTERS, ORIG_STARTERS, PAIR_DECKS, TRI_DECKS, PRESETS, randomPreset, capOn: () => { try { return localStorage.getItem('gemmquest.cap2') !== '0'; } catch (e) { return true; } }, RANDOM_LABEL, NOTES, loadDecks, saveDecks, esc, sleep, asset, DECK_MIN, DECK_MAX, deckToCode, deckFromAny, downloadText };
+  window.GQ = { DECK_ALIAS, resolveDeckId, ELEMENTS, EL_ORDER, TYPE_TH, TYPE_LABEL, termFix, TYPE_ORDER, ART, DB, cardTitle, shuffle, validateDeck, STARTERS, ORIG_STARTERS, PAIR_DECKS, TRI_DECKS, PRESETS, randomPreset, capOn: () => true, /* v4.1.14: core rule, always on */ RANDOM_LABEL, NOTES, loadDecks, saveDecks, esc, sleep, asset, DECK_MIN, DECK_MAX, deckToCode, deckFromAny, downloadText };
 })();
 
 </script>
@@ -4073,7 +4073,7 @@ window.CHAR_ART = {
       this.onFx = opts.onFx || (() => {});
       this.uidN = 1;
       const G = this.G = {
-        cap: opts.cap == null ? 2 : opts.cap, // v4.1.1 experimental: max Characters per player on one Quest (0 = off)
+        cap: 2, // v4.1.14 core rule: max 2 Characters per side on one Quest (always on)
         p: [0, 1].map(i => ({
           idx: i, name: opts.names[i], ai: !!opts.ai[i], el: opts.decks[i].el,
           deck: (opts.fixedOrder ? (x => x) : shuffle)(opts.decks[i].cards.map(code => this.inst(code))),
@@ -5678,7 +5678,7 @@ window.CHAR_ART = {
     { title: 'สนามเล่น — Deck และกองทิ้ง', kind: 'next', hl: () => ['[data-key="pile:deck:0"]', '[data-key="pile:disc:0"]'],
       text: 'ฝั่ง<b>ล่าง</b>คือของคุณ ฝั่งบนคือ CPU<br><b>Deck</b> กองการ์ดหลัก — ถ้า Deck เหลือ 0 ใบ = แพ้ทันที<br><b>กองทิ้ง</b> การ์ดที่ใช้แล้วหรือถูกทำลาย' },
     { title: 'ช่อง Character', kind: 'next', hl: () => ['[data-key="zq:0:0"]', '[data-key="zq:0:1"]', '[data-key="zq:0:2"]'],
-      text: 'Character ที่ลงในช่องใต้ Quest ไหน จะแข่ง (<b>Contest</b>) ใน Quest นั้น<br>ใน Quest เดียวกัน ฝ่ายเดียวกันมี Character <b>ชื่อซ้ำกันไม่ได้</b>' },
+      text: 'Character ที่ลงในช่องใต้ Quest ไหน จะแข่ง (<b>Contest</b>) ใน Quest นั้น<br>ใน Quest เดียวกัน แต่ละฝ่ายมี Character ได้<b>ไม่เกิน 2 ตัว</b> และ<b>ชื่อซ้ำกันไม่ได้</b> (Backstage ไม่จำกัด · Empower วางทับไม่นับเพิ่ม)' },
     { title: 'หลังเวที — Backstage', kind: 'next', hl: () => ['[data-key="zb:0"]'],
       text: 'ลง Character ไว้ที่นี่ได้ — <b>ถูก Contest ไม่ได้</b> แต่ต้องใช้ <b>Move</b> ออกไปที่ Quest ก่อนถึงจะ Contest ได้ (และ Move <b>ถอยกลับ Backstage</b> ได้)<br><span class="dim">Backstage นับเป็นส่วนหนึ่งของ <b>Play Area</b> — ผลการ์ดบางใบยังโดน Character หลังเวทีได้</span>' },
     { title: 'Quest และ Mana', kind: 'next', hl: () => ['.qslot', '.pinfo-box.me'],
@@ -5742,7 +5742,7 @@ window.CHAR_ART = {
       hl: E => { const p = mine(E, 'MSCGR-001'); return [mKey(p), p && typeof p.loc === 'number' ? `[data-key="q:${p.loc}"]` : null]; },
       text: 'Ponpon แรงขึ้นเป็น 5 แล้ว — <b>ลาก PONPON Contest Quest</b> อีกครั้ง' },
     { title: 'กฎสำคัญที่ควรรู้', kind: 'next',
-      text: '• <b>HP</b> หมด = ถูกทำลาย ลงกองทิ้ง<br>• <b>Armor X</b> ลดแต้มที่โดน <b>Deal</b> และ <b>Contest</b> ลง X — แต่ไม่ลดการ<b>เสีย HP โดยตรง</b> (เช่น "lose 2 HP")<br>• <b>Stun</b> = Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ถัดไป<br>• <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน · <b>Splash</b> Contest ทุก Quest · <b>Ranged Attack</b> Contest เป้าหมายใน Quest ข้างเคียงได้<br>• ใน Quest เดียวกัน ฝ่ายเดียวกันมีชื่อซ้ำไม่ได้ · ดูกฎทั้งหมดได้ที่ <b>📖 กติกา</b>' },
+      text: '• <b>HP</b> หมด = ถูกทำลาย ลงกองทิ้ง<br>• <b>Armor X</b> ลดแต้มที่โดน <b>Deal</b> และ <b>Contest</b> ลง X — แต่ไม่ลดการ<b>เสีย HP โดยตรง</b> (เช่น "lose 2 HP")<br>• <b>Stun</b> = Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ถัดไป<br>• <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน · <b>Splash</b> Contest ทุก Quest · <b>Ranged Attack</b> Contest เป้าหมายใน Quest ข้างเคียงได้<br>• Quest ละ<b>ไม่เกิน 2 ตัว/ฝ่าย</b> และชื่อซ้ำไม่ได้ · ดูกฎทั้งหมดได้ที่ <b>📖 กติกา</b>' },
     { title: 'จบบทฝึกแล้ว! 🎉', kind: 'finish',
       text: 'อีกนิดเดียวจะถึง Threshold — เมื่อแต้มถึง คุณจะพิชิต Quest, Character บนนั้นกลับ Backstage และผู้แพ้วาง Quest ใหม่แทน<br><b>สรุป:</b> ลากการ์ดลงสนาม · ลาก Character ไป Contest / Move · คลิกเพื่อ Show · ทิ้งการ์ดเพื่อรับ Mana · กดค้างดูข้อมูล · จบเทิร์นเพื่อรับ Mana และจั่ว<br>เล่นต่อให้จบเกมได้เลย — ต่อจากนี้ CPU จะเล่นเต็มที่' },
   ];
@@ -5915,7 +5915,7 @@ window.CHAR_ART = {
 
     const names = opts.names || (opts.spectate ? ['CPU ล่าง', 'CPU บน'] : ['คุณ', 'CPU']);
     H = new Engine({
-      fixedOrder: !!tut, rolls: tut ? [4] : null, names, decks: [myDeck, cpuDeck], cap: tut ? 0 : (opts.cap != null ? opts.cap : (GQ.capOn() ? 2 : 0)),
+      fixedOrder: !!tut, rolls: tut ? [4] : null, names, decks: [myDeck, cpuDeck], cap: 2,
       ai: mode === 'single' ? [!!opts.spectate, true] : [false, false],
       ask: askHandler, onUpdate: scheduleRender,
       onFx: f => { ui.fxq.push(f); if (ui.mode === 'host') ui.netFx.push({ ...f, cls: flipPts(f.cls), key: (f.key || '').startsWith('mana:') ? 'mana:' + (1 - +f.key.slice(5)) : f.key }); },
@@ -6760,6 +6760,21 @@ window.CHAR_ART = {
     }
     e.preventDefault();
   }
+  // v4.1.14: explain why a Character drop onto a Quest was refused (2-per-side limit / duplicate name / Artifact)
+  function capWarn(dkey, keys) {
+    try {
+      if (!E || !dkey || !/^[hm]:/.test(dkey)) return;
+      const k = (keys || []).find(k => /^q:\d$/.test(k) || /^zq:\d:\d$/.test(k)); if (!k) return;
+      const qi = +k.split(':').pop(); const u = +dkey.slice(2);
+      const x = dkey[0] === 'm' ? E.byUid(u) : E.P(ME).hand.find(c => c.uid === u);
+      if (!x || E.def(x).type !== 'Mascot' || x.loc === qi) return;
+      const r = E.enterReason(x, qi, ME); if (!r) return;
+      let t = document.getElementById('cap-warn');
+      if (!t) { t = document.createElement('div'); t.id = 'cap-warn'; t.style.cssText = 'position:fixed;left:50%;top:18%;transform:translateX(-50%);z-index:9999;background:rgba(150,10,30,.95);color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.4);pointer-events:none'; document.body.appendChild(t); }
+      t.textContent = '🚫 ไปไม่ได้: ' + r; t.style.display = 'block';
+      clearTimeout(t._h); t._h = setTimeout(() => { t.style.display = 'none'; }, 2600);
+    } catch (e) { /* ignore */ }
+  }
   function onUp(e) {
     if (!ptr) return;
     clearTimeout(ptr.timer);
@@ -6769,9 +6784,10 @@ window.CHAR_ART = {
       suppressClick = true; setTimeout(() => { suppressClick = false; }, 0);
       p.ghost.remove();
       const { keys, overBoard } = keysAt(e.clientX, e.clientY);
+      const dkey = ui.drag && ui.drag.key;
       const act = p.drag.drop(keys, overBoard);
       ui.drag = null;
-      if (act) doEngine(act); else render();
+      if (act) doEngine(act); else { render(); capWarn(dkey, keys); }
     }
   }
 
@@ -7469,7 +7485,6 @@ window.CHAR_ART = {
       decks.map(d => deckTile(d, d.id === setup.cpu, 'cpu')).join('');
     document.querySelectorAll('[data-me]').forEach(x => x.onclick = () => { if (x.classList.contains('bad')) return; setup.me = x.dataset.me; renderSetup(); });
     document.querySelectorAll('[data-cpu]').forEach(x => x.onclick = () => { if (x.classList.contains('bad')) return; setup.cpu = x.dataset.cpu; renderSetup(); });
-    document.querySelectorAll('[data-cap2]').forEach(x => { x.classList.toggle('on', GQ.capOn()); x.textContent = 'จำกัด 2 ตัว/Quest: ' + (GQ.capOn() ? 'เปิด' : 'ปิด'); x.onclick = () => { try { localStorage.setItem('gemmquest.cap2', GQ.capOn() ? '0' : '1'); } catch (e) {} renderSetup(); }; });
     document.querySelectorAll('[data-ailv]').forEach(x => { x.classList.toggle('on', x.dataset.ailv === AI.getLevel()); x.onclick = () => { AI.setLevel(x.dataset.ailv); renderSetup(); }; });
   }
   function startGame() {
@@ -7800,16 +7815,16 @@ window.CHAR_ART = {
       • ถ้าใบที่โดนทับ Ready อยู่ ใบที่ลงมา Empower ก็ Ready ด้วย</div>
     <h3>กฎชื่อซ้ำบน Quest (v4.1.3)</h3><div class="box">• ผู้เล่นคนหนึ่งมี Character <b>ชื่อหลักเดียวกัน</b>บน Quest เดียวกันได้ไม่เกิน 1 ตัว (นับแยกฝ่าย — ฝ่ายตรงข้ามมีชื่อเดียวกันได้)<br>
       • ใช้กับการลงการ์ด, Move และผลการ์ดทุกแบบ · ถูกบังคับย้ายไปที่ชื่อซ้ำ → ไป <b>Backstage</b> แทน · ยึดการควบคุม (Jewel) ตัวที่ชื่อซ้ำ → ไป Backstage<br>
-      • <b>Empower</b> (วางทับตัวชื่อเดียวกัน) ยังทำได้ เพราะเป็นการแทนที่ · กฎนี้เปิดเสมอ (ไม่ขึ้นกับปุ่มจำกัด 2 ตัว)</div>
-    <h3>🧪 กฎทดลอง v4.1.1 — จำกัด 2 ตัว/Quest</h3><div class="box">• แต่ละ Quest มี Character ได้<b>ฝ่ายละไม่เกิน 2 ตัว</b> (Backstage ไม่จำกัด) — ตัวเลข <b>n/2</b> ที่มุม Quest บอกจำนวนของแต่ละฝ่าย<br>
+      • <b>Empower</b> (วางทับตัวชื่อเดียวกัน) ยังทำได้ เพราะเป็นการแทนที่ · กฎนี้เปิดเสมอ</div>
+    <h3>จำกัด 2 ตัว/ฝ่าย ต่อ Quest</h3><div class="box">• แต่ละ Quest มี Character ได้<b>ฝ่ายละไม่เกิน 2 ตัว</b> (Backstage ไม่จำกัด) — ตัวเลข <b>n/2</b> ที่มุม Quest บอกจำนวนของแต่ละฝ่าย<br>
       • ลงการ์ด / Move / ผลการ์ดที่ให้เลือก Quest จะเลือก Quest ที่เต็มแล้วไม่ได้<br>
       • ถ้าผลการ์ด<b>บังคับ</b>ย้าย Character ไป Quest ที่เต็ม (ไม่มีตัวเลือก) ตัวนั้นจะไป <b>Backstage</b> แทน<br>
       • <b>Empower</b> วางทับตัวเดิม จึงไม่นับเพิ่ม — ทำได้แม้ Quest เต็ม<br>
-      • ปิด/เปิดได้ที่หน้าเลือกเด็ค (“จำกัด 2 ตัว/Quest”) · ออนไลน์ใช้ค่าของเจ้าของห้อง</div>
+      • เป็น<b>กฎหลัก</b> ใช้เสมอทุกโหมด (เล่นกับ CPU, เล่นกับเพื่อน, บทฝึก)</div>
     <h3>Backstage</h3><div class="box">• พื้นที่หน้าผู้เล่นที่ลง Character ได้<br>• เมื่อ Quest ถูกพิชิต Character ทุกตัวบน Quest นั้นย้ายมา Backstage ของเจ้าของอัตโนมัติ<br>• Move จาก Quest กลับมา Backstage ได้ (v4.1.3) · Move จาก Backstage เพื่อออกไป Quest<br>• Character ใน Backstage ถูก Contest ไม่ได้</div>
     <h3>ทอยลูกเต๋าในการ์ด</h3><div class="box">การ์ดที่เขียนว่า <b>Roll d6</b> ระบบจะทอยให้และแสดงผลกลางจอ (เช่น จั่ว/ได้ Mana เท่าครึ่งหนึ่งของแต้มที่ทอย <b>ปัดขึ้น</b>)</div>
     <h3>คำสำคัญ</h3><div class="box">
-      <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน ถ้าทำได้ · <b>Armor X</b> ลดแต้มที่โดน Deal/Contest ลง X (ไม่ลดการเสีย HP โดยตรง) · <b>Splash</b> Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้าม Guard จะรับแทน · <b>Rush</b> ลงมา/Move ได้โดยไม่ Exhaust แต่ <b>Move ได้ครั้งเดียวต่อเทิร์น</b> (หลัง Move ยัง Contest/Show ได้ตามปกติ · การถูกย้ายโดยผลการ์ดไม่นับ) · <b>Hiding</b> ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม Contest · <b>Breakthrough</b> Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว · <b>Ranged Attack</b> Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน · <b>Regenerate</b> ฟื้น HP เต็มเมื่อจบเทิร์น · <b>Stun</b> Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ครั้งถัดไป · <b>Gain control</b> ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา<br>
+      <b>จำกัด 2 ตัว/Quest</b> แต่ละฝ่ายมี Character บน Quest เดียวกันได้ไม่เกิน 2 ตัว (Empower ไม่นับเพิ่ม) · <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน ถ้าทำได้ · <b>Armor X</b> ลดแต้มที่โดน Deal/Contest ลง X (ไม่ลดการเสีย HP โดยตรง) · <b>Splash</b> Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้าม Guard จะรับแทน · <b>Rush</b> ลงมา/Move ได้โดยไม่ Exhaust แต่ <b>Move ได้ครั้งเดียวต่อเทิร์น</b> (หลัง Move ยัง Contest/Show ได้ตามปกติ · การถูกย้ายโดยผลการ์ดไม่นับ) · <b>Hiding</b> ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม Contest · <b>Breakthrough</b> Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว · <b>Ranged Attack</b> Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน · <b>Regenerate</b> ฟื้น HP เต็มเมื่อจบเทิร์น · <b>Stun</b> Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ครั้งถัดไป · <b>Gain control</b> ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา<br>
       <b>When played</b> เกิดผลทันทีที่ลงการ์ด · <b>Whenever …</b> เกิดผลทุกครั้งที่เงื่อนไขเกิด · <b>End turn / At the end of your turn</b> เกิดผลใน End Phase ของเรา · <b>Play … for free</b> เล่นโดยไม่จ่าย Mana</div>
     <h3>⚡ ความสามารถทำงานเมื่อไร</h3><div class="box">ทุกครั้งที่ความสามารถของการ์ดทำงาน จะมีสัญลักษณ์ <b>⚡</b> เด้งเหนือการ์ด พร้อมบรรทัดสีเหลืองในบันทึกเกม — ถ้าไม่เห็น ⚡ แปลว่าเงื่อนไขยังไม่ครบ (เช่น Rexxa ต้อง Contest <i>Quest</i> ถึงจะจั่ว)</div>
     <h3>วิธีเล่นในเกมนี้</h3><div class="box"><b>ลากวาง</b>การ์ดจากมือไปยังช่องที่ไฮไลต์ (Backstage / ช่องใต้ Quest / Character ชื่อเดียวกันเพื่อ Empower / Character เพื่อติด Equipment / Quest เพื่อวาง Artifact) หรือคลิกการ์ด → <kbd>เล่นการ์ดนี้</kbd> แล้วคลิกที่วาง · <b>ลาก Character</b> ที่พร้อม (กรอบเขียว) ไปที่ศัตรูหรือ Quest เพื่อ Contest หรือไปที่ช่องของ Quest อื่นเพื่อ Move (หรือคลิกเพื่อเลือก Contest / Move / Show) · <b>กดค้าง</b>ที่การ์ด (หรือคลิกขวา) เพื่อเปิดหน้าข้อมูลการ์ดใหญ่ · กด <kbd>จบเทิร์น</kbd> หรือ <kbd>Enter</kbd> เมื่อเสร็จ</div>`;
