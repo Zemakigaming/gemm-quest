@@ -794,6 +794,7 @@ button { font-family: inherit; }
       <button class="btn big" data-go="deck">🃏 จัดเด็ค</button>
       <button class="btn big" data-go="gallery">📚 คลังการ์ด</button>
       <button class="btn big" data-go="rules">📖 กติกา</button>
+      <button class="btn big" id="btn-changelog">📜 Change log</button>
       <button class="btn" id="btn-demo">👀 ดู CPU เล่นกันเอง</button>
     </nav>
     <button class="btn sm snd-fab" data-snd title="ตั้งค่าเสียง"><span>🔊</span> เสียง</button>
@@ -891,7 +892,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.17';
+window.GQ_VERSION = '4.1.18';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -7890,6 +7891,148 @@ window.CHAR_ART = {
   route();
 })();
 
+</script>
+<!-- v4.1.18: change log -->
+<style>
+#changelog { position: fixed; inset: 0; z-index: 10000; background: rgba(20,22,60,.6); display: none; align-items: center; justify-content: center; padding: 12px; }
+#changelog.on { display: flex; }
+#changelog .cl-box { background: #fff; color: #262a7a; border-radius: 16px; max-width: 720px; width: 100%; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 12px 40px rgba(0,0,0,.35); }
+#changelog .cl-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #e3e6f5; }
+#changelog .cl-head h3 { margin: 0; font-size: 18px; }
+#changelog .cl-body { overflow-y: auto; padding: 4px 18px 16px; font-size: 14px; line-height: 1.55; }
+#changelog h4 { margin: 14px 0 4px; color: #4a3aa8; }
+#changelog ul { margin: 0; padding-left: 20px; }
+#changelog li { margin: 2px 0; }
+</style>
+<div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
+<div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
+<div class="cl-body">
+<h4>v4.1.17 — 14 ต.ค. 2026</h4>
+<ul>
+<li>อัปเดตการ์ดตาม Google Sheet ล่าสุด</li>
+<li>ACTGR-005: Cost 4 → 2 · ย้าย Character ได้ &quot;ไม่เกิน 2 ตัว&quot; (เดิมย้ายได้ไม่จำกัด)</li>
+<li>ACTRD-001: เทิร์นถัดไปของฝ่ายตรงข้าม ไม่ได้รับ Mana หลัก +1 ใน Gathering Phase (เดิม: ใช้ Show ไม่ได้)</li>
+<li>Momo (MSCBL-016): ค่าพลัง 1/2 → 1/3</li>
+<li>Domiia (MSCRD-003): ตอนนี้ Tomafox ที่อยู่ Quest เดียวกันได้ Rush และ +1/+1 (เดิม Domiia ได้เอง) · Tomafox (MSCRD-012) ยังให้ Domiia +1/+1 และ Rush เหมือนเดิม</li>
+<li>Paody / MSCWH-019 / MSCWH-021: ใช้คำว่า Retaliate (ทำงานเหมือนเดิม) และเพิ่ม Retaliate ในคำอธิบายคำสำคัญ</li>
+<li>ปรับถ้อยคำการ์ดอีกหลายใบ (เช่น Contest Points, &quot;Debut:&quot;, Ceri &quot;Debut and KO: draw a card&quot;)</li>
+</ul>
+<h4>v4.1.16 — 13 ต.ค. 2026</h4>
+<ul>
+<li>เปลี่ยนชื่อประเภทการ์ด: Equipment → <b>Artifact</b> และ Artifact (Set Props) → <b>Location</b> ทั้งบนการ์ด ตัวกรองจัดเด็ค หน้าข้อมูล กติกา และบทฝึก</li>
+<li>แก้ข้อความการ์ด 8 ใบที่พูดถึง Equipment ให้เป็น Artifact · Lunar (MSCRD-006): &quot;ทำลาย Artifact หรือ Location บน Quest นี้&quot;</li>
+<li>เด็คที่บันทึกไว้ใช้ได้เหมือนเดิม</li>
+</ul>
+<h4>v4.1.15 — 13 ต.ค. 2026</h4>
+<ul>
+<li>ช่อง Character ใต้ Quest แบ่งเป็น 2 ช่องชัดเจนต่อฝ่าย — ช่องว่างแสดงกรอบเส้นประ</li>
+<li>ตอนลาก/เลือกที่วาง ช่องว่างที่วางได้จะเรืองแสง &quot;⬇ วางที่นี่&quot;</li>
+<li>รองรับจอเล็ก/มือถือ</li>
+</ul>
+<h4>v4.1.14 — 13 ต.ค. 2026</h4>
+<ul>
+<li>กฎหลัก: แต่ละฝ่ายมี Character บน Quest เดียวกันได้ไม่เกิน <b>2 ตัว</b> ทุกโหมด (เล่นกับ CPU, เพื่อน, บทฝึก) — ยกเลิกสวิตช์ &quot;กฎทดลอง&quot;</li>
+<li>Empower วางทับไม่นับเพิ่ม · ผลการ์ดที่ย้าย Character ไป Quest ที่เต็มจะไป Backstage แทน</li>
+<li>ลากไป Quest ที่เต็มจะมีข้อความเตือน &quot;Quest นี้เต็มแล้ว&quot;</li>
+<li>เพิ่มกฎนี้ในบทฝึก หน้ากติกา และคำอธิบายคำสำคัญ</li>
+</ul>
+<h4>v4.1.13 — 13 ต.ค. 2026</h4>
+<ul>
+<li>บทฝึกใหม่: สอนทิ้งการ์ดเพื่อรับ Mana และเพิ่มหน้า &quot;กฎสำคัญที่ควรรู้&quot;</li>
+<li>ปรับคำอธิบาย Backstage, Hiding, Debut, Move และ Armor ให้ชัดขึ้น · เพิ่มคำอธิบาย Ranged Attack</li>
+</ul>
+<h4>v4.1.12 — 13 ต.ค. 2026</h4>
+<ul>
+<li>EQPBK-001 เป็นการ์ด Spell: ฝ่ายตรงข้ามทิ้งการ์ดทั้งมือ แล้วจั่ว 2 ใบ</li>
+<li>Rexxa (MSCBL-002) แสดงค่าพลัง 0/3 · Smyle (MSCGR-015) แสดง 6/2 - 3/7 จนกว่าจะเลือกโหมด</li>
+<li>เปลี่ยนคำว่า Morale เป็น <b>HP</b> ทั้งเกม</li>
+</ul>
+<h4>v4.1.11 — 13 ต.ค. 2026</h4>
+<ul>
+<li>ซิงก์ข้อความการ์ดทั้งชุดกับ Google Sheet</li>
+<li>ACTBL-001: Cost 1 → 2 และจั่ว 3 ใบ · MSCBK-001: Cost 2 → 4 · MSCBL-003: ค่าพลัง 1/2 → 1/1 · EQPBK-001: Cost 1 → 3 (ฝ่ายตรงข้ามทิ้งทั้งมือแล้วจั่ว 2)</li>
+<li>Tomafox (MSCRD-012): Domiia ที่อยู่ Quest เดียวกันได้ Rush และ +1/+1</li>
+<li>Yuzu (MSCBK-013): ไม่ใช่ Hiding แล้ว — แต่ Spell และรางวัล Quest ของฝ่ายตรงข้ามเลือกไม่ได้</li>
+<li>รหัสการ์ด ACTBR-003 เปลี่ยนเป็น ACTBR-006</li>
+</ul>
+<h4>v4.1.10 — 13 ต.ค. 2026</h4>
+<ul>
+<li>กฎ Hiding ใหม่: ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ (ยกเว้นการ Contest ของ Character ฝ่ายตรงข้าม) · ผลการ์ดของเราเองเลือกได้</li>
+</ul>
+<h4>v4.1.9</h4>
+<ul>
+<li>ตั้งชื่อเด็คสำเร็จรูปใหม่ให้จำง่าย</li>
+<li>ลบเด็คที่ซ้ำ/คล้ายกัน (เด็คที่เคยเลือกไว้จะถูกแทนด้วยเด็คใหม่ที่ใกล้เคียงอัตโนมัติ)</li>
+</ul>
+<h4>v4.1.8</h4>
+<ul>
+<li>Hiding: ผลการ์ดเลือกเป็นเป้าหมายไม่ได้เลยทั้งสองฝ่าย (ยกเว้น Contest) — ภายหลังปรับใน v4.1.10</li>
+</ul>
+<h4>v4.1.7</h4>
+<ul>
+<li>Armor ลดแต้มจาก Deal และ Contest แต่ไม่ลดการเสีย HP โดยตรง (เช่น MSCBK-016)</li>
+<li>ACTWH-005: ทำลาย Character ทุกตัวบน Play Area รวม Backstage</li>
+<li>ACTGR-003: ทอยแล้ว Deal ใส่เป้าหมายใดก็ได้</li>
+<li>CPU นับ Character ใน Backstage ในการตัดสินใจด้วย</li>
+</ul>
+<h4>v4.1.6</h4>
+<ul>
+<li>แก้บั๊ก: ลากหรือกดค้างแล้วปล่อย ทำให้คลิกครั้งถัดไปไม่ทำงาน (เช่น เลือกเป้าหมายของ Tomafox)</li>
+</ul>
+<h4>v4.1.5</h4>
+<ul>
+<li>อัปเดตค่าการ์ดตาม Sheet: ACTBL-001, ACTBL-003 Cost 2 → 1 · MSCBL-007 4/5 · MSCBL-009 4/5 · MSCBL-010 9/9 · MSCBL-012 Cost 3, 3/5 · MSCGR-019 Cost 4, 3/5 · MSCWH-001 2/6 · MSCWH-003 4/6 · MSCWH-009 3/5 · MSCWH-020 2/4</li>
+<li>MSCBL-007: ต้องจ่าย &quot;Mill 3&quot; ได้ครบจึงลงได้ · MSCBL-008: Heal 3 → 5</li>
+<li>PRPBL-003: Character ที่ Cost 4 ขึ้นไป (เดิม 3) เข้า Quest นี้ไม่ได้</li>
+</ul>
+<h4>v4.1.4</h4>
+<ul>
+<li>Character แต่ละตัว Move ได้ครั้งเดียวต่อเทิร์น (รวม Rush)</li>
+</ul>
+<h4>v4.1.3</h4>
+<ul>
+<li>ฝ่ายเดียวกันมี Character ชื่อเดียวกันบน Quest เดียวกันไม่ได้</li>
+<li>Move จาก Quest กลับ Backstage ได้ (ต้อง Ready และจะ Exhaust)</li>
+<li>CPU รู้จักถอยกลับ Backstage เมื่อเหมาะสม</li>
+</ul>
+<h4>v4.1.2</h4>
+<ul>
+<li>แก้บั๊กยึด Character (MSCWH-015) ที่อาจทำให้ Quest มี Character เกินจำนวน</li>
+<li>CPU ทิ้งการ์ดเพื่อรับ Mana ได้ฉลาดขึ้น และไม่กักการ์ดในมือมากเกินไป</li>
+</ul>
+<h4>v4.1.1</h4>
+<ul>
+<li>เพิ่มกฎทดลอง: จำกัดจำนวน Character ต่อฝ่ายต่อ Quest (ภายหลังเป็นกฎหลักใน v4.1.14)</li>
+<li>ACTBK-003: Cost 4 → 1 — ผู้เล่นทั้งสองฝ่ายเลือกทำลาย Character ของตัวเอง 1 ตัว</li>
+<li>PRPGR-001: Character ที่ Contest บน Quest นี้จะถูกย้ายไป Backstage หลัง Contest</li>
+<li>PRPBL-002, PRPWH-003: Cost 3 → 2 · QSTBK-001 เป้าหมาย 16 → 14 · QSTBK-002 เป้าหมาย 14 → 16</li>
+</ul>
+<h4>v4.1.0</h4>
+<ul>
+<li>เพิ่มเด็คสำเร็จรูป 3 สี (Quest สีละ 1 ใบ)</li>
+<li>ซ่อนเด็คเริ่มต้นแบบ &quot;(เดิม)&quot; จากรายการเลือก</li>
+</ul>
+<h4>v4.0.9</h4>
+<ul>
+<li>เพิ่มเป้าหมาย (Threshold) ของ Quest ทุกใบ +2</li>
+</ul>
+<h4>v4.0.8</h4>
+<ul>
+<li>หน้าต่างเลือกเป้าหมายใหม่: อยู่กลางจอ ใหญ่ อ่านง่าย และคลิกการ์ดด้านหลังได้</li>
+<li>MSCWH-009: Cost 5 → 4, ค่าพลัง 5/6 → 4/5 · PRPWH-003: Aurora ได้ +1/+2</li>
+<li>MSCWH-007 ย้ายมาจาก Quest ที่อยู่ติดกัน · MSCBR-003 ทำงานหลัง Contest จบ</li>
+<li>การ์ด EQPBL-003 เปลี่ยนรหัสเป็น PRPBL-003</li>
+</ul>
+</div></div></div>
+<script>
+(function () {
+  const ov = document.getElementById('changelog');
+  const open = () => ov.classList.add('on'), close = () => ov.classList.remove('on');
+  document.getElementById('btn-changelog').onclick = open;
+  document.getElementById('changelog-close').onclick = close;
+  ov.addEventListener('click', e => { if (e.target === ov) close(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && ov.classList.contains('on')) close(); });
+})();
 </script>
 </body>
 </html>
