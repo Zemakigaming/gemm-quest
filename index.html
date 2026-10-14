@@ -891,7 +891,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.16';
+window.GQ_VERSION = '4.1.17';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -1216,10 +1216,10 @@ window.CARD_LIST = [
   "cost": 2,
   "text": "When this character Contest another Character, Stun that Character.",
   "rarity": "ER",
-  "stat": "1/2",
+  "stat": "1/3",
   "cud": 1,
   "pow": 1,
-  "mor": 2
+  "mor": 3
  },
  {
   "code": "MSCBL-017",
@@ -1518,7 +1518,7 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "Jewel",
   "cost": 6,
-  "text": "Debut, gain control an opponent's Character and move them to this Quest.",
+  "text": "Debut: gain control an opponent's Character and move them to this Quest.",
   "rarity": "R",
   "stat": "6/7",
   "cud": 2,
@@ -1531,7 +1531,7 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "Ceri",
   "cost": 1,
-  "text": "Debut, draw a card.",
+  "text": "Debut: draw a card.",
   "rarity": "C",
   "stat": "1/1",
   "cud": 1,
@@ -1544,7 +1544,7 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "Ceri",
   "cost": 3,
-  "text": "Debut, draw a card. When he was defeated, draw a card.",
+  "text": "Debut and KO: draw a card.",
   "rarity": "R",
   "stat": "1/2",
   "cud": 2,
@@ -1557,7 +1557,7 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "Paody",
   "cost": 6,
-  "text": "When another Character contest him, He do the Contest back.",
+  "text": "When another Character contest this character, Retaliate",
   "rarity": "C",
   "stat": "5/7",
   "cud": 2,
@@ -1570,7 +1570,7 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "Look Khunnoo",
   "cost": 1,
-  "text": "When another Character contest him, He do the Contest back.",
+  "text": "When another Character contest this character, Retaliate",
   "rarity": "C",
   "stat": "1/1",
   "cud": 1,
@@ -1596,7 +1596,7 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "Look Khunnoo",
   "cost": 4,
-  "text": "When another Character contest him, He do the Contest back.",
+  "text": "When another Character contest this character, Retaliate",
   "rarity": "R",
   "stat": "5/2",
   "cud": 1,
@@ -1609,7 +1609,7 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "",
   "cost": null,
-  "text": "Reward: deal 2 Contest point to all other Quest.",
+  "text": "Reward: deal 2 Contest points to all other Quest.",
   "rarity": "R",
   "stat": "14",
   "threshold": 14
@@ -1671,8 +1671,8 @@ window.CARD_LIST = [
   "type": "Action",
   "el": "AERO",
   "name": "",
-  "cost": 4,
-  "text": "Move any number of Character to any Quest. (do not have to be the same Quest)",
+  "cost": 2,
+  "text": "Move up to 2 Character to any Quest. (do not have to be the same Quest)",
   "rarity": "C",
   "stat": ""
  },
@@ -1802,7 +1802,7 @@ window.CARD_LIST = [
   "el": "AERO",
   "name": "",
   "cost": 7,
-  "text": "Search 2 Aero Character and play in on an Stage with no cost.",
+  "text": "Search 2 Aero Characters and play in on an Stage with no cost.",
   "rarity": "ER",
   "stat": ""
  },
@@ -2359,7 +2359,7 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "",
   "cost": 1,
-  "text": "Next turn, opponent cannot do the Gathering Spell",
+  "text": "At the start of Next turn, opponent cannot gain mana",
   "rarity": "C",
   "stat": ""
  },
@@ -2379,7 +2379,7 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "",
   "cost": 1,
-  "text": "Deal 2 Contest Point to 1 of your Character, then Deal 3 Contest Point to this Quest.",
+  "text": "Deal 2 Contest Points to 1 of your Character, then Deal 3 Contest Points to this Quest.",
   "rarity": "R",
   "stat": ""
  },
@@ -2389,7 +2389,7 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "",
   "cost": 1,
-  "text": "Deal 2 Contest Point to any target.",
+  "text": "Deal 2 Contest Points to any target.",
   "rarity": "C",
   "stat": ""
  },
@@ -2466,7 +2466,7 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "Tomafox",
   "cost": 2,
-  "text": "Debut: Deal 3 Contest Point to any target.",
+  "text": "Debut: Deal 3 Contest Points to any target.",
   "rarity": "C",
   "stat": "1/2",
   "cud": 1,
@@ -2492,7 +2492,7 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "Domiia",
   "cost": 3,
-  "text": "If Tomafox on this Quest, he gain Rush and +1/+1",
+  "text": "If Tomafox on this Quest, that Tomafox gain Rush and +1/+1",
   "rarity": "C",
   "stat": "4/1",
   "cud": 1,
@@ -2557,7 +2557,7 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "Flarey",
   "cost": 6,
-  "text": "Debut: deal 5 Contest Point, may divide to any number of targets.",
+  "text": "Debut: deal 5 Contest Points, may split to any targets in any number.",
   "rarity": "C",
   "stat": "6/4",
   "cud": 2,
@@ -2655,7 +2655,7 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "Nilknhake",
   "cost": 5,
-  "text": "When you play an Ember Spell card, deal 2 Contest Point to any target.",
+  "text": "When you play an Ember Spell card, deal 2 Contest Points to any target.",
   "rarity": "R",
   "stat": "6/5",
   "cud": 2,
@@ -3132,7 +3132,7 @@ window.CHAR_ART = {
 
   // designer rulings that clarify a card's text (shown in red on the card and in the info panel)
   const NOTES = {
-    'ACTRD-001': 'การ์ดเขียนว่า “Gathering Spell” — ตอนนี้ตีความเป็น Gathering Action = Show (เทิร์นหน้าฝ่ายตรงข้ามใช้ Show ไม่ได้) · รอผู้ออกแบบยืนยัน',
+    'ACTRD-001': 'v4.1.17: เทิร์นถัดไปของฝ่ายตรงข้าม ไม่ได้รับ Mana หลัก +1 ใน Gathering Phase (ยังจั่วการ์ดและใช้ Show ได้ตามปกติ)',
     'ACTBK-003': 'ผู้เล่นทั้งสองฝ่ายเลือกทำลาย Character ของตัวเองคนละ 1 ตัว (ฝ่ายที่เล่นการ์ดเลือกก่อน) — ไม่มี Character ก็ข้าม',
   };
 
@@ -3644,10 +3644,10 @@ window.CHAR_ART = {
     canPlay: (E, pi) => E.G.field.some(m => E.questIdx().some(qi => qi !== m.loc && E.canEnter(m, qi))),
     play: async (E, c) => {
       const moved = new Set();
-      while (!E.over()) {
+      while (!E.over() && moved.size < 2) { // v4.1.17: up to 2
         const list = E.G.field.filter(m => !moved.has(m) && E.canChoose(c.pi, m) && E.questIdx().some(qi => qi !== m.loc && E.canEnter(m, qi)));
         if (!list.length) break;
-        const k = await E.ask(c.pi, { kind: 'target', title: `เลือก Character ที่จะย้าย (ย้ายแล้ว ${moved.size} ตัว — กดข้ามเมื่อพอ)`, targets: list.map(m => 'm:' + m.uid), optional: true, hint: 'shuffle' });
+        const k = await E.ask(c.pi, { kind: 'target', title: `เลือก Character ที่จะย้าย (ย้ายแล้ว ${moved.size}/2 ตัว — กดข้ามเมื่อพอ)`, targets: list.map(m => 'm:' + m.uid), optional: true, hint: 'shuffle' });
         if (!k) break;
         const m = E.byUid(+k.slice(2)); if (!m) break;
         moved.add(m);
@@ -3839,7 +3839,7 @@ window.CHAR_ART = {
   }
 
   // =================== EMBER (Red) ===================
-  A['ACTRD-001'] = { play: async (E, c) => { E.P(E.opp(c.pi)).flags.noShowTurn = E.G.turn + 1; E.log('เทิร์นหน้า ฝ่ายตรงข้ามทำ Show (Gathering) ไม่ได้', 'act'); } };
+  A['ACTRD-001'] = { play: async (E, c) => { E.P(E.opp(c.pi)).flags.noManaTurn = E.G.turn + 1; E.log('เทิร์นหน้า ฝ่ายตรงข้ามไม่ได้รับ Mana หลัก +1 ใน Gathering Phase', 'act'); } }; /* v4.1.17: was 'no Show next turn' */
   A['ACTRD-002'] = {
     canPlay: (E, pi) => E.G.field.length > 0,
     play: async (E, c) => { const m = await E.chooseMascot(c.pi, { title: '+3 Contest Power จนจบเทิร์น', hint: 'buff' }); if (m) { m.tmpPow += 3; E.fx('m:' + m.uid, '+3 ✊', 'heal'); } },
@@ -3875,7 +3875,7 @@ window.CHAR_ART = {
   A['MSCRD-008'] = {};
   A['MSCRD-001'] = { play: (E, c) => E.dealAny(c.pi, 3, 'Tomafox: 3 Contest Point ใส่เป้าหมายใดก็ได้') };
   A['MSCRD-002'] = { kw: { rush: 1 } };
-  A['MSCRD-003'] = { cond: (E, m) => allyNamedHere(E, m, 'Tomafox') ? { pow: 1, mor: 1, kw: { rush: 1 } } : null };
+  A['MSCRD-003'] = { auraTomafox: true }; // v4.1.17: an ally Tomafox on the same Quest gains Rush and +1/+1 (see Engine.cond)
   A['MSCRD-005'] = {};
   A['MSCRD-006'] = { play: async (E, c) => { if (onQuest(c.m)) await destroyAttachment(E, c.pi, c.m.loc, true, true); } };
   A['MSCRD-016'] = { onActionPlayed: async (E, c) => { if (E.def(c.card).el === 'EMBER') E.trigger(c.m, 'เล่น Ember Spell → 2 Contest Point'), await E.dealAny(c.pi, 2, 'Nilknhake: 2 Contest Point ใส่เป้าหมายใดก็ได้'); } };
@@ -4187,6 +4187,11 @@ window.CHAR_ART = {
       let c = a.cond ? (a.cond(this, m) || null) : null;
       // v4.1.11 Tomafox MSCRD-012: ally Domiia on the same Quest gains Rush and +1/+1
       if (this.isQuest(m.loc) && this.def(m).name === 'Domiia' && this.allyAt(m.ctrl, m.loc).some(x => x !== m && this.abil(x).auraDomiia)) {
+        c = c ? { ...c, kw: { ...(c.kw || {}) } } : { kw: {} };
+        c.pow = (c.pow || 0) + 1; c.mor = (c.mor || 0) + 1; c.kw.rush = 1;
+      }
+      // v4.1.17 Domiia MSCRD-003: ally Tomafox on the same Quest gains Rush and +1/+1
+      if (this.isQuest(m.loc) && this.def(m).name === 'Tomafox' && this.allyAt(m.ctrl, m.loc).some(x => x !== m && this.abil(x).auraTomafox)) {
         c = c ? { ...c, kw: { ...(c.kw || {}) } } : { kw: {} };
         c.pow = (c.pow || 0) + 1; c.mor = (c.mor || 0) + 1; c.kw.rush = 1;
       }
@@ -4934,9 +4939,10 @@ window.CHAR_ART = {
       this.update(); await this.pause(300);
       // 3) Gathering Phase — Main Mana +1, draw 1 (some cards draw extra)
       G.sub = 'gathering';
-      p.main += 1;
+      const noMana = p.flags.noManaTurn === G.turn; /* v4.1.17 ACTRD-001 */
+      if (!noMana) p.main += 1; else this.log(`🚫 ${p.name}: ไม่ได้รับ Mana หลักในเทิร์นนี้ (ACTRD-001)`, 'act');
       const extra = this.mascotsOf(pi).reduce((s, m) => s + (this.abil(m).extraDraw || 0), 0);
-      this.log(`Gathering Phase: ${p.name} ได้ Mana หลัก +1 (เป็น ${p.main}) และจั่ว ${1 + extra} ใบ`, 'cheer');
+      this.log(`Gathering Phase: ${p.name} ${noMana ? 'ไม่ได้ Mana หลัก' : 'ได้ Mana หลัก +1'} (เป็น ${p.main}) และจั่ว ${1 + extra} ใบ`, 'cheer');
       this.fx('mana:' + pi, '+1 Mana', 'cheer'); this.sfx('mana');
       this.update(); await this.pause(300);
       await this.draw(pi, 1 + extra);
@@ -6394,6 +6400,7 @@ window.CHAR_ART = {
     else { ti.textContent = `เทิร์น ${G.turn} · ${ui.spectate ? 'ตา ' + E.P(G.active).name : G.active === ME ? 'ตา' + (ui.mode === 'single' ? 'คุณ' : ' ' + me.name) : 'ตา ' + oppName()}`; ti.className = 'turn-ind ' + (G.active === ME ? 'me' : 'cpu'); }
     const flags = [];
     if (me.flags.noShowTurn === G.turn) flags.push('เทิร์นนี้ทำ Show ไม่ได้');
+    if (me.flags.noManaTurn === G.turn) flags.push('เทิร์นนี้ไม่ได้ Mana หลัก +1 (ACTRD-001)');
     if (me.flags.noContestTurn === G.turn) flags.push('เทิร์นนี้ Contest ไม่ได้');
     const viaTxt = ui.net ? (ui.net.via === 'relay' ? ' · 🛰 ผ่านตัวกลาง' : ' · 🔗 ต่อตรง') : '';
     const modeTxt = { hotseat: '👥 เล่นเครื่องเดียวกัน', host: '🌐 ออนไลน์ (เจ้าของห้อง)' + viaTxt, guest: '🌐 ออนไลน์' + viaTxt }[ui.mode];
@@ -7848,7 +7855,7 @@ window.CHAR_ART = {
     <h3>Backstage</h3><div class="box">• พื้นที่หน้าผู้เล่นที่ลง Character ได้<br>• เมื่อ Quest ถูกพิชิต Character ทุกตัวบน Quest นั้นย้ายมา Backstage ของเจ้าของอัตโนมัติ<br>• Move จาก Quest กลับมา Backstage ได้ (v4.1.3) · Move จาก Backstage เพื่อออกไป Quest<br>• Character ใน Backstage ถูก Contest ไม่ได้</div>
     <h3>ทอยลูกเต๋าในการ์ด</h3><div class="box">การ์ดที่เขียนว่า <b>Roll d6</b> ระบบจะทอยให้และแสดงผลกลางจอ (เช่น จั่ว/ได้ Mana เท่าครึ่งหนึ่งของแต้มที่ทอย <b>ปัดขึ้น</b>)</div>
     <h3>คำสำคัญ</h3><div class="box">
-      <b>จำกัด 2 ตัว/Quest</b> แต่ละฝ่ายมี Character บน Quest เดียวกันได้ไม่เกิน 2 ตัว (Empower ไม่นับเพิ่ม) · <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน ถ้าทำได้ · <b>Armor X</b> ลดแต้มที่โดน Deal/Contest ลง X (ไม่ลดการเสีย HP โดยตรง) · <b>Splash</b> Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้าม Guard จะรับแทน · <b>Rush</b> ลงมา/Move ได้โดยไม่ Exhaust แต่ <b>Move ได้ครั้งเดียวต่อเทิร์น</b> (หลัง Move ยัง Contest/Show ได้ตามปกติ · การถูกย้ายโดยผลการ์ดไม่นับ) · <b>Hiding</b> ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม Contest · <b>Breakthrough</b> Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว · <b>Ranged Attack</b> Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน · <b>Regenerate</b> ฟื้น HP เต็มเมื่อจบเทิร์น · <b>Stun</b> Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ครั้งถัดไป · <b>Gain control</b> ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา<br>
+      <b>จำกัด 2 ตัว/Quest</b> แต่ละฝ่ายมี Character บน Quest เดียวกันได้ไม่เกิน 2 ตัว (Empower ไม่นับเพิ่ม) · <b>Retaliate</b> เมื่อถูก Character อื่น Contest ตัวนี้จะ Contest ตอบกลับทันที · <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน ถ้าทำได้ · <b>Armor X</b> ลดแต้มที่โดน Deal/Contest ลง X (ไม่ลดการเสีย HP โดยตรง) · <b>Splash</b> Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้าม Guard จะรับแทน · <b>Rush</b> ลงมา/Move ได้โดยไม่ Exhaust แต่ <b>Move ได้ครั้งเดียวต่อเทิร์น</b> (หลัง Move ยัง Contest/Show ได้ตามปกติ · การถูกย้ายโดยผลการ์ดไม่นับ) · <b>Hiding</b> ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม Contest · <b>Breakthrough</b> Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว · <b>Ranged Attack</b> Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน · <b>Regenerate</b> ฟื้น HP เต็มเมื่อจบเทิร์น · <b>Stun</b> Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ครั้งถัดไป · <b>Gain control</b> ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา<br>
       <b>When played</b> เกิดผลทันทีที่ลงการ์ด · <b>Whenever …</b> เกิดผลทุกครั้งที่เงื่อนไขเกิด · <b>End turn / At the end of your turn</b> เกิดผลใน End Phase ของเรา · <b>Play … for free</b> เล่นโดยไม่จ่าย Mana</div>
     <h3>⚡ ความสามารถทำงานเมื่อไร</h3><div class="box">ทุกครั้งที่ความสามารถของการ์ดทำงาน จะมีสัญลักษณ์ <b>⚡</b> เด้งเหนือการ์ด พร้อมบรรทัดสีเหลืองในบันทึกเกม — ถ้าไม่เห็น ⚡ แปลว่าเงื่อนไขยังไม่ครบ (เช่น Rexxa ต้อง Contest <i>Quest</i> ถึงจะจั่ว)</div>
     <h3>วิธีเล่นในเกมนี้</h3><div class="box"><b>ลากวาง</b>การ์ดจากมือไปยังช่องที่ไฮไลต์ (Backstage / ช่องใต้ Quest / Character ชื่อเดียวกันเพื่อ Empower / Character เพื่อติด Artifact / Quest เพื่อวาง Location) หรือคลิกการ์ด → <kbd>เล่นการ์ดนี้</kbd> แล้วคลิกที่วาง · <b>ลาก Character</b> ที่พร้อม (กรอบเขียว) ไปที่ศัตรูหรือ Quest เพื่อ Contest หรือไปที่ช่องของ Quest อื่นเพื่อ Move (หรือคลิกเพื่อเลือก Contest / Move / Show) · <b>กดค้าง</b>ที่การ์ด (หรือคลิกขวา) เพื่อเปิดหน้าข้อมูลการ์ดใหญ่ · กด <kbd>จบเทิร์น</kbd> หรือ <kbd>Enter</kbd> เมื่อเสร็จ</div>`;
