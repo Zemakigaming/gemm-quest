@@ -564,6 +564,9 @@ button { font-family: inherit; }
 .g-main { position: relative; }
 .hand.me { padding-left: 200px; padding-right: 200px; }
 .endbar { position: absolute; right: 14px; bottom: 14px; z-index: 30; }
+/* v4.1.19 Undo button: sits in the end-turn bar, always on top */
+.undo-btn { position: relative; z-index: 61; margin-bottom: 6px; display: block; margin-left: auto; font-weight: 700; padding: 6px 14px; border-radius: 12px; }
+.undo-btn.off { opacity: .45; filter: grayscale(1); cursor: not-allowed; }
 .endturn {
   display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 176px; padding: 14px 18px 12px;
   border-radius: 22px; border: 3px solid var(--navy); cursor: pointer; font-family: inherit; color: var(--navy);
@@ -892,7 +895,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.18';
+window.GQ_VERSION = '4.1.19';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -3750,7 +3753,7 @@ window.CHAR_ART = {
   A['EQPBR-006'] = { kw: { breakthrough: 1 } };
   A['MSCBR-002'] = { kw: { range: 1 } };
   A['MSCBR-003'] = {
-    onContest: async (E, c) => { // v4.0.8: "After he Contest" — resolves after the Contest; nothing if he left play
+    afterContestResolved: async (E, c) => { // v4.1.19: "After he Contest" — runs only after the whole Contest has resolved (damage, Retaliate/when-contested effects, defeats, Quest completion); nothing if he left play
       if (!E.inPlay(c.m)) return;
       const p = E.P(c.pi); const top = p.deck.slice(0, 5);
       E.trigger(c.m, 'After he Contest — ดู 5 ใบบนสุดของ Deck หา Artifact');
@@ -4526,6 +4529,8 @@ window.CHAR_ART = {
         await this.afterContested(t, m);
       }
       await this.settle();
+      // v4.1.19: abilities that trigger "after" this Character's Contest resolve only once the Contest is fully done (Jaidee MSCBR-003)
+      if (a.afterContestResolved && this.inPlay(m) && !this.over()) { await a.afterContestResolved(this, { pi, m, target: tgt }); await this.settle(); }
       this.update();
       return true;
     }
@@ -5904,13 +5909,63 @@ window.CHAR_ART = {
     return false;
   }
   function run(cmd) { return ui.mode === 'guest' ? ui.net.request(cmd) : execCmd(H, ui.viewPi, cmd); }
+  // ---------------------------------------------------------------- v4.1.19: Undo (last 1 action, own turn, vs CPU only)
+  const UNDO_ACTS = { play: 'ลงการ์ด', contest: 'Contest', move: 'Move', show: 'Show', dmana: 'ทิ้งการ์ดเพื่อรับ Mana' };
+  (function patchUndo(PR) {
+    if (PR._undoPatched) return; PR._undoPatched = true;
+    const wrap = (name, why) => { const f = PR[name]; if (typeof f !== 'function') return;
+      PR[name] = function (...a) { if (this._undoMark && !(name === 'draw' && a[1] === 0) && !(name === 'mill' && !a[1])) this._undoMark(why); return f.apply(this, a); }; };
+    wrap('draw', 'มีการจั่วการ์ด'); wrap('searchDeck', 'มีการค้นการ์ดใน Deck'); wrap('mill', 'มีการเปิด/ทิ้งการ์ดจาก Deck');
+    wrap('rollD6', 'มีการทอยลูกเต๋า'); wrap('roll', 'มีการทอยลูกเต๋า'); wrap('show', 'มีการ Show');
+    const ask = PR.ask;
+    PR.ask = function (pi, req) {
+      if (this._undoMark) {
+        if (pi !== this.G.active) this._undoMark('ฝ่ายตรงข้ามได้ตอบสนอง');
+        else if (req && req.reveal) this._undoMark('มีการเปิดดูการ์ด');
+      }
+      return ask.call(this, pi, req);
+    };
+  })(Engine.prototype);
+  const undoOff = () => (ui.mode !== 'single' ? 'ย้อนไม่ได้ในโหมดเล่นกับเพื่อน' : ui.tut ? 'ย้อนไม่ได้ในบทฝึก' : null);
+  async function undoable(kind, fn) {
+    if (undoOff() || !H || ui.spectate) return fn();
+    let snap = null;
+    try { snap = { G: structuredClone(H.G), uidN: H.uidN, turn: H.G.turn }; } catch (e) { snap = null; }
+    let taint = snap ? null : 'บันทึกสถานะไม่ได้';
+    H._undoMark = r => { if (!taint) taint = r; };
+    try { return await fn(); } finally {
+      H._undoMark = null;
+      if (H.over()) taint = taint || 'เกมจบแล้ว';
+      ui.undo = taint ? { reason: `ย้อน${UNDO_ACTS[kind]}ไม่ได้ — ${taint}` } : { snap, label: UNDO_ACTS[kind] };
+    }
+  }
+  function undoState() {
+    if (!E || ui.spectate) return { show: false };
+    const off = undoOff(); if (off) return { show: true, ok: false, why: off };
+    if (!ui.undo) return { show: true, ok: false, why: 'ยังไม่มี Action ให้ย้อน' };
+    if (ui.undo.reason) return { show: true, ok: false, why: ui.undo.reason };
+    if (!H || H.G.turn !== ui.undo.snap.turn || H.G.active !== ME) return { show: true, ok: false, why: 'ย้อนได้เฉพาะ Action ในเทิร์นนี้ของคุณ' };
+    if (!myIdle()) return { show: true, ok: false, why: 'รอให้ Action ปัจจุบันจบก่อน' };
+    return { show: true, ok: true, why: `ย้อน ${ui.undo.label} ครั้งล่าสุด (Ctrl+Z)` };
+  }
+  function doUndo() {
+    const st = undoState(); if (!st.ok) return;
+    const u = ui.undo;
+    H.G = u.snap.G; H.uidN = u.snap.uidN; H.curSrc = null; H.settling = false;
+    ui.undo = { reason: 'ย้อนได้ครั้งละ 1 Action — ทำ Action ใหม่ก่อน' };
+    ui.select = null; ui.drag = null; closeMenu(); closeInfo();
+    H.log(`↶ ย้อน: ${u.label}`, 'dim');
+    refreshView(); render();
+  }
+  window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && E && document.getElementById('scr-game') && !document.getElementById('scr-game').hidden) { if (undoState().ok) { e.preventDefault(); doUndo(); } } });
+
   const ACT = {
-    play: (uid, k) => run({ a: 'play', uid, k }),
-    contest: (uid, k) => run({ a: 'contest', uid, k }),
-    move: (uid, qi) => run({ a: 'move', uid, qi }),
-    show: uid => run({ a: 'show', uid }),
-    discardMana: uid => run({ a: 'dmana', uid }),
-    end: () => run({ a: 'end' }),
+    play: (uid, k) => undoable('play', () => run({ a: 'play', uid, k })),
+    contest: (uid, k) => undoable('contest', () => run({ a: 'contest', uid, k })),
+    move: (uid, qi) => undoable('move', () => run({ a: 'move', uid, qi })),
+    show: uid => undoable('show', () => run({ a: 'show', uid })),
+    discardMana: uid => undoable('dmana', () => run({ a: 'dmana', uid })),
+    end: () => { ui.undo = null; return run({ a: 'end' }); },
   };
 
   // ---------------------------------------------------------------- lifecycle
@@ -6420,9 +6475,12 @@ window.CHAR_ART = {
       : canEnd ? (anyMove ? `Mana เหลือ ${E.cheering(ME)} · ยังเล่นต่อได้` : 'ไม่มีอะไรให้ทำแล้ว — กดได้เลย') : `เทิร์น ${G.turn} · ตา${ui.mode === 'single' ? 'คุณ' : ' ' + esc(me.name)}`;
     const cheerChip = G.phase === 'action' && !ui.spectate
       ? `<div class="cheer-chip ${me.temp ? 'has-tmp' : ''}">Mana ใช้ได้ <b>${E.cheering(ME)}</b><span>หลัก ${me.main}${me.temp ? ` + <em>✦ ${me.temp} ชั่วคราว</em>` : ''}</span></div>` : '';
-    $('endbar').innerHTML = cheerChip + `<button class="endturn ${canEnd ? 'on' : ''} ${canEnd && !anyMove ? 'ready' : ''}" id="btn-end" ${canEnd ? '' : 'disabled'} title="จบเทิร์น (Enter)">
+    const us = undoState();
+    const undoBtn = us.show ? `<button class="btn undo-btn ${us.ok ? '' : 'off'}" id="btn-undo" aria-disabled="${us.ok ? 'false' : 'true'}" title="${esc(us.why)}">↶ ย้อน</button>` : '';
+    $('endbar').innerHTML = cheerChip + undoBtn + `<button class="endturn ${canEnd ? 'on' : ''} ${canEnd && !anyMove ? 'ready' : ''}" id="btn-end" ${canEnd ? '' : 'disabled'} title="จบเทิร์น (Enter)">
         <span class="et-main">จบเทิร์น ⏭</span><span class="et-sub">${sub}</span></button>`;
     $('btn-end').onclick = endTurnNow;
+    if ($('btn-undo')) $('btn-undo').onclick = () => { if (undoState().ok) doUndo(); };
 
     const log = $('log');
     log.innerHTML = G.log.slice(-120).map(l => `<div class="${l.cls}">${esc(l.msg)}</div>`).join('');
@@ -7907,6 +7965,16 @@ window.CHAR_ART = {
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.19 — 14 ต.ค. 2026</h4>
+<ul>
+<li>Jaidee (MSCBR-003): ความสามารถ "After he Contest" (ดู 5 ใบบนสุดแล้วติด Artifact) จะทำงาน<b>หลัง</b>การ Contest จบสมบูรณ์แล้ว — หลังแต้ม/ความเสียหาย, Retaliate, การทำลาย และการพิชิต Quest (เดิมทำงานก่อน Retaliate และก่อนการทำลาย/พิชิต Quest) · ถ้า Jaidee ถูกทำลายระหว่าง Contest จะไม่ทำงาน</li>
+<li>เพิ่มปุ่ม <b>↶ ย้อน</b> (Undo) ข้างปุ่มจบเทิร์น: ย้อน Action ล่าสุด 1 ครั้งในเทิร์นของคุณ (ลงการ์ด, Move, Empower, ติด Artifact, ทิ้งการ์ดเพื่อรับ Mana, Contest) · ย้อนไม่ได้ถ้ามีการจั่ว ทอยลูกเต๋า เปิดดู/ค้นการ์ด Show หรือฝ่ายตรงข้ามตอบสนอง — ปุ่มจะเป็นสีเทาพร้อมบอกเหตุผล · ใช้ได้เฉพาะเล่นกับ CPU (ปิดในโหมดเล่นกับเพื่อนและบทฝึก) · คีย์ลัด Ctrl+Z</li>
+<li>แก้ข้อความ Change log ของ v4.1.12</li>
+</ul>
+<h4>v4.1.18 — 14 ต.ค. 2026</h4>
+<ul>
+<li>เพิ่มปุ่ม 📜 Change log ในเมนูหลัก</li>
+</ul>
 <h4>v4.1.17 — 14 ต.ค. 2026</h4>
 <ul>
 <li>อัปเดตการ์ดตาม Google Sheet ล่าสุด</li>
@@ -7944,7 +8012,7 @@ window.CHAR_ART = {
 <h4>v4.1.12 — 13 ต.ค. 2026</h4>
 <ul>
 <li>EQPBK-001 เป็นการ์ด Spell: ฝ่ายตรงข้ามทิ้งการ์ดทั้งมือ แล้วจั่ว 2 ใบ</li>
-<li>Rexxa (MSCBL-002) แสดงค่าพลัง 0/3 · Smyle (MSCGR-015) แสดง 6/2 - 3/7 จนกว่าจะเลือกโหมด</li>
+<li>MSCBL-002 แสดงค่าพลัง 0/3 · Smyle (MSCGR-015) แสดง 6/2 - 3/7 จนกว่าจะเลือกโหมด</li>
 <li>เปลี่ยนคำว่า Morale เป็น <b>HP</b> ทั้งเกม</li>
 </ul>
 <h4>v4.1.11 — 13 ต.ค. 2026</h4>
