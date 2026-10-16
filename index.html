@@ -566,6 +566,13 @@ button { font-family: inherit; }
 .endbar { position: absolute; right: 14px; bottom: 14px; z-index: 30; }
 /* v4.1.19 Undo button: sits in the end-turn bar, always on top */
 .undo-btn { position: relative; z-index: 61; margin-bottom: 6px; display: block; margin-left: auto; font-weight: 700; padding: 6px 14px; border-radius: 12px; }
+/* v4.1.20 bot step-by-step */
+.bot-cap { position: fixed; left: 50%; top: 64px; transform: translateX(-50%) translateY(-8px); z-index: 70; max-width: min(92vw, 640px); padding: 10px 18px; border-radius: 14px; background: rgba(20,16,40,.92); color: #fff; font-weight: 700; font-size: 16px; text-align: center; box-shadow: 0 0 0 2px #ffcf4a, 0 8px 28px rgba(0,0,0,.5); opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; }
+.bot-cap.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+.bot-cap .bc-who { color: #ffcf4a; margin-right: 6px; }
+.bot-glow { outline: 3px solid #ffcf4a !important; outline-offset: 2px; box-shadow: 0 0 18px 6px rgba(255,207,74,.85) !important; animation: botGlow .7s ease-in-out infinite alternate; position: relative; z-index: 5; }
+@keyframes botGlow { from { box-shadow: 0 0 8px 2px rgba(255,207,74,.6); } to { box-shadow: 0 0 22px 8px rgba(255,207,74,.95); } }
+.bot-speed { position: fixed; right: 14px; top: 64px; z-index: 71; font-weight: 700; padding: 5px 12px; border-radius: 12px; font-size: 13px; }
 .undo-btn.off { opacity: .45; filter: grayscale(1); cursor: not-allowed; }
 .endturn {
   display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 176px; padding: 14px 18px 12px;
@@ -891,11 +898,12 @@ button { font-family: inherit; }
 <div class="info-bg" id="info"></div>
 <div class="sv-bg" id="stackview"></div>
 <div class="coach" id="coach"></div>
+<div class="bot-cap" id="bot-cap" aria-live="polite"></div>
 <div class="curtain" id="curtain"></div>
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.19';
+window.GQ_VERSION = '4.1.20';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -5993,10 +6001,11 @@ window.CHAR_ART = {
       fixedOrder: !!tut, rolls: tut ? [4] : null, names, decks: [myDeck, cpuDeck], cap: 2,
       ai: mode === 'single' ? [!!opts.spectate, true] : [false, false],
       ask: askHandler, onUpdate: scheduleRender,
-      onFx: f => { ui.fxq.push(f); if (ui.mode === 'host') ui.netFx.push({ ...f, cls: flipPts(f.cls), key: (f.key || '').startsWith('mana:') ? 'mana:' + (1 - +f.key.slice(5)) : f.key }); },
-      rollOff: rollOffUI, pause: ms => { render(); return sleep(ms); },
+      onFx: f => { botFx(f); ui.fxq.push(f); if (ui.mode === 'host') ui.netFx.push({ ...f, cls: flipPts(f.cls), key: (f.key || '').startsWith('mana:') ? 'mana:' + (1 - +f.key.slice(5)) : f.key }); },
+      rollOff: rollOffUI, pause: async ms => { render(); await botDrain(); return sleep(botSkip() ? Math.min(ms, 30) : ms); },
     });
     window.GAME = H;
+    hookBotLog(H);
     if (mode === 'host') bindHost();
     render();
     if (tut) {
@@ -6017,7 +6026,8 @@ window.CHAR_ART = {
   }
 
   async function askHandler(pi, req) {
-    if (H.P(pi).ai) { await sleep(200); return AI.choose(H, pi, req); }
+    await botDrain();
+    if (H.P(pi).ai) { await sleep(botSkip() ? 0 : 200); return AI.choose(H, pi, req); }
     if (ui.mode === 'host' && pi === 1) {
       ui.remoteWait = req.title; render();
       try { return await ui.net.ask(req); } finally { ui.remoteWait = null; render(); }
@@ -6042,14 +6052,63 @@ window.CHAR_ART = {
     p.resolve(v);
   }
 
+  // ---------------------------------------------------------------- v4.1.20: bot turn shown step by step (presentation only — rules/AI unchanged)
+  const BOT_SPEEDS = { slow: 1600, normal: 1000, fast: 450, skip: 0 };
+  const BOT_SPEED_LBL = { slow: '🐢 ช้า', normal: '▶ ปกติ', fast: '⏩ เร็ว', skip: '⏭ ข้าม' };
+  const BOT_ORDER = ['slow', 'normal', 'fast', 'skip'];
+  function botSpeed() { try { const v = localStorage.getItem('gemmquest.botSpeed'); return BOT_SPEEDS[v] != null ? v : 'normal'; } catch (e) { return 'normal'; } }
+  function setBotSpeed(v) { try { localStorage.setItem('gemmquest.botSpeed', v); } catch (e) { /* storage blocked */ } botSpeedBtn(); }
+  const botSkip = () => botSpeed() === 'skip';
+  window.GQ_setBotSpeed = setBotSpeed; window.GQ_botSpeed = botSpeed;
+  function botSpeedBtn() {
+    let b = document.getElementById('bot-speed');
+    if (!b) { b = document.createElement('button'); b.id = 'bot-speed'; b.className = 'btn bot-speed'; b.onclick = () => setBotSpeed(BOT_ORDER[(BOT_ORDER.indexOf(botSpeed()) + 1) % BOT_ORDER.length]); const g = $('scr-game'); if (!g) return; g.appendChild(b); }
+    b.textContent = 'CPU: ' + BOT_SPEED_LBL[botSpeed()];
+    b.title = 'ความเร็วการเล่นของ CPU (กดเพื่อเปลี่ยน: ช้า / ปกติ / เร็ว / ข้าม)';
+  }
+  function botActive() { return !!(H && ui && !ui.tut && (ui.mode === 'single') && H.G && H.G.active != null && H.P(H.G.active) && H.P(H.G.active).ai && H.G.phase !== 'over'); }
+  function hookBotLog(eng) {
+    if (!eng || eng._botHooked) return; eng._botHooked = true;
+    if (!ui.botQ) ui.botQ = [];
+    const orig = eng.log.bind(eng);
+    eng.log = (msg, cls) => { orig(msg, cls); try { if (eng === H && botActive() && !botSkip()) ui.botQ.push({ msg: String(msg), keys: [] }); } catch (e) { /* ignore */ } };
+    botSpeedBtn();
+  }
+  function botFx(f) { if (!ui || !ui.botQ || !ui.botQ.length || !f || !f.key) return; const it = ui.botQ[ui.botQ.length - 1]; if (/^(m|q|mana):/.test(f.key) && !it.keys.includes(f.key)) it.keys.push(f.key); }
+  function botGlow(keys) {
+    document.querySelectorAll('.bot-glow').forEach(x => x.classList.remove('bot-glow'));
+    for (const k of keys || []) {
+      if (k.startsWith('mana:')) { const pi = +k.slice(5); const el = document.querySelector(pi === ME ? '.pinfo-box.me' : '.pinfo-box:not(.me)'); if (el) el.classList.add('bot-glow'); continue; }
+      document.querySelectorAll(`[data-key="${k}"]`).forEach(x => x.classList.add('bot-glow'));
+    }
+  }
+  function botCapShow(msg) { const c = $('bot-cap'); if (!c) return; c.innerHTML = `<span class="bc-who">🤖 ${esc(H.P(H.G.active).name)}</span>${esc(msg.replace(/^—\s*|\s*—$/g, ''))}`; c.classList.add('on'); }
+  function botCapHide() { const c = $('bot-cap'); if (c) c.classList.remove('on'); botGlow([]); }
+  let botDraining = false;
+  async function botDrain() {
+    if (!ui || !ui.botQ || botDraining) return;
+    if (botSkip()) { ui.botQ.length = 0; return; }
+    botDraining = true;
+    try {
+      while (ui.botQ.length && H) {
+        const it = ui.botQ.shift();
+        render(); botCapShow(it.msg); botGlow(it.keys);
+        const ms = BOT_SPEEDS[botSpeed()]; if (!ms) { ui.botQ.length = 0; break; }
+        await sleep(ms);
+      }
+    } finally { botDraining = false; botGlow([]); }
+  }
+
   async function loop() {
     if (!H) return;
     while (!H.over() && H.P(H.G.active).ai) {
       ui.busy = true; render();
       const script = ui.tut && ui.tut.cpuTurn(H);
       if (script) { await sleep(500); await script(H); render(); await sleep(700); await H.endTurn(); continue; }
-      await AI.takeTurn(H, H.G.active, async () => { render(); await sleep(650); });
+      await AI.takeTurn(H, H.G.active, async () => { render(); await botDrain(); await sleep(botSkip() ? 0 : 150); });
+      await botDrain();
     }
+    botCapHide();
     ui.busy = false; render();
     if (H.over()) showGameOver();
   }
@@ -7965,6 +8024,8 @@ window.CHAR_ART = {
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.20 — 16 ต.ค. 2026</h4>
+<ul><li>CPU เล่นทีละขั้นให้เห็นชัด: Phase, รับ Mana, จั่ว, ทิ้งการ์ดเพื่อรับ Mana, ลงการ์ด, Move, Contest/Show, Empower, ความสามารถ และการพิชิต Quest — แต่ละขั้นมีแถบคำบรรยายภาษาไทย และการ์ด/เป้าหมายที่เกี่ยวข้องจะเรืองแสง</li><li>ปุ่มปรับความเร็ว CPU (ช้า / ปกติ / เร็ว / ข้าม) มุมขวาบน — จำค่าไว้ในเครื่อง</li><li>ระหว่าง CPU เล่นจะกดอะไรไม่ได้ · กติกาและการตัดสินใจของ CPU ไม่เปลี่ยน</li></ul>
 <h4>v4.1.19 — 14 ต.ค. 2026</h4>
 <ul>
 <li>Jaidee (MSCBR-003): ความสามารถ "After he Contest" (ดู 5 ใบบนสุดแล้วติด Artifact) จะทำงาน<b>หลัง</b>การ Contest จบสมบูรณ์แล้ว — หลังแต้ม/ความเสียหาย, Retaliate, การทำลาย และการพิชิต Quest (เดิมทำงานก่อน Retaliate และก่อนการทำลาย/พิชิต Quest) · ถ้า Jaidee ถูกทำลายระหว่าง Contest จะไม่ทำงาน</li>
