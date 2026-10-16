@@ -576,6 +576,13 @@ button { font-family: inherit; }
 .kw-tip.on { opacity: 1; }
 .kw-tip .kt-h { font-weight: 700; color: #6a4cff; font-size: 12px; margin-bottom: 4px; }
 .kw-tip ul { margin: 0; padding-left: 16px; } .kw-tip li { margin: 2px 0; } .kw-tip li.st b { color: #c2410c; }
+.mana-split { display: flex; flex-direction: column; gap: 2px; width: 100%; align-items: stretch; }
+.mana-split span { display: flex; justify-content: space-between; gap: 4px; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 8px; }
+.mn-main { background: #e3ecff; color: #1b3f9e; }
+.mn-tmp { background: #f1f1f4; color: #9a9aa8; }
+.mn-tmp.on { background: #ffe9a8; color: #8a5a00; box-shadow: 0 0 0 1px #f5b400; }
+.mn-tot { font-weight: 800; color: #1d1b3a; font-size: 12px; }
+.mn-src { font-size: 10px; color: #8a5a00; line-height: 1.2; }
 .bot-speed { position: fixed; left: 10px; bottom: 14px; z-index: 31; font-weight: 700; padding: 5px 12px; border-radius: 12px; font-size: 13px; }
 .undo-btn.off { opacity: .45; filter: grayscale(1); cursor: not-allowed; }
 .endturn {
@@ -910,7 +917,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.24';
+window.GQ_VERSION = '4.1.25';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -3934,7 +3941,7 @@ window.CHAR_ART = {
       const p = E.P(c.pi); if (!p.hand.length) return;
       const picked = await E.ask(c.pi, { kind: 'cards', title: 'ทิ้งการ์ดกี่ใบก็ได้ — ได้ Mana เท่าจำนวนที่ทิ้ง', cards: p.hand.slice(), min: 0, max: p.hand.length, hint: 'fuel' });
       picked.forEach(uid => { const i = p.hand.findIndex(x => x.uid === uid); if (i >= 0) p.discard.push(p.hand.splice(i, 1)[0]); });
-      p.temp += picked.length;
+      p.temp += picked.length; p.tsrc = p.tsrc || {}; p.tsrc.dis = (p.tsrc.dis || 0) + picked.length;
       E.log(`ทิ้ง ${picked.length} ใบ → Mana +${picked.length}`, 'cheer');
     },
   };
@@ -4578,7 +4585,7 @@ window.CHAR_ART = {
       if (i < 0) return false;
       const [card] = p.hand.splice(i, 1);
       p.discard.push(card);
-      p.temp += 1;
+      p.temp += 1; p.tsrc = p.tsrc || {}; p.tsrc.dis = (p.tsrc.dis || 0) + 1; // v4.1.25: remember where temporary Mana came from
       const d = this.def(card);
       this.log(`🗑 ${p.name} ทิ้ง ${d.type === 'Mascot' ? d.name + ' ' : ''}(${d.code}) เพื่อรับ Mana ชั่วคราว +1 (ใช้ได้ถึงจบเทิร์น)`, 'cheer');
       this.fx('mana:' + pi, '🗑 +1 Mana', 'cheer');
@@ -4592,7 +4599,7 @@ window.CHAR_ART = {
       this.countActivation(m);
       m.ex = true;
       const n = this.cud(m);
-      this.P(m.ctrl).temp += n;
+      this.P(m.ctrl).temp += n; { const p = this.P(m.ctrl); p.tsrc = p.tsrc || {}; p.tsrc.show = (p.tsrc.show || 0) + n; }
       m.shown = { turn: this.G.turn, n };
       this.log(`✦ ${this.mName(m)} Show → Mana ชั่วคราว +${n} (ใช้ได้ถึงจบเทิร์น)`, 'cheer');
       this.fx('m:' + m.uid, `✦ +${n} Mana`, 'cheer');
@@ -5002,7 +5009,7 @@ window.CHAR_ART = {
       if (this.over()) return;
       // … then "until end of turn" effects and temporary Mana wear off, and the turn passes to the opponent
       this.G.field.forEach(m => { m.tmpPow = 0; });
-      p.temp = 0;
+      p.temp = 0; p.tsrc = {};
       G.turn++;
       await this.startTurn(this.opp(pi));
     }
@@ -5161,6 +5168,36 @@ window.CHAR_ART = {
     return best;
   }
 
+  // ---------------- v4.1.25: deck archetype (aggro / mid / long) ----------------
+  const DRAW_RE = /draw|search|look at|reveal|top \d+ card/i;
+  function classifyDeck(deck) {
+    if (!deck || !deck.cards) return 'mid';
+    const cs = deck.cards.map(c => GQ.DB[c.code || c]).filter(Boolean); if (!cs.length) return 'mid';
+    const plan = deck.plan || '';
+    const rush = cs.filter(c => /\bRush\b/.test(c.text || '')).length;
+    const draw = cs.filter(c => DRAW_RE.test(c.text || '')).length;
+    const eq = cs.filter(c => c.type === 'Equipment').length, loc = cs.filter(c => c.type === 'Set Props').length;
+    const engine = draw + eq + 2 * loc - 1.5 * rush;
+    if (/\[บุกเร็ว\]/.test(plan)) return 'aggro';
+    if (/\[คุมเกม\]/.test(plan)) return 'long';
+    if (rush >= 6) return 'aggro';
+    if (engine >= 12) return 'long';
+    return 'mid';
+  }
+  const ARCH_TH = { aggro: 'บุกเร็ว (Aggro)', mid: 'กลางเกม (Midrange)', long: 'เกมยาว/สร้างเอนจิน (Long game)' };
+  function archOf(E, pi) {
+    const p = E.P(pi);
+    if (p.arch == null) {
+      p.arch = AI.forceArch != null ? AI.forceArch : AI.archOff ? 'mid' : classifyDeck(E.opts && E.opts.decks && E.opts.decks[pi]);
+      if (p.ai && typeof window !== 'undefined' && E === window.GAME) E.log(`🤖 ${p.name} เล่นสไตล์: ${ARCH_TH[p.arch]}`, 'dim');
+    }
+    return p.arch;
+  }
+  // tuned with bot games (v4.1.25): stricter discard-for-Mana / contest limits made long decks lose more, so they are off by default
+  const LC = { play: 3, hand: 0.6, handCap: 5, eq: 1, loc: 1, dfmFast: false, dfmHard: false, contest: false, junk: 3, keyCost: 5 };
+  const isLong = (E, pi) => !AI.archOff && E.P(pi).arch === 'long';
+  const isEngineCard = (E, c) => { const d = E.def(c); return d.type === 'Equipment' || d.type === 'Set Props' || DRAW_RE.test(d.text || ''); };
+
   // ---------------- turn planning ----------------
   function bestPlay(E, pi) {
     const p = E.P(pi);
@@ -5224,6 +5261,7 @@ window.CHAR_ART = {
         if (c.code === 'ACTBK-009' && E.P(1 - pi).deck.length > 6) continue;
         dest = 'play'; score = 4 + (d.cost || 0);
       }
+      if (isLong(E, pi) && isEngineCard(E, c)) score += (AI.LC || LC).play; // v4.1.25 long game: draw / Artifact / Location first
       if (!best || score > best.score) best = { score, card: c, dest };
     }
     return best;
@@ -5276,6 +5314,7 @@ window.CHAR_ART = {
       try { ok = E.playDests(pi, c).length > 0 && !(E.abil(c).canPlay && !E.abil(c).canPlay(E, pi)); } finally { p.temp -= need; }
       if (!ok) continue;
       const fodder = p.hand.filter(h => h !== c).map(h => ({ h, j: junkScore(E, pi, h) })).sort((a, b) => b.j - a.j).slice(0, need);
+      if (isLong(E, pi) && (AI.LC || LC).dfmFast && H < 7 && !(fodder.every(f => f.j >= ((AI.LC || LC).junk ?? 3)) || (cost >= ((AI.LC || LC).keyCost ?? 5) && need <= 1 && fodder[0].j >= 1))) continue; // v4.1.25: only true dead cards, or 1 card for a key play
       const loss = fodder.reduce((s, f) => s + Math.max(0, 3 - f.j), 0);   // value thrown away
       const gain = cost * 2 + (d.type === 'Mascot' ? 3 : 1) + (H >= 6 ? 3 : 0) - need;
       if (gain - loss <= 0) continue;
@@ -5311,6 +5350,7 @@ window.CHAR_ART = {
       if (!E.canContest(m) || E.power(m) <= 0) return;
       E.contestTargets(m).forEach(k => {
         const s = contestScore(E, m, k);
+        if (isLong(E, pi) && (AI.LC || LC).contest && k[0] === 'm' && s < 6) return; // v4.1.25: long game contests only when favourable
         if (!bestC || s > bestC.s) bestC = { s, m, k };
       });
     });
@@ -5392,6 +5432,7 @@ window.CHAR_ART = {
       const v = val(E, m) * (onQ(m) ? 1.1 : 0.8) + (willReady(m) ? 0 : -2);
       s += m.ctrl === pi ? v : -v;
     }
+    if (isLong(E, pi)) { const L = AI.LC || LC; s += Math.min(P.hand.length, L.handCap) * L.hand + G.field.reduce((n, m) => n + m.eq.filter(e => e.owner === pi).length, 0) * L.eq + E.questIdx().reduce((n, qi) => n + E.props(qi).filter(pr => pr.owner === pi).length, 0) * L.loc; } // v4.1.25 long game: healthy hand + engine pieces
     s += (AI.dfmOld ? P.hand.length * 2.5 : Math.min(P.hand.length, 4) * 2.5 + Math.max(0, P.hand.length - 4) * 0.7) - O.hand.length * 1.5 + P.main * 1.2; // v4.1.2: diminishing value for a big hand (no hoarding)
     if (P.deck.length <= 4) s -= (5 - P.deck.length) * 40;
     if (O.deck.length <= 4) s += (5 - O.deck.length) * 15;
@@ -5448,6 +5489,7 @@ window.CHAR_ART = {
         const rest = need - got;
         const H = p.hand.length, maxPitch = AI.dfmOld ? 2 : (H >= 7 ? 4 : H >= 6 ? 3 : 2), minCost = AI.dfmOld ? 3 : (H >= 6 ? 1 : 2);
         if (rest > maxPitch || (rest > 0 && (E.costOf(pi, c) < minCost || H - 1 - rest < (!AI.dfmOld && H >= 6 ? 0 : 1)))) continue;
+        if (rest > 0 && isLong(E, pi) && (AI.LC || LC).dfmHard && H < 7) { const ws = worstCards(E, pi, c, rest); { const L = AI.LC || LC; if (!(ws.every(w => junkScore(E, pi, w) >= (L.junk ?? 3)) || (E.costOf(pi, c) >= (L.keyCost ?? 5) && rest <= 1))) continue; } } // v4.1.25
         if (rest > 0) worstCards(E, pi, c, rest).forEach(w => pre.push({ a: 'dmana', uid: w.uid }));
         p.temp += need; let ds = [];
         try { ds = E.playDests(pi, c); } finally { p.temp -= need; }
@@ -5556,12 +5598,13 @@ window.CHAR_ART = {
   }
   async function takeTurnLevel(E, pi, wait) {
     if (E.P(pi).dfmOld != null) AI.dfmOld = E.P(pi).dfmOld; // A/B testing hook (per-player old discard-for-Mana policy)
+    archOf(E, pi);
     const lvl = (E.P(pi).aiLevel) || getLevel();
     if (lvl === 'hard') return takeTurnHard(E, pi, wait);
     if (lvl === 'easy') return takeTurnEasy(E, pi, wait);
     return takeTurn(E, pi, wait);
   }
-  window.AI = { choose: chooseLevel, takeTurn: takeTurnLevel, chooseNormal: choose, takeTurnNormal: takeTurn, takeTurnHard, LEVELS, getLevel, setLevel, stats: { think: 0, turns: 0 }, depth: 4, topK: 8, rolls: 8 };
+  window.AI = { classifyDeck, archOf, choose: chooseLevel, takeTurn: takeTurnLevel, chooseNormal: choose, takeTurnNormal: takeTurn, takeTurnHard, LEVELS, getLevel, setLevel, stats: { think: 0, turns: 0 }, depth: 4, topK: 8, rolls: 8 };
 })();
 
 </script>
@@ -5723,7 +5766,7 @@ window.CHAR_ART = {
     { title: 'หลังเวที — Backstage', kind: 'next', hl: () => ['[data-key="zb:0"]'],
       text: 'ลง Character ไว้ที่นี่ได้ — <b>ถูก Contest ไม่ได้</b> แต่ต้องใช้ <b>Move</b> ออกไปที่ Quest ก่อนถึงจะ Contest ได้ (และ Move <b>ถอยกลับ Backstage</b> ได้)<br><span class="dim">Backstage นับเป็นส่วนหนึ่งของ <b>Play Area</b> — ผลการ์ดบางใบยังโดน Character หลังเวทีได้</span>' },
     { title: 'Quest และ Mana', kind: 'next', hl: () => ['.qslot', '.pinfo-box.me'],
-      text: 'Quest 3 ใบอยู่ตรงกลาง แต้มของแต่ละฝ่ายแยกกัน (แถบ<span style="color:var(--me)">ฟ้า</span> = คุณ, แถบ<span style="color:var(--cpu)">ชมพู</span> = CPU) ใครถึง <b>Threshold</b> ก่อนพิชิต Quest<br>วงกลมสีรุ้งคือ <b>Mana หลัก</b> — ใช้จ่ายค่าลงการ์ด ได้เพิ่มทุกเทิร์นและเก็บสะสมได้' },
+      text: 'Quest 3 ใบอยู่ตรงกลาง แต้มของแต่ละฝ่ายแยกกัน (แถบ<span style="color:var(--me)">ฟ้า</span> = คุณ, แถบ<span style="color:var(--cpu)">ชมพู</span> = CPU) ใครถึง <b>Threshold</b> ก่อนพิชิต Quest<br>วงกลมสีรุ้งคือ <b>Mana รวม</b> ที่ใช้จ่ายได้ตอนนี้ — ใต้วงกลมแยกเป็น <b>💎 หลัก</b> (ได้เพิ่มทุกเทิร์น เก็บสะสมได้) และ <b>✦ ชั่วคราว</b> (จาก Show หรือทิ้งการ์ด หายเมื่อจบเทิร์น)' },
     { title: 'ทอยลูกเต๋า', startSetup: true, done: E => E.G.rolled,
       text: 'เริ่มเกม! กดปุ่ม <b>🎲 ทอยลูกเต๋า</b> — แต้มสูงกว่าได้เริ่มก่อน' },
     { title: 'วาง Quest', done: E => E.G.phase === 'action',
@@ -5760,7 +5803,7 @@ window.CHAR_ART = {
     { title: 'CPU เก็บแต้ม Quest', kind: 'next', hl: () => ['.qslot'],
       text: 'CPU ลง <b>DOMIIA</b> ที่มี <b>Rush</b> (ลงมาในสถานะ Ready ใช้ได้ทันที) แล้ว Contest ใส่ Quest — ดูแถบชมพูที่เพิ่มขึ้น' },
     { title: 'Show — หา Mana เพิ่ม', done: E => E.P(ME).temp >= 2, allow: { mascot: 'MSCGR-002', act: 'show' }, hl: E => [mKey(mine(E, 'MSCGR-002'))],
-      text: 'Babii ตั้งขึ้นแล้ว (Ready Phase) — <b>คลิก BABII</b> แล้วเลือก <b>✦ Show</b> — ได้ Mana <b>ชั่วคราว</b>เท่า Cuddliness (2) ใช้ได้เฉพาะเทิร์นนี้' },
+      text: 'Babii ตั้งขึ้นแล้ว (Ready Phase) — <b>คลิก BABII</b> แล้วเลือก <b>✦ Show</b> — ได้ Mana <b>ชั่วคราว</b>เท่า Cuddliness (2) ใช้ได้เฉพาะเทิร์นนี้ — ดูช่อง <b>✦ ชั่วคราว</b> สีเหลืองในกล่อง Mana' },
     { title: 'Empower — วางทับ', done: E => !!mine(E, 'MSCGR-001'), allow: { hand: 'MSCGR-001', dest: k => k.startsWith('e:') },
       hl: E => [handKey(E, 'MSCGR-001'), mKey(mine(E, 'MSCGR-021'))],
       text: '<b>ลาก PONPON ใบ Cost 3</b> ไปวาง<b>ทับ</b> PONPON บนสนาม (ชื่อเดียวกัน)<br>Empower จ่ายแค่<b>ส่วนต่าง</b> Cost: 3 − 1 = <b>2</b>' },
@@ -6466,8 +6509,10 @@ window.CHAR_ART = {
       const role = G.phase === 'setup' ? '' : (G.first === pi ? 'เริ่มก่อน' : 'เริ่มทีหลัง');
       return `<div class="pinfo-box ${pi === ME ? 'me' : 'cpu'} ${G.active === pi && G.phase !== 'setup' ? 'active' : ''}" style="grid-area:${pi === ME ? 'minfo' : 'oinfo'}" data-key="mana:${pi}">
         <div class="who">${esc(p.name)}${role ? `<small>${role}</small>` : ''}</div>
-        <div class="dial ${p.temp ? 'boost' : ''} ${ui.tempSeen && ui.tempSeen[pi] !== p.temp ? 'pop' : ''}" title="Mana ที่ใช้ได้ตอนนี้"><b>${p.main + p.temp}</b></div>
-        <small class="dl">${p.temp ? `<span class="plus">✦ +${p.temp} จาก Show</span><br>หลัก ${p.main} · ชั่วคราวหายเมื่อจบเทิร์น` : 'Mana'}</small>
+        <div class="dial ${p.temp ? 'boost' : ''} ${ui.tempSeen && ui.tempSeen[pi] !== p.temp ? 'pop' : ''}" title="Mana ที่ใช้ได้ตอนนี้ (รวม)"><b>${p.main + p.temp}</b></div>
+        <small class="dl"><span class="mn-tot">รวม ${p.main + p.temp}</span></small>
+        <div class="mana-split"><span class="mn-main" title="Mana หลัก — สะสมทุกเทิร์น">💎 หลัก <b>${p.main}</b></span><span class="mn-tmp ${p.temp ? 'on' : ''}" title="Mana ชั่วคราว — หายเมื่อจบเทิร์น">✦ ชั่วคราว <b>${p.temp}</b></span></div>
+        ${p.temp ? `<small class="mn-src">${[(p.tsrc || {}).show ? `จาก Show +${p.tsrc.show}` : '', (p.tsrc || {}).dis ? `จากทิ้งการ์ด +${p.tsrc.dis}` : ''].filter(Boolean).join(' · ') || 'ชั่วคราว'} · หายเมื่อจบเทิร์น</small>` : ''}
         <div class="trophies" title="Token พิชิต Quest">${tro}</div>
         <div class="meta">มือ ${p.hand.length} · Quest สำรอง ${p.questHand.length}</div>
       </div>`;
@@ -6530,7 +6575,7 @@ window.CHAR_ART = {
     $('status').innerHTML = `
       ${modeTxt ? `<div class="phase">${modeTxt}</div>` : ''}
       <div class="phase">${ui.spectate ? 'โหมดชม: CPU เล่นกันเอง' : G.active === ME && G.phase === 'action' ? '<b>Action Phase</b> — ลาก/คลิกการ์ดเพื่อเล่น · ลาก Character ไปที่เป้าหมาย · คลิกการ์ดในมือ → 🗑 ทิ้งเพื่อรับ Mana' : G.phase === 'end' ? 'End Phase…' : G.phase === 'start' ? `Ready / Gathering Phase…` : G.active === CPU ? `${esc(oppName())} กำลังเล่น…` : ''}</div>
-      <div>Mana ใช้ได้: <b>${E.cheering(ME)}</b> <span class="dim">(หลัก ${me.main}${me.temp ? ` + ชั่วคราว ${me.temp}` : ''})</span></div>
+      <div>Mana รวม: <b>${E.cheering(ME)}</b> <span class="dim">(💎 หลัก ${me.main}${me.temp ? ` + ✦ ชั่วคราว ${me.temp}` : ''})</span></div>
       ${flags.length ? `<div style="color:#c0143c;font-size:13px">${flags.join(' · ')}</div>` : ''}`;
 
     // big floating End Turn button next to the hand
@@ -8102,6 +8147,8 @@ window.CHAR_ART = {
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.25 — 17 ต.ค. 2026</h4>
+<ul><li><b>CPU เล่นตามสไตล์เด็ค:</b> จัดเด็คเป็น บุกเร็ว / กลางเกม / เกมยาว จากชื่อแผนของเด็คและส่วนผสม (Rush, การ์ดจั่ว/ค้น, Artifact, Location) — เด็คเกมยาวให้ความสำคัญกับการ์ดจั่ว Artifact และ Location ก่อน และรักษามือ/เอนจินบนสนาม · เด็คบุกเร็วและกลางเกมเล่นเหมือนเดิม · บันทึกเกมบอกสไตล์ของ CPU ตอนเริ่ม</li><li><b>กล่อง Mana ใหม่:</b> ตัวเลขใหญ่ = Mana <b>รวม</b> ที่ใช้ได้ · แยกแถว <b>💎 หลัก</b> (สีฟ้า) และ <b>✦ ชั่วคราว</b> (สีเหลือง) · บอกที่มาของ Mana ชั่วคราวถูกต้อง (จาก Show / จากทิ้งการ์ด) — แก้บั๊กเดิมที่ทิ้งการ์ดแล้วขึ้น "+1 จาก Show"</li></ul>
 <h4>v4.1.24 — 17 ต.ค. 2026</h4>
 <ul><li>หน้าหลักแสดง <b>🟢 ออนไลน์ตอนนี้: N คน</b> (และจำนวนที่กำลังเล่นอยู่) — ไม่ระบุตัวตน</li><li>เมนูใหม่ <b>🏆 Top 10 การ์ดยอดนิยม</b>: นับเฉพาะการ์ดที่ผู้เล่น (ไม่ใช่ CPU) ลงจริง ถ่วงน้ำหนักตาม Cost (การ์ด Cost สูงที่ลงได้บ่อยได้คะแนนมากกว่า) · ระหว่างที่ยังไม่มีสถิติรวมออนไลน์ จะแสดง "สถิติจากเครื่องนี้" แล้วสลับเป็นสถิติรวมอัตโนมัติ</li><li>เกมที่เล่นจบจะถูกเก็บสถิติแบบไม่ระบุตัวตน (เฉพาะรหัสการ์ดที่ลง) และส่งขึ้นเซิร์ฟเวอร์เมื่อพร้อม — ไม่นับบทฝึกและโหมดดู CPU เล่น</li></ul>
 <h4>v4.1.23 — 17 ต.ค. 2026</h4>
