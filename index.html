@@ -910,7 +910,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.21';
+window.GQ_VERSION = '4.1.22';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -2498,7 +2498,7 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "Flarey",
   "cost": 3,
-  "text": "Rush (played and Move without Exhaust)",
+  "text": "Rush (enters Ready)",
   "rarity": "R",
   "stat": "3/2",
   "cud": 1,
@@ -2589,7 +2589,7 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "Domiia",
   "cost": 1,
-  "text": "Rush (played and Move without Exhaust)",
+  "text": "Rush (enters Ready)",
   "rarity": "R",
   "stat": "1/1",
   "cud": 0,
@@ -4561,7 +4561,7 @@ window.CHAR_ART = {
       if (!this.canMove(m) || !this.moveTargets(m).includes(qi)) return false;
       this.countActivation(m);
       m.movedTurn = this.G.turn; // forced moves by effects (E.move) do not set this
-      if (!this.has(m, 'rush')) m.ex = true;
+      m.ex = true; // v4.1.22: Move Exhausts every Character, Rush included (Rush = enters Ready only)
       this.log(`${this.mName(m)} Move → ${this.locName(qi)}`, 'act');
       this.sfx('move', 'm:' + m.uid);
       await this.move(m, qi);
@@ -5757,7 +5757,7 @@ window.CHAR_ART = {
     { title: 'จบเทิร์นอีกครั้ง', done: E => myTurn(E, 5), allow: { end: true }, hl: () => ['#btn-end'],
       text: 'Babii อยู่หลังเวที (ถูก Contest ไม่ได้) — กด <b>จบเทิร์น</b>' },
     { title: 'CPU เก็บแต้ม Quest', kind: 'next', hl: () => ['.qslot'],
-      text: 'CPU ลง <b>DOMIIA</b> ที่มี <b>Rush</b> (ลงแล้วใช้ได้ทันที) แล้ว Contest ใส่ Quest — ดูแถบชมพูที่เพิ่มขึ้น' },
+      text: 'CPU ลง <b>DOMIIA</b> ที่มี <b>Rush</b> (ลงมาในสถานะ Ready ใช้ได้ทันที) แล้ว Contest ใส่ Quest — ดูแถบชมพูที่เพิ่มขึ้น' },
     { title: 'Show — หา Mana เพิ่ม', done: E => E.P(ME).temp >= 2, allow: { mascot: 'MSCGR-002', act: 'show' }, hl: E => [mKey(mine(E, 'MSCGR-002'))],
       text: 'Babii ตั้งขึ้นแล้ว (Ready Phase) — <b>คลิก BABII</b> แล้วเลือก <b>✦ Show</b> — ได้ Mana <b>ชั่วคราว</b>เท่า Cuddliness (2) ใช้ได้เฉพาะเทิร์นนี้' },
     { title: 'Empower — วางทับ', done: E => !!mine(E, 'MSCGR-001'), allow: { hand: 'MSCGR-001', dest: k => k.startsWith('e:') },
@@ -6670,7 +6670,7 @@ window.CHAR_ART = {
     Armor: 'ลดแต้มที่โดน Deal และ Contest ลงตามตัวเลข (ไม่ลดการเสีย HP โดยตรง)',
     Splash: 'Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้ามอยู่ Guard จะรับแต้มแทน Quest',
     Stun: 'Character ที่ถูก Stun จะตะแคงและไม่ Ready ใน Ready Phase ครั้งถัดไป',
-    Rush: 'ลงมาแล้วพร้อมใช้ทันที และ Move ไม่ทำให้ Exhaust — แต่ Move ได้ครั้งเดียวต่อเทิร์น (หลัง Move ยัง Contest/Show ได้)',
+    Rush: 'ลงมาในสถานะ Ready — Contest/Show/Move ได้ทันทีในเทิร์นที่ลง · แต่ Move จะทำให้ Exhaust เหมือน Character ทั่วไป (Move แล้ว Contest ต่อไม่ได้)',
     Hiding: 'ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ (ยกเว้นถูก Character ฝ่ายตรงข้าม Contest)',
     Breakthrough: 'Contest Character แล้วได้แต้มที่ Quest ด้วย',
     'Ranged Attack': 'Contest เป้าหมายใน Quest ที่อยู่ติดกันได้',
@@ -6871,7 +6871,7 @@ window.CHAR_ART = {
       <div class="r">Power ${E.power(m)} · HP ${E.mor(m)}/${E.maxMor(m)} · ${E.locName(m.loc)}</div>
       ${why.length ? `<div class="r" style="color:#c0143c">${why.join(' · ')}</div>` : ''}
       <button class="btn" data-act="c" ${cC ? '' : 'disabled'}>⚔ Contest (${E.power(m)})</button>
-      <button class="btn" data-act="m" ${cM ? '' : 'disabled'} ${E.movedNow(m) ? 'title="ย้ายได้ครั้งเดียวต่อเทิร์น"' : ''}>➜ Move ไป Quest อื่น${E.has(m, 'rush') ? ' (Rush)' : ''}${E.movedNow(m) ? ' — ย้ายได้ครั้งเดียวต่อเทิร์น' : ''}</button>
+      <button class="btn" data-act="m" ${cM ? '' : 'disabled'} ${E.movedNow(m) ? 'title="ย้ายได้ครั้งเดียวต่อเทิร์น"' : ''}>➜ Move ไป Quest อื่น${E.movedNow(m) ? ' — ย้ายได้ครั้งเดียวต่อเทิร์น' : ''}</button>
       <button class="btn" data-act="s" ${cS ? '' : 'disabled'}>✦ Show (+${E.cud(m)} Mana)</button>
       ${cC || cM ? '<div class="r">หรือลาก Character ไปที่เป้าหมาย / Quest ปลายทาง</div>' : ''}
       <button class="btn sm" data-act="v">🔍 ดูข้อมูลการ์ด</button>`;
@@ -8050,7 +8050,7 @@ window.CHAR_ART = {
     <h3>Backstage</h3><div class="box">• พื้นที่หน้าผู้เล่นที่ลง Character ได้<br>• เมื่อ Quest ถูกพิชิต Character ทุกตัวบน Quest นั้นย้ายมา Backstage ของเจ้าของอัตโนมัติ<br>• Move จาก Quest กลับมา Backstage ได้ (v4.1.3) · Move จาก Backstage เพื่อออกไป Quest<br>• Character ใน Backstage ถูก Contest ไม่ได้</div>
     <h3>ทอยลูกเต๋าในการ์ด</h3><div class="box">การ์ดที่เขียนว่า <b>Roll d6</b> ระบบจะทอยให้และแสดงผลกลางจอ (เช่น จั่ว/ได้ Mana เท่าครึ่งหนึ่งของแต้มที่ทอย <b>ปัดขึ้น</b>)</div>
     <h3>คำสำคัญ</h3><div class="box">
-      <b>จำกัด 2 ตัว/Quest</b> แต่ละฝ่ายมี Character บน Quest เดียวกันได้ไม่เกิน 2 ตัว (Empower ไม่นับเพิ่ม) · <b>Retaliate</b> เมื่อถูก Character อื่น Contest ตัวนี้จะ Contest ตอบกลับทันที · <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน ถ้าทำได้ · <b>Armor X</b> ลดแต้มที่โดน Deal/Contest ลง X (ไม่ลดการเสีย HP โดยตรง) · <b>Splash</b> Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้าม Guard จะรับแทน · <b>Rush</b> ลงมา/Move ได้โดยไม่ Exhaust แต่ <b>Move ได้ครั้งเดียวต่อเทิร์น</b> (หลัง Move ยัง Contest/Show ได้ตามปกติ · การถูกย้ายโดยผลการ์ดไม่นับ) · <b>Hiding</b> ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม Contest · <b>Breakthrough</b> Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว · <b>Ranged Attack</b> Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน · <b>Regenerate</b> ฟื้น HP เต็มเมื่อจบเทิร์น · <b>Stun</b> Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ครั้งถัดไป · <b>Gain control</b> ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา<br>
+      <b>จำกัด 2 ตัว/Quest</b> แต่ละฝ่ายมี Character บน Quest เดียวกันได้ไม่เกิน 2 ตัว (Empower ไม่นับเพิ่ม) · <b>Retaliate</b> เมื่อถูก Character อื่น Contest ตัวนี้จะ Contest ตอบกลับทันที · <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน ถ้าทำได้ · <b>Armor X</b> ลดแต้มที่โดน Deal/Contest ลง X (ไม่ลดการเสีย HP โดยตรง) · <b>Splash</b> Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้าม Guard จะรับแทน · <b>Rush</b> ลงมาในสถานะ Ready — Contest/Show หรือ Move ได้ทันทีในเทิร์นที่ลง · <b>Move ทำให้ Exhaust</b> เหมือน Character ทั่วไป (Move แล้ว Contest ต่อไม่ได้) · <b>Hiding</b> ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม Contest · <b>Breakthrough</b> Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว · <b>Ranged Attack</b> Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน · <b>Regenerate</b> ฟื้น HP เต็มเมื่อจบเทิร์น · <b>Stun</b> Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ครั้งถัดไป · <b>Gain control</b> ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา<br>
       <b>When played</b> เกิดผลทันทีที่ลงการ์ด · <b>Whenever …</b> เกิดผลทุกครั้งที่เงื่อนไขเกิด · <b>End turn / At the end of your turn</b> เกิดผลใน End Phase ของเรา · <b>Play … for free</b> เล่นโดยไม่จ่าย Mana</div>
     <h3>⚡ ความสามารถทำงานเมื่อไร</h3><div class="box">ทุกครั้งที่ความสามารถของการ์ดทำงาน จะมีสัญลักษณ์ <b>⚡</b> เด้งเหนือการ์ด พร้อมบรรทัดสีเหลืองในบันทึกเกม — ถ้าไม่เห็น ⚡ แปลว่าเงื่อนไขยังไม่ครบ (เช่น Rexxa ต้อง Contest <i>Quest</i> ถึงจะจั่ว)</div>
     <h3>วิธีเล่นในเกมนี้</h3><div class="box"><b>ลากวาง</b>การ์ดจากมือไปยังช่องที่ไฮไลต์ (Backstage / ช่องใต้ Quest / Character ชื่อเดียวกันเพื่อ Empower / Character เพื่อติด Artifact / Quest เพื่อวาง Location) หรือคลิกการ์ด → <kbd>เล่นการ์ดนี้</kbd> แล้วคลิกที่วาง · <b>ลาก Character</b> ที่พร้อม (กรอบเขียว) ไปที่ศัตรูหรือ Quest เพื่อ Contest หรือไปที่ช่องของ Quest อื่นเพื่อ Move (หรือคลิกเพื่อเลือก Contest / Move / Show) · <b>กดค้าง</b>ที่การ์ด (หรือคลิกขวา) เพื่อเปิดหน้าข้อมูลการ์ดใหญ่ · กด <kbd>จบเทิร์น</kbd> หรือ <kbd>Enter</kbd> เมื่อเสร็จ</div>`;
@@ -8101,6 +8101,8 @@ window.CHAR_ART = {
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.22 — 16 ต.ค. 2026</h4>
+<ul><li><b>เปลี่ยนกติกา Rush:</b> Rush = ลงมาในสถานะ Ready (Contest/Show/Move ได้ทันทีในเทิร์นที่ลง) แต่ <b>Move จะทำให้ Exhaust</b> เหมือน Character ทั่วไป — Move แล้ว Contest ต่อในเทิร์นเดียวกันไม่ได้อีกต่อไป (มีผลกับ Rush ที่ได้จาก Tingting MSCGR-018, Domiia MSCRD-003 และ Tomafox MSCRD-012 ด้วย)</li><li>ข้อความการ์ด Flarey (MSCRD-002) และ Domiia (MSCRD-017): "Rush (enters Ready)"</li><li>อัปเดตหน้ากติกา คำอธิบายคำสำคัญ และบทฝึก</li></ul>
 <h4>v4.1.21 — 16 ต.ค. 2026</h4>
 <ul><li>ชี้เมาส์ที่การ์ด (บนมือ, สนาม, Quest, Backstage, หน้าพรีวิว/ข้อมูลใหญ่, หน้าจัดเด็ค) จะมีกล่องอธิบาย<b>คำสำคัญ</b>ทุกคำบนการ์ดเป็นภาษาไทย (Debut, Rush, Guard, Splash, Ranged Attack, Retaliate, Breakthrough, Hiding, Armor, Regenerate, Stun, Empower, Gain control, Mill ฯลฯ) พร้อมสถานะที่ติดอยู่ตอนนี้ เช่น Stun / Hiding / Armor</li><li>ย้ายปุ่มความเร็ว CPU ไปมุมซ้ายล่าง ไม่ทับแผงด้านข้าง</li></ul>
 <h4>v4.1.20 — 16 ต.ค. 2026</h4>
