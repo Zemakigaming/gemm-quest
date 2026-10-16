@@ -572,7 +572,11 @@ button { font-family: inherit; }
 .bot-cap .bc-who { color: #ffcf4a; margin-right: 6px; }
 .bot-glow { outline: 3px solid #ffcf4a !important; outline-offset: 2px; box-shadow: 0 0 18px 6px rgba(255,207,74,.85) !important; animation: botGlow .7s ease-in-out infinite alternate; position: relative; z-index: 5; }
 @keyframes botGlow { from { box-shadow: 0 0 8px 2px rgba(255,207,74,.6); } to { box-shadow: 0 0 22px 8px rgba(255,207,74,.95); } }
-.bot-speed { position: fixed; right: 14px; top: 64px; z-index: 71; font-weight: 700; padding: 5px 12px; border-radius: 12px; font-size: 13px; }
+.kw-tip { position: fixed; z-index: 90; max-width: 300px; background: #fff; color: #1d1b3a; border: 2px solid #6a4cff; border-radius: 12px; padding: 8px 11px; font-size: 13px; line-height: 1.4; box-shadow: 0 8px 24px rgba(20,20,60,.3); pointer-events: none; opacity: 0; transition: opacity .12s; }
+.kw-tip.on { opacity: 1; }
+.kw-tip .kt-h { font-weight: 700; color: #6a4cff; font-size: 12px; margin-bottom: 4px; }
+.kw-tip ul { margin: 0; padding-left: 16px; } .kw-tip li { margin: 2px 0; } .kw-tip li.st b { color: #c2410c; }
+.bot-speed { position: fixed; left: 10px; bottom: 14px; z-index: 31; font-weight: 700; padding: 5px 12px; border-radius: 12px; font-size: 13px; }
 .undo-btn.off { opacity: .45; filter: grayscale(1); cursor: not-allowed; }
 .endturn {
   display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 176px; padding: 14px 18px 12px;
@@ -590,6 +594,8 @@ button { font-family: inherit; }
 @media (max-width: 900px) {
   .hand.me { padding-left: 8px; padding-right: 8px; padding-bottom: 86px; height: auto; }
   .endbar { left: 8px; right: 8px; bottom: 8px; }
+  .bot-speed { left: auto; right: 8px; bottom: auto; top: 54px; }
+  .kw-tip { display: none; }
   .endturn { width: 100%; flex-direction: row; justify-content: center; gap: 12px; padding: 10px; }
   .endturn .et-main { font-size: 20px; }
 }
@@ -898,12 +904,13 @@ button { font-family: inherit; }
 <div class="info-bg" id="info"></div>
 <div class="sv-bg" id="stackview"></div>
 <div class="coach" id="coach"></div>
+<div class="kw-tip" id="kw-tip" role="tooltip"></div>
 <div class="bot-cap" id="bot-cap" aria-live="polite"></div>
 <div class="curtain" id="curtain"></div>
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.20';
+window.GQ_VERSION = '4.1.21';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -6669,6 +6676,76 @@ window.CHAR_ART = {
     'Ranged Attack': 'Contest เป้าหมายใน Quest ที่อยู่ติดกันได้',
     Regenarate: 'ฟื้น HP เต็มเมื่อจบเทิร์น', Regenerate: 'ฟื้น HP เต็มเมื่อจบเทิร์น',
   };
+  // ---------------------------------------------------------------- v4.1.21: keyword tooltip on hover
+  const KW_TIP = [
+    ['Debut', /\bDebut\b|\bWhen played\b/i, 'เกิดผลทันทีเมื่อลงการ์ดใบนี้ (When played)'],
+    ['Rush', /\bRush\b/, KW_TH.Rush],
+    ['Guard', /\bGuard\b/, KW_TH.Guard],
+    ['Splash', /\bSplash\b/, KW_TH.Splash],
+    ['Ranged Attack', /\bRanged? Attack\b/i, 'Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน'],
+    ['Retaliate', /\bRetaliate\b/i, 'เมื่อถูก Character อื่น Contest ตัวนี้จะ Contest ตอบกลับทันที'],
+    ['Breakthrough', /\bBreakthrough\b/, 'Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว'],
+    ['Hiding', /\bHiding\b/, KW_TH.Hiding],
+    ['Armor', /\bArmor\s*\d*/, KW_TH.Armor],
+    ['Regenerate', /\bRegen[ae]rate\b/i, KW_TH.Regenerate],
+    ['Stun', /\bStun/i, KW_TH.Stun],
+    ['Empower', /\bEmpower/i, 'ลงทับ Character ชื่อเดียวกันที่ Cost ต่ำกว่า — รับความเสียหายและสถานะต่อจากใบเดิม'],
+    ['Gain control', /\bgain(s|ed)? control\b/i, 'ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา'],
+    ['Mill', /\bMill\b/i, 'ทิ้งการ์ดจากบนสุดของ Deck ลงกองทิ้งตามจำนวน'],
+    ['Show', /\bShow\b/, 'ใช้ความสามารถ Show ของ Character (แทนการ Contest) แล้ว Character จะ Exhaust'],
+    ['KO', /\bKO\b/, 'เกิดผลเมื่อ Character ตัวนี้ถูกทำลาย (HP หมด)'],
+    ['Whenever', /\bWhenever\b/i, 'เกิดผลทุกครั้งที่เงื่อนไขเกิด'],
+    ['End turn', /\bEnd turn\b|\bAt the end of your turn\b/i, 'เกิดผลใน End Phase ของเรา'],
+  ];
+  const KW_FLAG = { guard: 'Guard', splash: 'Splash', rush: 'Rush', hiding: 'Hiding', breakthrough: 'Breakthrough', range: 'Ranged Attack', regen: 'Regenerate' };
+  function kwTipItems(r) {
+    const c = DB[r.code]; if (!c) return [];
+    const txt = GQ.termFix ? GQ.termFix(c.text || '') : (c.text || '');
+    const out = [], seen = new Set();
+    const add = (k, d, st) => { if (seen.has(k)) return; seen.add(k); out.push({ k, d, st }); };
+    for (const [k, re, d] of KW_TIP) { const mm = txt.match(re); if (mm) add(k, d, false, seen.size); if (mm && k === 'Armor' && /\d/.test(mm[0])) out[out.length - 1].k = mm[0].trim(); }
+    const m = r.m;
+    if (m && E && E.inPlay && E.inPlay(m)) {
+      const st = [];
+      if (m.stunned) st.push({ k: '💫 ติด Stun อยู่', d: KW_TH.Stun });
+      for (const f of GQ.KW_LIST) if (E.has(m, f)) { const K = KW_FLAG[f]; const ent = KW_TIP.find(x => x[0] === K); if (!seen.has(K)) st.push({ k: K + ' (มีอยู่ตอนนี้)', d: ent ? ent[2] : '' }); seen.add(K); }
+      const ar = E.armor(m); if (ar && !out.some(x => /^Armor/.test(x.k))) st.push({ k: 'Armor ' + ar + ' (มีอยู่ตอนนี้)', d: KW_TH.Armor });
+      if (m.owner !== m.ctrl) st.push({ k: 'ถูกยึด (Gain control)', d: 'การ์ดนี้ถูกฝ่ายตรงข้ามยึดไปควบคุม' });
+      if (m.permEx) st.push({ k: 'Exhaust ถาวร', d: 'ไม่ Ready จนกว่าจะออกจากสนาม' });
+      st.forEach(x => out.push({ ...x, st: true }));
+    }
+    return out;
+  }
+  let kwTipEl = null;
+  function kwTipHide() { const t = $('kw-tip'); if (t) t.classList.remove('on'); kwTipEl = null; }
+  function kwTipShow(target, ev) {
+    const t = $('kw-tip'); if (!t) return;
+    if (ui && ui.drag) return kwTipHide();
+    if ($('info').classList.contains('on') && !$('info').contains(target)) return kwTipHide();
+    const el = target.closest && target.closest('[data-preview], [data-key^="m:"], [data-key^="q:"], [data-key^="h:"], [data-code]');
+    if (!el) return kwTipHide();
+    const r = resolveCard(target); if (!r || !DB[r.code]) return kwTipHide();
+    const items = kwTipItems(r); if (!items.length) return kwTipHide();
+    t.innerHTML = `<div class="kt-h">คำสำคัญ · ${esc(cardTitle(DB[r.code]))}</div><ul>${items.map(x => `<li class="${x.st ? 'st' : ''}"><b>${esc(x.k)}</b> — ${esc(x.d)}</li>`).join('')}</ul>`;
+    kwTipEl = el; t.classList.add('on');
+    kwTipPlace(ev);
+  }
+  function kwTipPlace(ev) {
+    const t = $('kw-tip'); if (!t || !kwTipEl) return;
+    const rc = kwTipEl.getBoundingClientRect(), W = innerWidth, Hh = innerHeight, tw = t.offsetWidth, th = t.offsetHeight, g = 12;
+    // beside the hovered card (never under the cursor); prefer right, then left, then above/below
+    let x = rc.right + g, y = (ev ? ev.clientY : rc.top) - th / 2;
+    if (x + tw > W - 6) x = rc.left - g - tw;
+    if (x < 6) { x = Math.min(Math.max(6, (ev ? ev.clientX : rc.left) - tw / 2), W - tw - 6); y = rc.top - g - th; if (y < 6) y = rc.bottom + g; }
+    y = Math.min(Math.max(6, y), Hh - th - 6);
+    if (ev && ev.clientX >= x - 8 && ev.clientX <= x + tw + 8 && ev.clientY >= y - 8 && ev.clientY <= y + th + 8) y = ev.clientY + 24 + th > Hh ? ev.clientY - th - 24 : ev.clientY + 24;
+    t.style.left = Math.round(x) + 'px'; t.style.top = Math.round(Math.max(6, y)) + 'px';
+  }
+  document.addEventListener('mouseover', e => { if (e.pointerType === 'touch') return; try { kwTipShow(e.target, e); } catch (err) { kwTipHide(); } });
+  document.addEventListener('mousemove', e => { if (kwTipEl) { if (!document.contains(kwTipEl)) kwTipHide(); else kwTipPlace(e); } });
+  document.addEventListener('mousedown', kwTipHide, true);
+  window.addEventListener('scroll', kwTipHide, true);
+  window.GQ_kwTipItems = kwTipItems;
   function closeInfo() { const el = $('info'); el.classList.remove('on'); el.innerHTML = ''; infoNav = null; }
   let infoNav = null;
   // a field Character / Quest opens with its attached cards (Artifact / Location) as a browsable stack
@@ -8024,6 +8101,8 @@ window.CHAR_ART = {
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.21 — 16 ต.ค. 2026</h4>
+<ul><li>ชี้เมาส์ที่การ์ด (บนมือ, สนาม, Quest, Backstage, หน้าพรีวิว/ข้อมูลใหญ่, หน้าจัดเด็ค) จะมีกล่องอธิบาย<b>คำสำคัญ</b>ทุกคำบนการ์ดเป็นภาษาไทย (Debut, Rush, Guard, Splash, Ranged Attack, Retaliate, Breakthrough, Hiding, Armor, Regenerate, Stun, Empower, Gain control, Mill ฯลฯ) พร้อมสถานะที่ติดอยู่ตอนนี้ เช่น Stun / Hiding / Armor</li><li>ย้ายปุ่มความเร็ว CPU ไปมุมซ้ายล่าง ไม่ทับแผงด้านข้าง</li></ul>
 <h4>v4.1.20 — 16 ต.ค. 2026</h4>
 <ul><li>CPU เล่นทีละขั้นให้เห็นชัด: Phase, รับ Mana, จั่ว, ทิ้งการ์ดเพื่อรับ Mana, ลงการ์ด, Move, Contest/Show, Empower, ความสามารถ และการพิชิต Quest — แต่ละขั้นมีแถบคำบรรยายภาษาไทย และการ์ด/เป้าหมายที่เกี่ยวข้องจะเรืองแสง</li><li>ปุ่มปรับความเร็ว CPU (ช้า / ปกติ / เร็ว / ข้าม) มุมขวาบน — จำค่าไว้ในเครื่อง</li><li>ระหว่าง CPU เล่นจะกดอะไรไม่ได้ · กติกาและการตัดสินใจของ CPU ไม่เปลี่ยน</li></ul>
 <h4>v4.1.19 — 14 ต.ค. 2026</h4>
