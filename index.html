@@ -910,7 +910,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.23';
+window.GQ_VERSION = '4.1.24';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -8102,6 +8102,8 @@ window.CHAR_ART = {
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.24 — 17 ต.ค. 2026</h4>
+<ul><li>หน้าหลักแสดง <b>🟢 ออนไลน์ตอนนี้: N คน</b> (และจำนวนที่กำลังเล่นอยู่) — ไม่ระบุตัวตน</li><li>เมนูใหม่ <b>🏆 Top 10 การ์ดยอดนิยม</b>: นับเฉพาะการ์ดที่ผู้เล่น (ไม่ใช่ CPU) ลงจริง ถ่วงน้ำหนักตาม Cost (การ์ด Cost สูงที่ลงได้บ่อยได้คะแนนมากกว่า) · ระหว่างที่ยังไม่มีสถิติรวมออนไลน์ จะแสดง "สถิติจากเครื่องนี้" แล้วสลับเป็นสถิติรวมอัตโนมัติ</li><li>เกมที่เล่นจบจะถูกเก็บสถิติแบบไม่ระบุตัวตน (เฉพาะรหัสการ์ดที่ลง) และส่งขึ้นเซิร์ฟเวอร์เมื่อพร้อม — ไม่นับบทฝึกและโหมดดู CPU เล่น</li></ul>
 <h4>v4.1.23 — 17 ต.ค. 2026</h4>
 <ul><li>คำสำคัญในข้อความการ์ดเป็น<b>ตัวหนา</b>ทุกที่ (บนมือ, สนาม, พรีวิว, หน้าข้อมูลใหญ่, จัดเด็ค, บทฝึก) — ใช้รายการเดียวกับกล่องอธิบายคำสำคัญ: Debut, Rush, Guard, Splash, Ranged Attack, Retaliate, Breakthrough, Hiding, Armor, Regenerate, Stun, Empower, Gain control, Mill, Show, KO ฯลฯ</li><li>หน้าเปิดซองบูสเตอร์ก็แสดงคำสำคัญเป็นตัวหนาเช่นกัน</li></ul>
 <h4>v4.1.22 — 16 ต.ค. 2026</h4>
@@ -8245,6 +8247,108 @@ window.CHAR_ART = {
   document.getElementById('changelog-close').onclick = close;
   ov.addEventListener('click', e => { if (e.target === ov) close(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && ov.classList.contains('on')) close(); });
+})();
+</script>
+
+<script>
+/* ===== GEMM NET (prototype, copied from Project Dungeon v1.1.51 ONLINE + v1.1.47 HoF pattern): same Supabase project, public anon key =====
+   (a) ONLINE: Realtime Presence on topic realtime:gemm_online (no table needed) → "🟢 ออนไลน์ตอนนี้: N คน" on the home screen
+   (b) CARD STATS: humans' card plays per finished game → POST /rest/v1/gemm_games (insert-only), Top 10 from view gemm_card_stats
+   Guards: automated browsers (navigator.webdriver) never connect/post unless window.__NET_LIVE_TEST; file:// never posts. */
+(function () {
+  const NET = { URL: 'https://wvmcfwuvewdindvtcvyn.supabase.co', KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2bWNmd3V2ZXdkaW5kdnRjdnluIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4ODI5MjAsImV4cCI6MjEwNzQ1ODkyMH0.MZbRHfXsMwp0gdu2xGsFfGaEfFfPetMYVC0_z2elJwo' };
+  window.GQNET = NET;
+  const guard = () => { try { if (window.__NET_LIVE_TEST) return false; return !!navigator.webdriver || typeof WebSocket === 'undefined'; } catch (e) { return true; } };
+  const sid = (k, store) => { try { let v = store.getItem(k); if (!v) { v = Math.random().toString(36).slice(2, 10) + Date.now().toString(36); store.setItem(k, v); } return v; } catch (e) { return 'x' + Math.random().toString(36).slice(2); } };
+  // ---------------------------------------------------------------- (a) online now
+  const ONLINE = { ws: null, n: 0, keys: {}, ref: 0, hb: null, tries: 0, topic: 'realtime:gemm_online', state: 'idle', id: sid('gq_onid', sessionStorage),
+    last1(e) { const ms = (e && e.metas) || []; return ms.length ? ms[ms.length - 1] : {}; },
+    meta() { const u = window.GameUI && GameUI.debug && GameUI.debug(); const inGame = !!(window.GAME && !GAME.over() && document.getElementById('scr-game').classList.contains('active'));
+      return { at: Date.now(), v: window.GQ_VERSION, inGame, mode: inGame && u ? u.mode : null }; },
+    url() { return NET.URL.replace(/^http/, 'ws') + '/realtime/v1/websocket?apikey=' + NET.KEY + '&vsn=1.0.0'; },
+    send(o) { try { if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(o)); } catch (e) {} },
+    track() { if (this.state === 'joined' || this.state === 'live') this.send({ topic: this.topic, event: 'presence', payload: { type: 'presence', event: 'track', payload: this.meta() }, ref: String(++this.ref), join_ref: this.jref }); },
+    start() { if (guard() || this.ws) return; this.state = 'connecting'; let ws; try { ws = new WebSocket(this.url()); } catch (e) { return this.fail(); } this.ws = ws;
+      ws.onopen = () => { const r = String(++this.ref); this.jref = r;
+        this.send({ topic: this.topic, event: 'phx_join', payload: { config: { broadcast: { ack: false, self: false }, presence: { key: this.id, enabled: true }, postgres_changes: [], private: false }, access_token: NET.KEY }, ref: r, join_ref: r });
+        this.hb = setInterval(() => this.send({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: String(++this.ref) }), 25000); };
+      ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (x) { return; } if (m.topic !== this.topic) return;
+        if (m.event === 'phx_reply' && m.ref === this.jref) { if (m.payload && m.payload.status === 'ok') { this.state = 'joined'; this.track(); } else { this.lastErr = JSON.stringify(m.payload).slice(0, 200); this.fail(); } }
+        else if (m.event === 'presence_state') { for (const k in (m.payload || {})) this.keys[k] = this.last1(m.payload[k]); this.upd(); }
+        else if (m.event === 'presence_diff') { const p = m.payload || {}; for (const k in (p.leaves || {})) if (!(p.joins || {})[k]) delete this.keys[k]; for (const k in (p.joins || {})) this.keys[k] = this.last1(p.joins[k]); this.upd(); }
+        else if (m.event === 'phx_error' || m.event === 'phx_close') { this.lastErr = m.event; this.fail(); } };
+      ws.onerror = () => { this.lastErr = 'ws error'; this.fail(); }; ws.onclose = e => { this.lastErr = 'ws close ' + (e && e.code); this.fail(); }; },
+    upd() { this.tries = 0; this.n = Math.max(1, Object.keys(this.keys).length); this.playing = Object.values(this.keys).filter(x => x && x.inGame).length; this.state = 'live'; this.render(); },
+    fail() { if (this.hb) clearInterval(this.hb); this.hb = null; const w = this.ws; this.ws = null; if (w) { w.onclose = w.onerror = w.onmessage = null; try { w.close(); } catch (e) {} }
+      this.state = 'off'; this.keys = {}; this.n = 0; this.render(); if (this.stopped) return; const d = Math.min(300000, this.tries ? 15000 * Math.pow(2, this.tries - 1) : 3000); this.tries++; clearTimeout(this.rt); this.rt = setTimeout(() => this.start(), d); },
+    stop() { this.stopped = true; clearTimeout(this.rt); if (this.ws) this.send({ topic: this.topic, event: 'phx_leave', payload: {}, ref: String(++this.ref) }); this.fail(); },
+    render() { const home = document.querySelector('#scr-home .home'); if (!home) return; let el = document.getElementById('gq-online');
+      if (!el) { el = document.createElement('div'); el.id = 'gq-online'; el.className = 'gq-online hide'; home.insertBefore(el, home.querySelector('nav.menu')); }
+      if (this.state === 'live' && this.n > 0) { el.innerHTML = `<i></i> ออนไลน์ตอนนี้: <b>${this.n}</b> คน${this.playing ? ` · กำลังเล่น <b>${this.playing}</b>` : ''}`; el.classList.remove('hide'); } else el.classList.add('hide'); } };
+  window.GQONLINE = ONLINE;
+  // re-track when entering/leaving a game (so "กำลังเล่น" stays right)
+  let lastIn = null; setInterval(() => { const m = ONLINE.meta(); if (m.inGame !== lastIn) { lastIn = m.inGame; ONLINE.track(); } }, 3000);
+
+  // ---------------------------------------------------------------- (b) card play stats (humans only)
+  const STATS = { cid: sid('gq_cid', localStorage), cur: null, QKEY: 'gq_statq', lastPost: 0,
+    eligible(E) { const u = GameUI.debug(); return E === window.GAME && u && !u.tut && !u.spectate && ['single', 'hotseat', 'host'].includes(u.mode); },
+    begin(E) { const u = GameUI.debug(); this.cur = { E, gid: Math.random().toString(36).slice(2, 10) + Date.now().toString(36), mode: u.mode, plays: [], humans: [0, 1].filter(pi => !E.P(pi).ai) };
+      this.cur.deck = [...new Set(this.cur.humans.flatMap(pi => E.P(pi).deck.concat(E.P(pi).hand).map(c => c.code)))]; },
+    finish(E) { const c = this.cur; if (!c || c.E !== E) return; this.cur = null;
+      // plays undone with ↶ (card back in hand/deck) are dropped
+      const back = new Set(c.humans.flatMap(pi => E.P(pi).hand.concat(E.P(pi).deck).map(x => x.uid)));
+      const plays = {}; for (const p of c.plays) if (!back.has(p.uid)) plays[p.code] = (plays[p.code] || 0) + 1;
+      if (!Object.keys(plays).length) return;
+      const row = { client_id: this.cid, game_id: c.gid, version: String(window.GQ_VERSION || ''), mode: c.mode, turns: E.G.turn, human_won: c.humans.includes(E.G.winner), plays, deck: c.deck };
+      this.local(row); this.queue(row); this.flush(); },
+    local(row) { try { const L = JSON.parse(localStorage.getItem('gq_mystats') || '{"games":0,"plays":{},"decks":{}}'); L.games++; for (const k in row.plays) L.plays[k] = (L.plays[k] || 0) + row.plays[k]; for (const k of row.deck) L.decks[k] = (L.decks[k] || 0) + 1; localStorage.setItem('gq_mystats', JSON.stringify(L)); } catch (e) {} },
+    queue(row) { try { const q = JSON.parse(localStorage.getItem(this.QKEY) || '[]'); q.push(row); localStorage.setItem(this.QKEY, JSON.stringify(q.slice(-100))); } catch (e) {} },
+    async flush() { if (guard() || location.protocol === 'file:' || !navigator.onLine) return; if (Date.now() - this.lastPost < (this.lastErr === 404 ? 600000 : 20000)) return;
+      let q; try { q = JSON.parse(localStorage.getItem(this.QKEY) || '[]'); } catch (e) { q = []; } if (!q.length) return; this.lastPost = Date.now();
+      try { const r = await fetch(NET.URL + '/rest/v1/gemm_games', { method: 'POST', headers: { apikey: NET.KEY, Authorization: 'Bearer ' + NET.KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal,resolution=ignore-duplicates' }, body: JSON.stringify(q) });
+        if (r.ok || r.status === 409) { localStorage.setItem(this.QKEY, '[]'); this.lastErr = null; } else this.lastErr = r.status; } catch (e) { this.lastErr = String(e); } } };
+  window.GQSTATS = STATS;
+  const PR = Engine.prototype;
+  const oPlay = PR.playCard; PR.playCard = async function (pi, uid, dest, o) {
+    const track = !this.P(pi).ai && window.GameUI && STATS.eligible(this);
+    const card = track ? this.P(pi).hand.find(c => c.uid === uid) : null;
+    const res = await oPlay.call(this, pi, uid, dest, o);
+    if (card && !this.P(pi).hand.some(c => c.uid === uid)) { if (!STATS.cur || STATS.cur.E !== this) STATS.begin(this); STATS.cur.plays.push({ uid, code: card.code, turn: this.G.turn }); }
+    return res; };
+  const oOver = PR.gameOver; PR.gameOver = function (...a) { const r = oOver.apply(this, a); try { if (window.GameUI && STATS.cur && STATS.cur.E === this) STATS.finish(this); } catch (e) {} return r; };
+  window.addEventListener('online', () => STATS.flush()); setInterval(() => STATS.flush(), 60000); setTimeout(() => STATS.flush(), 5000);
+
+  // ---------------------------------------------------------------- Top 10 popular cards
+  // score = Σ plays × w(cost), w(cost) = max(cost,0.5)^1.5 ; shrink by sample: × D/(D+K) with D = games the card was in a human deck, K = 10
+  const W = c => Math.pow(Math.max(c || 0, 0.5), 1.5), K = 10;
+  function score(rows) { const DB = GQ.DB;
+    return rows.filter(r => DB[r.code]).map(r => { const c = DB[r.code].cost || 0, D = r.decks || 0, P = r.plays || 0;
+      return { ...r, cost: c, w: W(c), rate: D ? P / D : 0, score: P * W(c) * (D / (D + K)) }; }).sort((a, b) => b.score - a.score); }
+  async function fetchTop() { if (location.protocol === 'file:' && !window.__NET_LIVE_TEST) throw new Error('offline file');
+    const r = await fetch(NET.URL + '/rest/v1/gemm_card_stats?select=code,plays,games,decks', { headers: { apikey: NET.KEY, Authorization: 'Bearer ' + NET.KEY } });
+    if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
+  function localRows() { try { const L = JSON.parse(localStorage.getItem('gq_mystats') || '{"plays":{},"decks":{}}'); return Object.keys(L.decks).map(code => ({ code, plays: L.plays[code] || 0, decks: L.decks[code] })); } catch (e) { return []; } }
+  async function openTop() {
+    const md = document.getElementById('modal'); if (md) { md.classList.remove('on'); md.innerHTML = ''; }
+    document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'scr-top'));
+    const box = document.getElementById('top-list'); box.innerHTML = '<p class="top-note">กำลังโหลด…</p>';
+    let rows, src = '🌐 ผู้เล่นทุกคน';
+    try { rows = await fetchTop(); if (!rows.length) throw new Error('empty'); } catch (e) { rows = localRows(); src = '📱 สถิติจากเครื่องนี้ (ยังโหลดสถิติรวมออนไลน์ไม่ได้ — จะสลับเป็นสถิติรวมอัตโนมัติเมื่อพร้อม)'; }
+    const top = score(rows).slice(0, 10);
+    box.innerHTML = `<p class="top-note">${src} · นับเฉพาะการ์ดที่ผู้เล่น (ไม่ใช่ CPU) ลงจริง · คะแนน = จำนวนครั้งที่ลง × น้ำหนักตาม Cost</p>` + (top.length ? `<ol class="top10">${top.map((r, i) => `<li><span class="rk">${i + 1}</span><div class="tc" data-preview="${r.code}">${R.card(r.code, {})}</div><div class="ti"><b>${GQ.DB[r.code].name || (GQ.TYPE_LABEL[GQ.DB[r.code].type] || GQ.DB[r.code].type)}</b> <small>${r.code}</small><br>Cost ${r.cost} · ลง ${r.plays} ครั้ง · อยู่ในเด็ค ${r.decks} เกม<br>อัตราการลง ${(r.rate).toFixed(2)} ครั้ง/เกม · คะแนน <b>${r.score.toFixed(1)}</b></div></li>`).join('')}</ol>` : '<p>ยังไม่มีข้อมูล — ลองเล่นสักเกมก่อนนะ</p>'); }
+  window.GQTOP = { openTop, score, fetchTop, localRows };
+
+  // ---------------------------------------------------------------- UI glue
+  const st = document.createElement('style'); st.textContent = `.gq-online{display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;margin:6px auto 4px;padding:4px 14px;border-radius:999px;background:rgba(255,255,255,.75);border:2px solid #4ee07a;width:max-content;color:#1d1b3a}.gq-online.hide{display:none}.gq-online i{width:9px;height:9px;border-radius:50%;background:#2fcf63;box-shadow:0 0 6px #2fcf63;animation:gqOnP 2s ease-in-out infinite}@keyframes gqOnP{50%{opacity:.4}}
+.top10{list-style:none;padding:0;margin:10px auto;max-width:760px;display:flex;flex-direction:column;gap:10px}.top10 li{display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:8px 14px;box-shadow:0 3px 10px rgba(20,20,60,.12)}.top10 .rk{font-size:28px;font-weight:800;color:#6a4cff;min-width:40px;text-align:center}.top10 .tc .card{--cw:84px}.top10 .ti{font-size:14px;line-height:1.5}#top-list{padding:12px}.top-note{max-width:760px;margin:6px auto;padding:8px 14px;border-radius:12px;background:rgba(255,255,255,.92);color:#1d1b3a;font-size:14px;line-height:1.5;text-align:center}#top-list>p:not(.top-note){color:#fff;text-align:center}`;
+  document.head.appendChild(st);
+  const sec = document.createElement('section'); sec.id = 'scr-top'; sec.className = 'screen';
+  sec.innerHTML = '<header class="topbar"><button class="btn" data-go="home">← กลับ</button><h2>🏆 Top 10 การ์ดยอดนิยม</h2><span></span></header><div id="top-list"></div>';
+  document.getElementById('scr-rules').after(sec);
+  const b = document.createElement('button'); b.className = 'btn big'; b.id = 'btn-top'; b.textContent = '🏆 Top 10 การ์ดยอดนิยม'; b.onclick = openTop;
+  document.getElementById('btn-changelog').before(b);
+  const go = () => { ONLINE.render(); ONLINE.start(); }; setTimeout(go, 300);
+  window.addEventListener('pagehide', () => { try { ONLINE.stop(); } catch (e) {} });
 })();
 </script>
 </body>
