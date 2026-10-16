@@ -803,6 +803,14 @@ body.bst{margin:0;font-family:Kanit,sans-serif;background:linear-gradient(160deg
 .slot.open .lbl{opacity:1}
 .slot.rare.open .fr{border-radius:12px;animation:glow 1.6s ease-in-out infinite alternate}
 .slot.er.open .fr{animation:glowEr 1.2s ease-in-out infinite alternate}
+.slot.foil .fr{position:relative;border-radius:12px;overflow:hidden}
+.slot.foil.open .fr{animation:glowF 1.4s ease-in-out infinite alternate}
+.slot.foil .fr::after{content:'';position:absolute;inset:0;z-index:5;pointer-events:none;mix-blend-mode:color-dodge;opacity:.55;
+background:linear-gradient(115deg,transparent 20%,#ff4d4d 30%,#ffd84d 38%,#4dff88 46%,#4dd2ff 54%,#b44dff 62%,transparent 72%);background-size:250% 250%;animation:sheen 2.4s linear infinite}
+.slot.foil .fr::before{content:'FOIL';position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:6;font:700 12px Kanit;letter-spacing:2px;padding:1px 10px;border-radius:999px;color:#1b1f4b;background:linear-gradient(90deg,#ff9a9a,#ffe98a,#9affc0,#9ae4ff,#d59aff);box-shadow:0 0 6px #fff}
+@keyframes sheen{from{background-position:120% 0}to{background-position:-120% 0}}
+@keyframes glowF{from{box-shadow:0 0 12px 3px #9ae4ff}to{box-shadow:0 0 30px 10px #ffe98a}}
+.lbl.F{background:linear-gradient(90deg,#ff9a9a,#ffe98a,#9affc0,#9ae4ff,#d59aff)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent}
 @keyframes glow{from{box-shadow:0 0 10px 2px #ffd54a}to{box-shadow:0 0 26px 8px #ffd54a}}
 @keyframes glowEr{from{box-shadow:0 0 12px 3px #ff5cf1}to{box-shadow:0 0 34px 12px #6af3ff}}
 .lbl{background:none!important;}.lbl.C{color:#cfd3ff}.lbl.U{color:#7ef0a6}.lbl.R{color:#ffd54a}.lbl.ER{color:#ff8cf5}
@@ -820,7 +828,7 @@ table.col tr.zero{opacity:.35}
 <button class="b s" id="b10">เปิด 10 ซอง</button>
 <button class="b s" id="bBox">เปิดทั้งกล่อง (24 ซอง)</button>
 <button class="b d" id="bReset">รีเซ็ต</button>
-<span class="info">1 ซอง = 12 ใบ: คอมมอน 7 · อันคอมมอน 3 · แรร์ 2 (แรร์เปิดท้ายสุด) — คลิกการ์ดเพื่อพลิก</span></header>
+<span class="info">1 ซอง = 13 ใบ: คอมมอน 7 · อันคอมมอน 3 · แรร์ 2 · ฟอยล์ 1 (สุ่มจากทุกใบ เปิดท้ายสุด) — คลิกการ์ดเพื่อพลิก</span></header>
 <div id="pack"></div>
 <div class="panel"><h2>สถิติ</h2><div class="stats" id="stats"></div></div>
 <div class="panel"><h2>คอลเลกชัน</h2>
@@ -838,36 +846,36 @@ const POOL={C:[],UC:[],R:[]},UNMAPPED=[];
 CARDS.forEach(c=>{c.slot=SLOT_OF(c.rarity);c.er=/^ER/.test(c.rarity.trim());if(c.slot)POOL[c.slot].push(c);else UNMAPPED.push(c);});
 const BY={};CARDS.forEach(c=>BY[c.code]=c);
 const LAB={C:'คอมมอน',UC:'อันคอมมอน',R:'แรร์',ER:'แรร์พิเศษ (ER)'};
-const KEY='gq_booster_v1';let S=JSON.parse(localStorage.getItem(KEY)||'null')||{packs:0,cnt:{}};
+const KEY='gq_booster_v1';let S=JSON.parse(localStorage.getItem(KEY)||'null')||{packs:0,cnt:{}};S.foil=S.foil||{};S.cnt=S.cnt||{};S.packs=S.packs||0;
 const save=()=>localStorage.setItem(KEY,JSON.stringify(S));
 const pick=a=>a[Math.floor(Math.random()*a.length)];
-function makePack(){const p=[];for(let i=0;i<7;i++)p.push(pick(POOL.C));for(let i=0;i<3;i++)p.push(pick(POOL.UC));for(let i=0;i<2;i++)p.push(pick(POOL.R));return p;}
-function record(p){S.packs++;p.forEach(c=>S.cnt[c.code]=(S.cnt[c.code]||0)+1);save();}
+function makePack(){const p=[];for(let i=0;i<7;i++)p.push(pick(POOL.C));for(let i=0;i<3;i++)p.push(pick(POOL.UC));for(let i=0;i<2;i++)p.push(pick(POOL.R));p.push(Object.assign({},pick(CARDS),{foil:true}));return p;}
+function record(p){S.packs++;p.forEach(c=>{const m=c.foil?S.foil:S.cnt;m[c.code]=(m[c.code]||0)+1;});save();}
 function cardHTML(c){let h=fill(RENDER[c.code]);const lab=c.er?'ER':c.slot==='UC'?'U':c.slot;return h.replace(/<span class="rar r-C">C<\/span>/,`<span class="rar r-${c.slot==='R'?'R':'C'}">${lab}</span>`);}
 let cur=[],timer=null;window.lastPack=null;
-function showPack(p){clearTimeout(timer);cur=p;window.lastPack=p.map(c=>({code:c.code,slot:c.slot,rarity:c.rarity}));
+function showPack(p){clearTimeout(timer);cur=p;window.lastPack=p.map(c=>({code:c.code,slot:c.foil?'F':c.slot,rarity:c.rarity,foil:!!c.foil}));
  const el=document.getElementById('pack');
- el.innerHTML=p.map((c,i)=>{const t=c.er?'ER':c.slot==='UC'?'U':c.slot;return `<div class="slot ${c.slot==='R'?'rare':''} ${c.er?'er':''}" data-i="${i}" data-slot="${c.slot}"><div class="flip"><div class="bk">${fill(BACK)}</div><div class="fr">${cardHTML(c)}</div></div><div class="lbl ${t}">${c.er?LAB.ER:LAB[c.slot]} · ${c.rarity}</div></div>`}).join('');
+ el.innerHTML=p.map((c,i)=>{const t=c.foil?'F':c.er?'ER':c.slot==='UC'?'U':c.slot;return `<div class="slot ${c.foil?'foil':c.slot==='R'?'rare':''} ${c.er&&!c.foil?'er':''}" data-i="${i}" data-slot="${c.foil?'F':c.slot}"><div class="flip"><div class="bk">${fill(BACK)}</div><div class="fr">${cardHTML(c)}</div></div><div class="lbl ${t}">${c.foil?'✦ FOIL ✦ · ':''}${c.er?LAB.ER:LAB[c.slot]} · ${c.rarity}</div></div>`}).join('');
  el.querySelectorAll('.slot').forEach(s=>s.onclick=()=>s.classList.add('open'));}
-function revealSeq(i=0){const s=document.querySelectorAll('#pack .slot');if(i>=s.length)return;s[i].classList.add('open');timer=setTimeout(()=>revealSeq(i+1),i>=9?650:220);}
+function revealSeq(i=0){const s=document.querySelectorAll('#pack .slot');if(i>=s.length)return;s[i].classList.add('open');timer=setTimeout(()=>revealSeq(i+1),i>=12?1000:i>=9?650:220);}
 function openOne(){const p=makePack();record(p);showPack(p);timer=setTimeout(()=>revealSeq(0),300);render();}
 function openMany(n){let p;for(let i=0;i<n;i++){p=makePack();record(p);}showPack(p);document.querySelectorAll('#pack .slot').forEach(s=>s.classList.add('open'));render();}
-function render(){const tot={C:0,UC:0,R:0,ER:0};let owned=0;
- CARDS.forEach(c=>{const n=S.cnt[c.code]||0;if(n)owned++;tot[c.er?'ER':c.slot]+=n;});
+function render(){const tot={C:0,UC:0,R:0,ER:0};let owned=0,fo=0,fu=0;
+ CARDS.forEach(c=>{const n=S.cnt[c.code]||0;const f=S.foil[c.code]||0;fo+=f;if(f)fu++;if(n||f)owned++;tot[c.er?'ER':c.slot]+=n;});
  const all=tot.C+tot.UC+tot.R+tot.ER;
- document.getElementById('stats').innerHTML=`<div>เปิดแล้ว <b>${S.packs}</b> ซอง</div><div>การ์ดทั้งหมด <b>${all}</b> ใบ</div><div>สะสมครบ <b>${owned}/${CARDS.length}</b> แบบ</div>`+
+ document.getElementById('stats').innerHTML=`<div>เปิดแล้ว <b>${S.packs}</b> ซอง</div><div>การ์ดทั้งหมด <b>${all}</b> ใบ</div><div>สะสมครบ <b>${owned}/${CARDS.length}</b> แบบ</div><div>ฟอยล์ <b>${fo}</b> ใบ · <b>${fu}/${CARDS.length}</b> แบบ</div>`+
   ['C','UC','R','ER'].map(k=>`<div>${LAB[k]}: <b>${tot[k]}</b> (${all?(100*tot[k]/all).toFixed(1):0}%)</div>`).join('')+
   `<div>พูล: C ${POOL.C.length} · UC ${POOL.UC.length} · R ${POOL.R.length} (รวม ER ${CARDS.filter(c=>c.er).length})${UNMAPPED.length?' · แมปไม่ได้ '+UNMAPPED.length:''}</div>`;
  const fR=document.getElementById('fR').value,fO=document.getElementById('fO').value;
- const rows=CARDS.filter(c=>(!fR||(fR==='ER'?c.er:c.slot===fR&&!c.er))&&(!fO||(fO==='1')===!!S.cnt[c.code]))
+ const rows=CARDS.filter(c=>(!fR||(fR==='ER'?c.er:c.slot===fR&&!c.er))&&(!fO||(fO==='1')===!!(S.cnt[c.code]||S.foil[c.code])))
   .sort((a,b)=>(S.cnt[b.code]||0)-(S.cnt[a.code]||0)||a.code.localeCompare(b.code));
- document.getElementById('col').innerHTML='<tr><th>รหัส</th><th>ชื่อ</th><th>ประเภท</th><th>สี</th><th>Rarity (ชีต)</th><th>ช่องในซอง</th><th>จำนวน</th></tr>'+
-  rows.map(c=>`<tr class="${S.cnt[c.code]?'':'zero'}"><td>${c.code}</td><td>${c.name||'—'}</td><td>${c.type}</td><td>${c.tab}</td><td>${c.rarity}</td><td>${c.slot||'?'}</td><td><b>${S.cnt[c.code]||0}</b></td></tr>`).join('');}
+ document.getElementById('col').innerHTML='<tr><th>รหัส</th><th>ชื่อ</th><th>ประเภท</th><th>สี</th><th>Rarity (ชีต)</th><th>ช่องในซอง</th><th>จำนวน</th><th>ฟอยล์</th></tr>'+
+  rows.map(c=>`<tr class="${S.cnt[c.code]||S.foil[c.code]?'':'zero'}"><td>${c.code}</td><td>${c.name||'—'}</td><td>${c.type}</td><td>${c.tab}</td><td>${c.rarity}</td><td>${c.slot||'?'}</td><td><b>${S.cnt[c.code]||0}</b></td><td>${S.foil[c.code]?'✦ '+S.foil[c.code]:'0'}</td></tr>`).join('');}
 document.getElementById('bOpen').onclick=openOne;
 document.getElementById('bReveal').onclick=()=>{clearTimeout(timer);document.querySelectorAll('#pack .slot').forEach(s=>s.classList.add('open'));};
 document.getElementById('b10').onclick=()=>openMany(10);
 document.getElementById('bBox').onclick=()=>openMany(24);
-document.getElementById('bReset').onclick=()=>{if(!confirm('ล้างคอลเลกชันทั้งหมด?'))return;S={packs:0,cnt:{}};save();document.getElementById('pack').innerHTML='';render();};
+document.getElementById('bReset').onclick=()=>{if(!confirm('ล้างคอลเลกชันทั้งหมด?'))return;S={packs:0,cnt:{},foil:{}};save();document.getElementById('pack').innerHTML='';render();};
 fR.onchange=fO.onchange=render;
 window.BOOSTER={makePack,POOL,UNMAPPED,openOne,openMany,state:()=>S};
 render();
