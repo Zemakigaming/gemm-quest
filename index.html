@@ -910,7 +910,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.22';
+window.GQ_VERSION = '4.1.23';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -5587,7 +5587,8 @@ window.CHAR_ART = {
   const svg = (k, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${ICON[k] || ''}</svg>`;
 
   // keyword highlighting in ability text
-  const KW_RE = /\b(Guard|Armor \d|Splash|Rush|Hiding|Breakthrough|Ranged Attack|Range Attack|Regenarate|Regenerate|When played|When Played|Whenever|End turn|At the end of your turn|Complete the Quest)\b/g;
+  // v4.1.23: same keyword list as the hover tooltip; whole words only, applied to already-escaped text
+  const KW_RE = /\b(Debut|When [Pp]layed|Rush|Guard|Splash|Ranged? Attack|Retaliate|Breakthrough|Hiding|Armor \d+|Armor|Regen[ae]rate|Stun(?:ned)?|Empower|[Gg]ain(?:s|ed)? control|Mill|Show|KO|Whenever|End turn|At the end of your turn|Complete the Quest)\b/g;
   // "FC" no longer exists as a card type — shown as a red "Character" until the card text is updated.
   // Old sheet wording (Mascot / Action card / Set Props / Cheering) is shown in the rulebook-v3 vocabulary.
   function fmtText(t) {
@@ -8101,6 +8102,8 @@ window.CHAR_ART = {
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.23 — 17 ต.ค. 2026</h4>
+<ul><li>คำสำคัญในข้อความการ์ดเป็น<b>ตัวหนา</b>ทุกที่ (บนมือ, สนาม, พรีวิว, หน้าข้อมูลใหญ่, จัดเด็ค, บทฝึก) — ใช้รายการเดียวกับกล่องอธิบายคำสำคัญ: Debut, Rush, Guard, Splash, Ranged Attack, Retaliate, Breakthrough, Hiding, Armor, Regenerate, Stun, Empower, Gain control, Mill, Show, KO ฯลฯ</li><li>หน้าเปิดซองบูสเตอร์ก็แสดงคำสำคัญเป็นตัวหนาเช่นกัน</li></ul>
 <h4>v4.1.22 — 16 ต.ค. 2026</h4>
 <ul><li><b>เปลี่ยนกติกา Rush:</b> Rush = ลงมาในสถานะ Ready (Contest/Show/Move ได้ทันทีในเทิร์นที่ลง) แต่ <b>Move จะทำให้ Exhaust</b> เหมือน Character ทั่วไป — Move แล้ว Contest ต่อในเทิร์นเดียวกันไม่ได้อีกต่อไป (มีผลกับ Rush ที่ได้จาก Tingting MSCGR-018, Domiia MSCRD-003 และ Tomafox MSCRD-012 ด้วย)</li><li>ข้อความการ์ด Flarey (MSCRD-002) และ Domiia (MSCRD-017): "Rush (enters Ready)"</li><li>อัปเดตหน้ากติกา คำอธิบายคำสำคัญ และบทฝึก</li></ul>
 <h4>v4.1.21 — 16 ต.ค. 2026</h4>
