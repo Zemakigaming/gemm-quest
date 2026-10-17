@@ -583,6 +583,10 @@ button { font-family: inherit; }
 .mn-tmp.on { background: #ffe9a8; color: #8a5a00; box-shadow: 0 0 0 1px #f5b400; }
 .mn-tot { font-weight: 800; color: #1d1b3a; font-size: 12px; }
 .mn-src { font-size: 10px; color: #8a5a00; line-height: 1.2; }
+#tester-bar { position: fixed; left: 10px; bottom: 52px; z-index: 31; display: flex; gap: 6px; align-items: center; background: rgba(255,255,255,.92); border: 2px solid #b9bde8; border-radius: 12px; padding: 4px 6px; }
+#tester-bar .tb-tag { font-weight: 700; font-size: 12px; color: #6a3fb5; padding: 0 4px; }
+.tester-box { border: 2px solid #d9c8ff; background: #faf6ff; border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.tester-box .join input { text-transform: none; letter-spacing: 0; }
 .bot-speed { position: fixed; left: 10px; bottom: 14px; z-index: 31; font-weight: 700; padding: 5px 12px; border-radius: 12px; font-size: 13px; }
 .undo-btn.off { opacity: .45; filter: grayscale(1); cursor: not-allowed; }
 .endturn {
@@ -917,7 +921,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.25';
+window.GQ_VERSION = '4.1.26';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -2786,7 +2790,7 @@ window.CARD_LIST = [
   "type": "Action",
   "el": "ECLIPSE",
   "name": "",
-  "cost": 3,
+  "cost": 5,
   "text": "Opponent discard all their hand and draw 2 cards.",
   "rarity": "C",
   "stat": ""
@@ -4130,7 +4134,7 @@ window.CHAR_ART = {
     inst(code) { return { uid: this.uidN++, code }; }
     P(pi) { return this.G.p[pi]; }
     opp(pi) { return 1 - pi; }
-    log(msg, cls) { this.G.log.push({ msg, cls: cls || '', t: this.G.turn }); if (this.G.log.length > 300) this.G.log.shift(); }
+    log(msg, cls) { if (this.fullLog) this.fullLog.push({ msg: String(msg), t: this.G.turn, a: this.G.active, ts: Date.now() }); this.G.log.push({ msg, cls: cls || '', t: this.G.turn }); if (this.G.log.length > 300) this.G.log.shift(); }
     fx(key, text, cls) { this.onFx({ key, text, cls }); }
     update() { this.enforceCap('update'); this.onUpdate(); }
     over() { return this.G.phase === 'over'; }
@@ -5195,6 +5199,17 @@ window.CHAR_ART = {
   }
   // tuned with bot games (v4.1.25): stricter discard-for-Mana / contest limits made long decks lose more, so they are off by default
   const LC = { play: 3, hand: 0.6, handCap: 5, eq: 1, loc: 1, dfmFast: false, dfmHard: false, contest: false, junk: 3, keyCost: 5 };
+  // v4.1.26 resource awareness: keep a reserve hand scaled to Quests still needed and the opponent's hand
+  // per-archetype config (shipped OFF in v4.1.26: no archetype passed the ±3-point gate vs the old CPU); a player may carry its own (P.rc) — used by test opponents
+  const RCD = { on: false, k: 4, a: 0.5, b: 0.5, min: 1, max: 5, dfmGate: true, noDump: true };
+  const RCA = { aggro: RCD, mid: RCD, long: RCD };
+  const rcCfg = (E, pi) => { const P = E.P(pi); if (P.rc) return P.rc; const M = AI.RCA || RCA; return M[P.arch || 'mid'] || RCD; };
+  const rcOn = (E, pi) => !E.P(pi).rcOff && !!rcCfg(E, pi).on;
+  function reserveOf(E, pi) { const p = E.P(pi), o = E.P(1 - pi), c = rcCfg(E, pi);
+    if (c.mode === 'human') { // save after the first Quest, push hard once the opponent is out of cards
+      if (o.hand.length <= (c.push ?? 1)) return 0; return ((p.won || 0) + (o.won || 0)) ? c.hi : c.lo; }
+    const left = 3 - (p.won || 0);
+    return Math.max(c.min, Math.min(c.max, Math.round(o.hand.length * c.a + left * c.b))); }
   const isLong = (E, pi) => !AI.archOff && E.P(pi).arch === 'long';
   const isEngineCard = (E, c) => { const d = E.def(c); return d.type === 'Equipment' || d.type === 'Set Props' || DRAW_RE.test(d.text || ''); };
 
@@ -5261,6 +5276,7 @@ window.CHAR_ART = {
         if (c.code === 'ACTBK-009' && E.P(1 - pi).deck.length > 6) continue;
         dest = 'play'; score = 4 + (d.cost || 0);
       }
+      if (rcOn(E, pi) && rcCfg(E, pi).noDump && d.type === 'Mascot' && (d.cost || 0) <= 2 && myCount >= 3 && p.hand.length <= reserveOf(E, pi)) continue; // v4.1.26
       if (isLong(E, pi) && isEngineCard(E, c)) score += (AI.LC || LC).play; // v4.1.25 long game: draw / Artifact / Location first
       if (!best || score > best.score) best = { score, card: c, dest };
     }
@@ -5314,6 +5330,7 @@ window.CHAR_ART = {
       try { ok = E.playDests(pi, c).length > 0 && !(E.abil(c).canPlay && !E.abil(c).canPlay(E, pi)); } finally { p.temp -= need; }
       if (!ok) continue;
       const fodder = p.hand.filter(h => h !== c).map(h => ({ h, j: junkScore(E, pi, h) })).sort((a, b) => b.j - a.j).slice(0, need);
+      if (rcOn(E, pi) && rcCfg(E, pi).dfmGate && H - 1 - need < reserveOf(E, pi) - 1 && cost < 5) continue; // v4.1.26
       if (isLong(E, pi) && (AI.LC || LC).dfmFast && H < 7 && !(fodder.every(f => f.j >= ((AI.LC || LC).junk ?? 3)) || (cost >= ((AI.LC || LC).keyCost ?? 5) && need <= 1 && fodder[0].j >= 1))) continue; // v4.1.25: only true dead cards, or 1 card for a key play
       const loss = fodder.reduce((s, f) => s + Math.max(0, 3 - f.j), 0);   // value thrown away
       const gain = cost * 2 + (d.type === 'Mascot' ? 3 : 1) + (H >= 6 ? 3 : 0) - need;
@@ -5432,6 +5449,7 @@ window.CHAR_ART = {
       const v = val(E, m) * (onQ(m) ? 1.1 : 0.8) + (willReady(m) ? 0 : -2);
       s += m.ctrl === pi ? v : -v;
     }
+    if (rcOn(E, pi)) s -= rcCfg(E, pi).k * Math.max(0, reserveOf(E, pi) - P.hand.length); // v4.1.26
     if (isLong(E, pi)) { const L = AI.LC || LC; s += Math.min(P.hand.length, L.handCap) * L.hand + G.field.reduce((n, m) => n + m.eq.filter(e => e.owner === pi).length, 0) * L.eq + E.questIdx().reduce((n, qi) => n + E.props(qi).filter(pr => pr.owner === pi).length, 0) * L.loc; } // v4.1.25 long game: healthy hand + engine pieces
     s += (AI.dfmOld ? P.hand.length * 2.5 : Math.min(P.hand.length, 4) * 2.5 + Math.max(0, P.hand.length - 4) * 0.7) - O.hand.length * 1.5 + P.main * 1.2; // v4.1.2: diminishing value for a big hand (no hoarding)
     if (P.deck.length <= 4) s -= (5 - P.deck.length) * 40;
@@ -5489,6 +5507,7 @@ window.CHAR_ART = {
         const rest = need - got;
         const H = p.hand.length, maxPitch = AI.dfmOld ? 2 : (H >= 7 ? 4 : H >= 6 ? 3 : 2), minCost = AI.dfmOld ? 3 : (H >= 6 ? 1 : 2);
         if (rest > maxPitch || (rest > 0 && (E.costOf(pi, c) < minCost || H - 1 - rest < (!AI.dfmOld && H >= 6 ? 0 : 1)))) continue;
+        if (rest > 0 && rcOn(E, pi) && rcCfg(E, pi).dfmGate && H - 1 - rest < reserveOf(E, pi) - 1 && E.costOf(pi, c) < 5) continue; // v4.1.26: pitch only if the reserve survives, or for a big play
         if (rest > 0 && isLong(E, pi) && (AI.LC || LC).dfmHard && H < 7) { const ws = worstCards(E, pi, c, rest); { const L = AI.LC || LC; if (!(ws.every(w => junkScore(E, pi, w) >= (L.junk ?? 3)) || (E.costOf(pi, c) >= (L.keyCost ?? 5) && rest <= 1))) continue; } } // v4.1.25
         if (rest > 0) worstCards(E, pi, c, rest).forEach(w => pre.push({ a: 'dmana', uid: w.uid }));
         p.temp += need; let ds = [];
@@ -5604,7 +5623,7 @@ window.CHAR_ART = {
     if (lvl === 'easy') return takeTurnEasy(E, pi, wait);
     return takeTurn(E, pi, wait);
   }
-  window.AI = { classifyDeck, archOf, choose: chooseLevel, takeTurn: takeTurnLevel, chooseNormal: choose, takeTurnNormal: takeTurn, takeTurnHard, LEVELS, getLevel, setLevel, stats: { think: 0, turns: 0 }, depth: 4, topK: 8, rolls: 8 };
+  window.AI = { _bestPlay: bestPlay, classifyDeck, archOf, reserveOf, choose: chooseLevel, takeTurn: takeTurnLevel, chooseNormal: choose, takeTurnNormal: takeTurn, takeTurnHard, LEVELS, getLevel, setLevel, stats: { think: 0, turns: 0 }, depth: 4, topK: 8, rolls: 8 };
 })();
 
 </script>
@@ -6037,7 +6056,8 @@ window.CHAR_ART = {
     if (tut) [myDeck, cpuDeck] = tut.decks();
     const mode = opts.guest ? 'guest' : opts.host ? 'host' : opts.hotseat ? 'hotseat' : 'single';
     ui = { mode, pending: null, select: null, drag: null, busy: true, fxq: [], netFx: [], rects: {}, decks: [myDeck, cpuDeck], peek: false,
-      spectate: !!opts.spectate, tut, net: opts.host || opts.guest || null, viewPi: 0, curtainQ: Promise.resolve(), names: opts.names };
+      spectate: !!opts.spectate, tut, net: opts.host || opts.guest || null, viewPi: 0, curtainQ: Promise.resolve(), names: opts.names, tester: !!opts.tester, t0: Date.now() };
+    testerBar();
     clearInterval(tutTimer);
     H = null; E = null;
     $('log').innerHTML = '';
@@ -6055,7 +6075,7 @@ window.CHAR_ART = {
       onFx: f => { botFx(f); ui.fxq.push(f); if (ui.mode === 'host') ui.netFx.push({ ...f, cls: flipPts(f.cls), key: (f.key || '').startsWith('mana:') ? 'mana:' + (1 - +f.key.slice(5)) : f.key }); },
       rollOff: rollOffUI, pause: async ms => { render(); await botDrain(); return sleep(botSkip() ? Math.min(ms, 30) : ms); },
     });
-    window.GAME = H;
+    window.GAME = H; H.fullLog = [];
     hookBotLog(H);
     if (mode === 'host') bindHost();
     render();
@@ -7159,6 +7179,60 @@ window.CHAR_ART = {
     md.querySelectorAll('[data-pv]').forEach(d => d.onclick = () => openInfo({ code: cards[+d.dataset.pv].code, list: cards.map(c => ({ code: c.code })), idx: +d.dataset.pv }));
   }
 
+  // ---------------------------------------------------------------- v4.1.26: tester room tools (download log, synced restart)
+  function testerBar() {
+    let b = document.getElementById('tester-bar');
+    if (!ui.tester) { if (b) b.remove(); return; }
+    if (!b) { b = document.createElement('div'); b.id = 'tester-bar'; $('scr-game').appendChild(b); }
+    b.innerHTML = '<span class="tb-tag">🧪 tester</span><button class="btn sm" data-tlog>📥 ดาวน์โหลด log</button><button class="btn sm" data-trs>🔄 เริ่มใหม่</button>';
+    b.querySelector('[data-tlog]').onclick = downloadLog;
+    b.querySelector('[data-trs]').onclick = () => Lobby.restartMenu();
+  }
+  const pad2 = n => String(n).padStart(2, '0');
+  function bkk(ts) { const d = new Date(ts + 7 * 3600e3); return `${d.getUTCFullYear()}-${pad2(d.getUTCMonth() + 1)}-${pad2(d.getUTCDate())} ${pad2(d.getUTCHours())}:${pad2(d.getUTCMinutes())}:${pad2(d.getUTCSeconds())} (UTC+7)`; }
+  function cardLine(code) { const c = GQ.DB[code]; if (!c) return code; if (c.type === 'Quest') return `${code}${c.name ? ' ' + c.name : ''}`; const t = (c.text || '').replace(/\s+/g, ' '); return `${code} ${c.type === 'Mascot' ? c.name : GQ.cardTitle(c)} [${c.type} · cost ${c.cost}${c.stat ? ' · ' + c.stat : ''}]${c.type !== 'Mascot' && t ? ' — ' + (t.length > 60 ? t.slice(0, 60) + '…' : t) : ''}`; }
+  function deckText(d) {
+    if (!d) return '  (ไม่ทราบ)';
+    const cnt = {}; (d.cards || []).forEach(c => { cnt[c] = (cnt[c] || 0) + 1; });
+    return `  ${d.name || d.id} (${d.el || ''}, ${(d.cards || []).length} ใบ)\n  Quest: ${(d.quests || []).map(q => cardLine(q)).join(' | ')}\n` + Object.keys(cnt).sort().map(c => `    ${cnt[c]}x ${cardLine(c)}`).join('\n');
+  }
+  // host only: builds the full text log (the guest asks the host for it)
+  function buildLog() {
+    if (!H) return null;
+    const G = H.G, now = Date.now(), over = G.phase === 'over';
+    const L = [];
+    L.push('GEMM QUEST — game log (ห้อง tester)');
+    L.push(`เวอร์ชัน: v${window.GQ_VERSION}`);
+    L.push(`เริ่มเกม: ${bkk(ui.t0)}`);
+    L.push(`บันทึกเมื่อ: ${bkk(now)}${over ? '' : ' — เกมยังไม่จบ'}`);
+    L.push(`ผู้เล่น 1 (เจ้าของห้อง): ${H.P(0).name}`, `ผู้เล่น 2: ${H.P(1).name}`);
+    L.push(`ผู้ชนะ: ${over && G.winner != null ? H.P(G.winner).name + (G.winReason ? ' — ' + G.winReason : '') : '-'}`);
+    L.push(`จำนวนเทิร์น: ${G.turn}`);
+    L.push(`Quest ที่ชนะ: ${H.P(0).name} ${H.P(0).won || 0} · ${H.P(1).name} ${H.P(1).won || 0}`);
+    L.push('', 'เด็ค ' + H.P(0).name + ':', deckText(ui.decks[0]), '', 'เด็ค ' + H.P(1).name + ':', deckText(ui.decks[1]), '');
+    L.push('==== การเล่นทีละเทิร์น ====');
+    let cur = null;
+    for (const l of H.fullLog || []) {
+      const key = l.t + ':' + l.a;
+      if (key !== cur) { cur = key; L.push('', l.t === 0 ? '--- ช่วงเตรียมเกม ---' : `--- เทิร์น ${l.t}${l.a != null && H.P(l.a) ? ' · ' + H.P(l.a).name : ''} ---`); }
+      L.push(`[${bkk(l.ts).slice(11, 19)}] ${l.msg}`);
+    }
+    return L.join('\n') + '\n';
+  }
+  function saveText(txt) {
+    const a = document.createElement('a');
+    const d = new Date(Date.now() + 7 * 3600e3), stamp = d.toISOString().slice(0, 16).replace(/[-:T]/g, '');
+    a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' }));
+    a.download = `gemmquest_log_v${window.GQ_VERSION}_${stamp}.txt`;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }
+  async function downloadLog() {
+    let txt = null;
+    if (ui.mode === 'guest') { if (ui.net && ui.net.open) txt = await ui.net.getLog(); }
+    else txt = buildLog();
+    if (!txt) { const md = openModal('<h3>ดาวน์โหลด log ไม่ได้</h3><p>ติดต่อเจ้าของห้องไม่ได้ — ลองใหม่อีกครั้ง</p><div class="mbtns"><button class="btn" data-x>ปิด</button></div>'); md.querySelector('[data-x]').onclick = closeModal; return; }
+    window.__lastLog = txt; saveText(txt);
+  }
   function showGameOver() {
     refreshView();
     const G = E.G; const win = G.winner === ME;
@@ -7168,13 +7242,15 @@ window.CHAR_ART = {
     const md = openModal(`<img src="${GQ.asset('assets/logo.png')}" alt=""><h2>${title}</h2>
       <p>${esc(G.winReason)}</p>
       <div class="mbtns">${online
-        ? `<button class="btn primary" data-room>กลับห้อง${ui.mode === 'host' ? ' (เล่นอีกตา)' : ''}</button>`
+        ? (ui.tester ? `<button class="btn primary" data-trs2>🔄 เริ่มใหม่</button><button class="btn" data-tlog2>📥 ดาวน์โหลด log</button>` : `<button class="btn primary" data-room>กลับห้อง${ui.mode === 'host' ? ' (เล่นอีกตา)' : ''}</button>`)
         : `<button class="btn primary" data-again>เล่นอีกครั้ง</button><button class="btn" data-setup>เลือกเด็คใหม่</button>`}
         <button class="btn" data-home>หน้าหลัก</button><button class="btn sm" data-x>ดูกระดาน</button></div>`, 'win');
     const q = s => md.querySelector(s);
     if (q('[data-again]')) q('[data-again]').onclick = () => start(ui.decks[0], ui.decks[1], { spectate: ui.spectate, hotseat: ui.mode === 'hotseat', names: ui.names, tutorial: ui.tut ? Tutorial.create() : null });
     if (q('[data-setup]')) q('[data-setup]').onclick = () => { closeModal(); App.show(ui.mode === 'hotseat' ? 'mp' : 'setup'); };
     if (q('[data-room]')) q('[data-room]').onclick = () => { closeModal(); Lobby.backToRoom(); };
+    if (q('[data-trs2]')) q('[data-trs2]').onclick = () => { closeModal(); Lobby.restartMenu(); };
+    if (q('[data-tlog2]')) q('[data-tlog2]').onclick = downloadLog;
     q('[data-home]').onclick = () => { closeModal(); if (ui.net) ui.net.close(); App.show('home'); };
     q('[data-x]').onclick = closeModal;
   }
@@ -7253,7 +7329,7 @@ window.CHAR_ART = {
     window.addEventListener('resize', scheduleRender);
   }
 
-  window.GameUI = { start, bind, render, debug: () => ui, viewState };
+  window.GameUI = { buildLog: () => buildLog(), isTester: () => !!(ui && ui.tester), openModal: (h, c) => openModal(h, c), closeModal: () => closeModal(), start, bind, render, debug: () => ui, viewState };
   window.viewCardModal = code => openInfo({ code });
 })();
 
@@ -7461,6 +7537,12 @@ window.CHAR_ART = {
   const CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
   const newCode = () => Array.from({ length: 8 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join('');
   const fmtCode = c => c.slice(0, 4) + '-' + c.slice(4);
+  // v4.1.26: permanent tester room. To change the password, set TESTER_PASS_SHA256 to the SHA-256 (hex) of the new one
+  // (e.g. `echo -n 'new-pass' | sha256sum`). The fixed room code is derived from the password itself, so the hash
+  // below does not reveal the room.
+  const TESTER_PASS_SHA256 = '68ee2ae7d6cb631b0baa93696b0ea9d8a61f32dbf82b9811ab92470e61fa0892';
+  async function sha256hex(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join(''); }
+  async function testerCode(pass) { const h = await sha256hex('gemmquest-tester-room|' + pass); return Array.from({ length: 8 }, (_, i) => CODE_CHARS[parseInt(h.slice(i * 2, i * 2 + 2), 16) % CODE_CHARS.length]).join(''); }
 
   // ---------------------------------------------------------------- connection
   class Net {
@@ -7471,8 +7553,8 @@ window.CHAR_ART = {
       this.onLobby = null; this.onStatus = null;
     }
     status(s) { if (this.onStatus) this.onStatus(s); }
-    host() {
-      this.role = 'host'; this.code = newCode();
+    host(fixed) {
+      this.role = 'host'; this.code = fixed || newCode(); this.fixed = !!fixed;
       this.p2p = 'wait'; this.relayUp = 'wait';
       this.status({ hosting: this.code });
       // 1) direct connections (PeerJS)
@@ -7484,7 +7566,7 @@ window.CHAR_ART = {
           this.via = 'p2p'; this.attach(conn);
         });
         this.peer.on('error', err => {
-          if (err.type === 'unavailable-id') { this.close(); this.host(); return; }
+          if (err.type === 'unavailable-id') { if (this.fixed) { this.status({ taken: true }); return; } this.close(); this.host(); return; }
           if (['network', 'server-error', 'socket-error', 'socket-closed', 'browser-incompatible'].includes(err.type)) { this.p2p = 'down'; this.hostCheck(); }
         });
         this.peer.on('disconnected', () => { if (this.peer && !this.peer.destroyed) this.peer.reconnect(); });
@@ -7540,6 +7622,7 @@ window.CHAR_ART = {
       conn.on('error', () => { if (this.conn === conn && this.open) this.status({ err: 'การเชื่อมต่อมีปัญหา' }); });
     }
     get open() { return !!(this.conn && this.conn.open); }
+    getLog() { const id = this.n++; this.send({ t: 'logreq', id }); return new Promise(r => { this.waits[id] = r; setTimeout(() => { if (this.waits[id]) { delete this.waits[id]; r(null); } }, 8000); }); }
     send(msg) { if (this.open) this.conn.send(msg); }
     // guest -> host: run a command, resolves when the host has finished it
     request(cmd) { const id = this.n++; this.send({ t: 'cmd', id, cmd }); return new Promise(r => { this.waits[id] = r; }); }
@@ -7559,6 +7642,10 @@ window.CHAR_ART = {
         case 'answer': case 'done': { const w = this.waits[m.id]; delete this.waits[m.id]; if (w) w(m.t === 'answer' ? m.v : m.ok); return; }
         case 'cmd': { const res = this.onCmd ? await this.onCmd(m.cmd) : { ok: false }; this.send({ t: 'done', id: m.id, ok: !!(res && res.ok) }); return; }
         case 'room': Lobby.showRoom(); return;
+        case 'logreq': this.send({ t: 'log', id: m.id, text: (window.GameUI && GameUI.buildLog()) || null }); return;
+        case 'log': { const w = this.waits[m.id]; delete this.waits[m.id]; if (w) w(m.text); return; }
+        case 'rsreq': Lobby.restartAsked(m.kind); return;
+        case 'rsans': Lobby.restartAnswered(m.kind, m.ok); return;
       }
       if (this.onLobby) this.onLobby();
     }
@@ -7603,7 +7690,7 @@ window.CHAR_ART = {
     let roomBox;
     if (online) {
       roomBox = `<div class="room ok">
-        <div>✅ เชื่อมต่อแล้วกับ <b>${esc(net.peerName)}</b></div>
+        <div>${net.tester ? '🧪 ห้อง tester · ' : ''}✅ เชื่อมต่อแล้วกับ <b>${esc(net.peerName)}</b></div>
         <div class="via ${net.via}">${net.via === 'relay' ? '🛰 เชื่อมผ่านตัวกลาง (เข้ารหัส) — ต่อตรงไม่ได้ แต่เล่นได้ปกติ' : '🔗 ต่อตรงระหว่าง 2 เครื่อง'}</div>
         ${net.peerVer && net.peerVer !== window.GQ_VERSION ? `<div class="mp-err">⚠ เวอร์ชันเกมไม่ตรงกัน (คุณ v${esc(window.GQ_VERSION)} · ${esc(net.peerName)} v${esc(net.peerVer)}) — ให้ทั้งคู่เปิดไฟล์/เว็บเวอร์ชันล่าสุดก่อนเล่น</div>` : ''}
         ${net.role === 'host'
@@ -7611,6 +7698,11 @@ window.CHAR_ART = {
              <button class="btn primary big" data-mp-start ${net.peerDeck ? '' : 'disabled'}>เริ่มเกม ▶</button>`
           : '<div class="dim">รอเจ้าของห้องกดเริ่มเกม…</div>'}
         <button class="btn sm" data-mp-leave>ออกจากห้อง</button></div>`;
+    } else if (net && net.role === 'host' && net.code && net.tester) {
+      roomBox = `<div class="room"><div>🧪 <b>ห้อง tester</b> เปิดอยู่</div>
+        <div class="dim">⏳ รอ tester อีกคนกด “เข้าห้อง tester”…</div>
+        <div class="mbtns"><button class="btn sm" data-mp-leave>ออกจากห้อง tester</button></div>
+        <div class="paths">ช่องทาง: <span class="${net.p2p}">ต่อตรง ${pathIcon(net.p2p)}</span> · <span class="${net.relayUp}">ตัวกลาง ${pathIcon(net.relayUp)}</span></div></div>`;
     } else if (net && net.role === 'host' && net.code) {
       roomBox = `<div class="room">
         <div>ส่งรหัสห้องนี้ให้เพื่อน (ทางแชทส่วนตัว)</div>
@@ -7624,7 +7716,9 @@ window.CHAR_ART = {
           : '⏳ กำลังเชื่อมต่อแบบต่อตรง… (ถ้าไม่ได้ใน ~9 วินาที จะสลับไปผ่านตัวกลางเอง)'}</div><button class="btn sm" data-mp-leave>ยกเลิก</button></div>`;
     } else {
       roomBox = `<div class="mbtns" style="justify-content:flex-start"><button class="btn primary" data-mp-host>➕ สร้างห้อง</button></div>
-        <div class="join"><input data-mp-code placeholder="รหัสห้อง เช่น ABCD-2345" maxlength="9"><button class="btn" data-mp-join>เข้าห้อง</button></div>`;
+        <div class="join"><input data-mp-code placeholder="รหัสห้อง เช่น ABCD-2345" maxlength="9"><button class="btn" data-mp-join>เข้าห้อง</button></div>
+        <div class="tester-box"><b>🧪 ห้อง tester (ห้องถาวร)</b><div class="dim" style="font-size:13px">ไม่ต้องส่งรหัสห้อง — ใส่รหัสผ่าน tester ครั้งแรกครั้งเดียว เครื่องจะจำไว้ คนที่เข้าก่อนจะเป็นเจ้าของห้อง</div>
+        <div class="join"><input data-tpass type="password" placeholder="รหัสผ่าน tester" value="${esc(store('testerPass') || '')}" maxlength="40"><button class="btn primary" data-tjoin>เข้าห้อง tester</button></div></div>`;
     }
     $('mp-body').innerHTML = `
       <div class="mp-card">
@@ -7673,24 +7767,33 @@ window.CHAR_ART = {
     if (copy) copy.onclick = () => { try { navigator.clipboard.writeText(fmtCode(st.net.code)); copy.textContent = '✓ คัดลอกแล้ว'; } catch (e) { /* clipboard blocked */ } };
     const leave = q('[data-mp-leave]');
     if (leave) leave.onclick = () => { if (st.net) st.net.close(); st.net = null; st.err = ''; render(); };
+    const tj = q('[data-tjoin]');
+    if (tj) tj.onclick = async () => {
+      const pass = q('[data-tpass]').value.trim();
+      let ok = false; try { ok = (await sha256hex(pass)) === TESTER_PASS_SHA256; } catch (e) { st.err = 'เบราว์เซอร์นี้ไม่รองรับการเข้ารหัส'; render(); return; }
+      if (!ok) { st.err = 'รหัสผ่าน tester ไม่ถูกต้อง'; store('testerPass', ''); render(); return; }
+      store('testerPass', pass);
+      connect('host', await testerCode(pass), true);
+    };
     const startBtn = q('[data-mp-start]');
     if (startBtn) startBtn.onclick = hostStart;
   }
 
-  function connect(role, code) {
+  function connect(role, code, tester) {
     if (st.net) st.net.close();
     st.err = '';
-    const net = st.net = new Net();
+    const net = st.net = new Net(); net.tester = !!tester;
     net.myName = store('name') || 'ผู้เล่น';
     net.onStatus = s => {
       if (s.broker) { net.broker = s.broker; net.brokers = s.brokers; }
+      if (s.taken && st.net === net) { net.close(); connect('guest', net.code, true); return; } // tester room already open → join it
       if (s.err) { st.err = s.err; if (!net.open) { net.close(); if (st.net === net) st.net = null; } }
       if (s.connected && net.role === 'guest') net.send({ t: 'deck', deck: stripDeck(deckById(store('onDeck') || GQ.STARTERS[1].id)) });
       if (s.closed && st.net === net) { st.err = 'อีกฝ่ายออกจากห้องแล้ว'; st.net = null; }
       if ($('scr-mp').classList.contains('active')) render();
     };
     net.onLobby = () => { if ($('scr-mp').classList.contains('active')) render(); };
-    if (role === 'host') net.host(); else net.join(code);
+    if (role === 'host') net.host(code); else net.join(code);
     render();
   }
 
@@ -7698,11 +7801,46 @@ window.CHAR_ART = {
     const net = st.net; if (!net || !net.open || !net.peerDeck) return;
     const mine = deckById(store('onDeck') || GQ.STARTERS[1].id);
     if (GQ.validateDeck(net.peerDeck).length) { st.err = 'เด็คของเพื่อนไม่ถูกต้องตามกติกา'; render(); return; }
+    st.last = { mine, peer: net.peerDeck };
     net.send({ t: 'start' });
     const n1 = net.myName, n2 = net.peerName === n1 ? net.peerName + ' (2)' : net.peerName;
-    GameUI.start(mine, net.peerDeck, { host: net, names: [n1, n2] });
+    GameUI.start(mine, net.peerDeck, { host: net, names: [n1, n2], tester: !!net.tester });
   }
-  function guestStart() { if (st.net) GameUI.start(null, null, { guest: st.net }); }
+  function guestStart() { if (st.net) GameUI.start(null, null, { guest: st.net, tester: !!st.net.tester }); }
+  // v4.1.26 tester room: restart synced for both players, with the other side's confirmation
+  const RS_LBL = { same: 'เริ่มเกมใหม่ (deck เดิม)', deck: 'กลับไปเลือก deck' };
+  function restartMenu() {
+    const net = st.net;
+    const md = GameUI.openModal(`<h3>🔄 เริ่มใหม่</h3><p class="dim">${net && net.open ? 'อีกฝ่ายต้องกดยืนยันก่อน' : 'ไม่ได้เชื่อมต่อกับอีกฝ่าย'}</p>
+      <div class="mbtns" style="flex-direction:column"><button class="btn primary" data-k="same" ${net && net.open ? '' : 'disabled'}>${RS_LBL.same}</button>
+      <button class="btn" data-k="deck" ${net && net.open ? '' : 'disabled'}>${RS_LBL.deck}</button><button class="btn" data-x>ยกเลิก</button></div>`);
+    md.querySelector('[data-x]').onclick = () => GameUI.closeModal();
+    md.querySelectorAll('[data-k]').forEach(b => b.onclick = () => {
+      const kind = b.dataset.k; net.send({ t: 'rsreq', kind });
+      const w = GameUI.openModal(`<h3>⏳ รอ ${esc(net.peerName || 'อีกฝ่าย')} ยืนยัน…</h3><p>${RS_LBL[kind]}</p><div class="mbtns"><button class="btn" data-x>ปิด</button></div>`);
+      w.dataset.rswait = '1'; w.querySelector('[data-x]').onclick = () => GameUI.closeModal();
+    });
+  }
+  function restartAsked(kind) {
+    const net = st.net; if (!net || !RS_LBL[kind]) return;
+    const md = GameUI.openModal(`<h3>🔄 ${esc(net.peerName || 'อีกฝ่าย')} ขอ${RS_LBL[kind]}</h3><p>ยืนยันไหม? เกมปัจจุบันจะจบทันที</p>
+      <div class="mbtns"><button class="btn primary" data-ok>ยืนยัน</button><button class="btn" data-no>ไม่</button></div>`);
+    md.querySelector('[data-ok]').onclick = () => { net.send({ t: 'rsans', kind, ok: true }); GameUI.closeModal(); doRestart(kind); };
+    md.querySelector('[data-no]').onclick = () => { net.send({ t: 'rsans', kind, ok: false }); GameUI.closeModal(); };
+  }
+  function restartAnswered(kind, ok) {
+    if (!ok) { const md = GameUI.openModal(`<h3>อีกฝ่ายไม่ยืนยัน</h3><p>${RS_LBL[kind] || ''} ถูกยกเลิก — เล่นต่อได้เลย</p><div class="mbtns"><button class="btn" data-x>ตกลง</button></div>`); md.querySelector('[data-x]').onclick = () => GameUI.closeModal(); return; }
+    GameUI.closeModal(); doRestart(kind);
+  }
+  function doRestart(kind) { // only the host acts; the guest follows the host's 'start' / 'room' message
+    const net = st.net; if (!net || net.role !== 'host' || !net.open) return;
+    if (kind === 'deck') { backToRoom(); return; }
+    const L = st.last; if (!L) { backToRoom(); return; }
+    net.onState = net.onAsk = net.onRollState = net.onMyRoll = net.onCmd = null;
+    net.send({ t: 'start' });
+    const n1 = net.myName, n2 = net.peerName === n1 ? net.peerName + ' (2)' : net.peerName;
+    GameUI.start(L.mine, L.peer, { host: net, names: [n1, n2], tester: true });
+  }
   // after a game: both sides return to the room (connection kept)
   function backToRoom() {
     const net = st.net;
@@ -7711,7 +7849,7 @@ window.CHAR_ART = {
   }
   function showRoom() { if (st.net) { st.net.onState = st.net.onAsk = st.net.onRollState = null; } App.show('mp'); }
 
-  window.Lobby = { open, guestStart, backToRoom, showRoom, Net };
+  window.Lobby = { open, guestStart, backToRoom, showRoom, Net, restartMenu, restartAsked, restartAnswered, testerCode, TESTER_PASS_SHA256 };
 })();
 
 </script>
@@ -8147,6 +8285,13 @@ window.CHAR_ART = {
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.26 — 17 ต.ค. 2026</h4>
+<ul>
+<li><b>🧪 ห้อง tester (ห้องถาวร)</b> ในเมนูเล่นกับเพื่อน → ออนไลน์ ข้างปุ่มสร้างห้อง/เข้าห้อง — ไม่ต้องส่งรหัสห้อง ใส่รหัสผ่าน tester ครั้งแรกครั้งเดียว เครื่องจะจำไว้ · คนที่เข้าก่อนเป็นเจ้าของห้อง</li>
+<li>ในห้อง tester มีปุ่ม <b>📥 ดาวน์โหลด log</b> (.txt) ได้ทั้งระหว่างเกมและหลังจบ: เวอร์ชัน, วันเวลา (UTC+7), เด็คทั้งสองฝั่งพร้อมรายการการ์ด, ผู้ชนะ, จำนวนเทิร์น, Quest ที่แต่ละฝ่ายชนะ และการเล่นทีละเทิร์น</li>
+<li>ในห้อง tester มีปุ่ม <b>🔄 เริ่มใหม่</b>: เริ่มเกมใหม่ (deck เดิม) หรือ กลับไปเลือก deck — อีกฝ่ายต้องกดยืนยัน แล้วทั้งสองเครื่องเปลี่ยนพร้อมกัน</li>
+<li>ACTBK-010 (ในเกมคือ EQPBK-001 · ฝ่ายตรงข้ามทิ้งทั้งมือแล้วจั่ว 2): Cost 3 → <b>5</b> (หน้าบูสเตอร์ด้วย)</li>
+</ul>
 <h4>v4.1.25 — 17 ต.ค. 2026</h4>
 <ul><li><b>CPU เล่นตามสไตล์เด็ค:</b> จัดเด็คเป็น บุกเร็ว / กลางเกม / เกมยาว จากชื่อแผนของเด็คและส่วนผสม (Rush, การ์ดจั่ว/ค้น, Artifact, Location) — เด็คเกมยาวให้ความสำคัญกับการ์ดจั่ว Artifact และ Location ก่อน และรักษามือ/เอนจินบนสนาม · เด็คบุกเร็วและกลางเกมเล่นเหมือนเดิม · บันทึกเกมบอกสไตล์ของ CPU ตอนเริ่ม</li><li><b>กล่อง Mana ใหม่:</b> ตัวเลขใหญ่ = Mana <b>รวม</b> ที่ใช้ได้ · แยกแถว <b>💎 หลัก</b> (สีฟ้า) และ <b>✦ ชั่วคราว</b> (สีเหลือง) · บอกที่มาของ Mana ชั่วคราวถูกต้อง (จาก Show / จากทิ้งการ์ด) — แก้บั๊กเดิมที่ทิ้งการ์ดแล้วขึ้น "+1 จาก Show"</li></ul>
 <h4>v4.1.24 — 17 ต.ค. 2026</h4>
