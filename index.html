@@ -71,7 +71,11 @@ button { font-family: inherit; }
 @keyframes bob { 50% { transform: translateY(-8px) rotate(-1deg); } }
 .gems { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 640px; }
 .gems span { background: var(--c); color: #fff; font-weight: 600; padding: 4px 12px; border-radius: 999px; font-size: 14px; box-shadow: 0 3px 0 rgba(0,0,0,.25); text-shadow: 0 1px 2px rgba(0,0,0,.35); }
-.menu { display: flex; flex-direction: column; gap: 12px; }
+.menu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; width: min(560px, 92vw); }
+.menu > * { width: 100%; margin: 0 !important; text-align: center; text-decoration: none; box-sizing: border-box; }
+.menu > .primary, .menu > #btn-demo { grid-column: 1 / -1; }
+@media (max-width: 380px) { .menu { grid-template-columns: 1fr; } }
+@media (max-height: 820px) { .home { gap: 12px; padding: 12px 16px; } .home .logo { width: min(340px, 70vw, 32vh); } }
 .foot-note { color: #c9ccff; font-size: 13px; margin: 0; }
 
 /* ---------- topbar & generic pages ---------- */
@@ -564,6 +568,34 @@ button { font-family: inherit; }
 .g-main { position: relative; }
 .hand.me { padding-left: 200px; padding-right: 200px; }
 .endbar { position: absolute; right: 14px; bottom: 14px; z-index: 30; }
+.endturn .et-mana { display: block; font-size: 12.5px; font-weight: 600; background: rgba(255,255,255,.75); color: var(--navy); border-radius: 9px; padding: 1px 8px; margin-bottom: 3px; white-space: nowrap; }
+.endturn .et-mana b { font-family: var(--disp); font-size: 17px; }
+.endturn .et-mana em { font-style: normal; color: #0a8a55; font-weight: 700; }
+.endturn .et-mana.has-tmp { box-shadow: 0 0 0 2px #12b873; }
+/* tight: Undo tucks into the End Turn button's corner instead of stacking above it; tiny: smaller button */
+.endbar.tight .undo-btn { position: absolute; left: 50%; transform: translateX(-50%); bottom: 9px; margin: 0; padding: 2px 10px; font-size: 12px; z-index: 62; }
+.endbar.tight .endturn { padding-bottom: 34px; }
+.endbar.tight .endturn .et-sub { display: none; }
+.endbar.tiny .endturn { padding-top: 4px; padding-bottom: 4px; }
+.endbar.tiny .endturn .et-main { font-size: 18px; }
+.endbar.tiny.tight .endturn { padding-bottom: 28px; }
+.endbar.tiny.tight .undo-btn { bottom: 4px; }
+.endbar.tiny .endturn .et-mana { margin-bottom: 1px; }
+.endbar.micro { bottom: 4px; }
+.endbar.micro .endturn .et-main { font-size: 15px; }
+.endbar.micro .endturn .et-mana { font-size: 11px; padding: 0 6px; }
+.endbar.micro .endturn .et-mana b { font-size: 14px; }
+.endbar.micro.tight .endturn { padding-top: 2px; padding-bottom: 24px; }
+.endbar.tiny .endturn .et-sub { display: none; }
+@media (max-width: 900px) {
+  .endbar, .endbar.tight { display: flex; align-items: stretch; gap: 6px; }
+  .endbar .undo-btn, .endbar.tight .undo-btn { position: static; transform: none; margin: 0; flex: none; }
+  .endbar .endturn, .endbar.tight .endturn { flex: 1; padding-bottom: 10px; }
+  .hand.me { margin-top: 26px; }
+  #bot-speed.bot-speed { position: absolute; top: auto; right: auto; left: 8px; bottom: 12px; padding: 3px 8px; font-size: 11.5px; width: 88px; white-space: normal; }
+  #endbar.endbar { left: 104px; }
+  .g-main { padding-bottom: 70px; }
+}
 /* v4.1.19 Undo button: sits in the end-turn bar, always on top */
 .undo-btn { position: relative; z-index: 61; margin-bottom: 6px; display: block; margin-left: auto; font-weight: 700; padding: 6px 14px; border-radius: 12px; }
 /* v4.1.20 bot step-by-step */
@@ -583,7 +615,7 @@ button { font-family: inherit; }
 .mn-tmp.on { background: #ffe9a8; color: #8a5a00; box-shadow: 0 0 0 1px #f5b400; }
 .mn-tot { font-weight: 800; color: #1d1b3a; font-size: 12px; }
 .mn-src { font-size: 10px; color: #8a5a00; line-height: 1.2; }
-#tester-bar { position: fixed; left: 10px; bottom: 52px; z-index: 31; display: flex; gap: 6px; align-items: center; background: rgba(255,255,255,.92); border: 2px solid #b9bde8; border-radius: 12px; padding: 4px 6px; }
+#tester-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; background: #faf6ff; border-bottom: 2px solid #e3e6ff; padding: 6px 10px; }
 #tester-bar .tb-tag { font-weight: 700; font-size: 12px; color: #6a3fb5; padding: 0 4px; }
 .tester-box { border: 2px solid #d9c8ff; background: #faf6ff; border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
 .tester-box .join input { text-transform: none; letter-spacing: 0; }
@@ -822,6 +854,7 @@ button { font-family: inherit; }
       <button class="btn big" data-go="gallery">📚 คลังการ์ด</button>
       <button class="btn big" data-go="rules">📖 กติกา</button>
       <button class="btn big" id="btn-changelog">📜 Change log</button>
+      <a class="btn big" id="btn-booster" href="./booster/">🎁 จำลองเปิดซอง</a>
       <button class="btn" id="btn-demo">👀 ดู CPU เล่นกันเอง</button>
     </nav>
     <button class="btn sm snd-fab" data-snd title="ตั้งค่าเสียง"><span>🔊</span> เสียง</button>
@@ -921,7 +954,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.26';
+window.GQ_VERSION = '4.1.27';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -6133,7 +6166,7 @@ window.CHAR_ART = {
   window.GQ_setBotSpeed = setBotSpeed; window.GQ_botSpeed = botSpeed;
   function botSpeedBtn() {
     let b = document.getElementById('bot-speed');
-    if (!b) { b = document.createElement('button'); b.id = 'bot-speed'; b.className = 'btn bot-speed'; b.onclick = () => setBotSpeed(BOT_ORDER[(BOT_ORDER.indexOf(botSpeed()) + 1) % BOT_ORDER.length]); const g = $('scr-game'); if (!g) return; g.appendChild(b); }
+    if (!b) { b = document.createElement('button'); b.id = 'bot-speed'; b.className = 'btn bot-speed'; b.onclick = () => setBotSpeed(BOT_ORDER[(BOT_ORDER.indexOf(botSpeed()) + 1) % BOT_ORDER.length]); const g = document.querySelector('#scr-game .g-main') || $('scr-game'); if (!g) return; g.appendChild(b); }
     b.textContent = 'CPU: ' + BOT_SPEED_LBL[botSpeed()];
     b.title = 'ความเร็วการเล่นของ CPU (กดเพื่อเปลี่ยน: ช้า / ปกติ / เร็ว / ข้าม)';
   }
@@ -6604,13 +6637,14 @@ window.CHAR_ART = {
     const sub = ui.spectate ? `เทิร์น ${G.turn} · ${esc(E.P(G.active).name)}`
       : G.phase === 'setup' ? 'กำลังเตรียมเกม…' : E.over() ? 'จบเกม'
       : G.active !== ME ? `เทิร์น ${G.turn} · ตา ${esc(oppName())}…`
-      : canEnd ? (anyMove ? `Mana เหลือ ${E.cheering(ME)} · ยังเล่นต่อได้` : 'ไม่มีอะไรให้ทำแล้ว — กดได้เลย') : `เทิร์น ${G.turn} · ตา${ui.mode === 'single' ? 'คุณ' : ' ' + esc(me.name)}`;
+      : canEnd ? (anyMove ? 'ยังเล่นต่อได้' : 'ไม่มีอะไรให้ทำแล้ว — กดได้เลย') : `เทิร์น ${G.turn} · ตา${ui.mode === 'single' ? 'คุณ' : ' ' + esc(me.name)}`;
     const cheerChip = G.phase === 'action' && !ui.spectate
-      ? `<div class="cheer-chip ${me.temp ? 'has-tmp' : ''}">Mana ใช้ได้ <b>${E.cheering(ME)}</b><span>หลัก ${me.main}${me.temp ? ` + <em>✦ ${me.temp} ชั่วคราว</em>` : ''}</span></div>` : '';
+      ? `<span class="et-mana ${me.temp ? 'has-tmp' : ''}">Mana ใช้ได้ <b>${E.cheering(ME)}</b> · หลัก ${me.main}${me.temp ? ` + <em>✦${me.temp}</em>` : ''}</span>` : '';
     const us = undoState();
     const undoBtn = us.show ? `<button class="btn undo-btn ${us.ok ? '' : 'off'}" id="btn-undo" aria-disabled="${us.ok ? 'false' : 'true'}" title="${esc(us.why)}">↶ ย้อน</button>` : '';
-    $('endbar').innerHTML = cheerChip + undoBtn + `<button class="endturn ${canEnd ? 'on' : ''} ${canEnd && !anyMove ? 'ready' : ''}" id="btn-end" ${canEnd ? '' : 'disabled'} title="จบเทิร์น (Enter)">
-        <span class="et-main">จบเทิร์น ⏭</span><span class="et-sub">${sub}</span></button>`;
+    $('endbar').innerHTML = undoBtn + `<button class="endturn ${canEnd ? 'on' : ''} ${canEnd && !anyMove ? 'ready' : ''}" id="btn-end" ${canEnd ? '' : 'disabled'} title="จบเทิร์น (Enter)">
+        ${cheerChip}<span class="et-main">จบเทิร์น ⏭</span><span class="et-sub">${sub}</span></button>`;
+    fitEndbar();
     $('btn-end').onclick = endTurnNow;
     if ($('btn-undo')) $('btn-undo').onclick = () => { if (undoState().ok) doUndo(); };
 
@@ -7183,7 +7217,7 @@ window.CHAR_ART = {
   function testerBar() {
     let b = document.getElementById('tester-bar');
     if (!ui.tester) { if (b) b.remove(); return; }
-    if (!b) { b = document.createElement('div'); b.id = 'tester-bar'; $('scr-game').appendChild(b); }
+    if (!b) { b = document.createElement('div'); b.id = 'tester-bar'; const st = document.querySelector('.g-side .side-top'); st.after(b); }
     b.innerHTML = '<span class="tb-tag">🧪 tester</span><button class="btn sm" data-tlog>📥 ดาวน์โหลด log</button><button class="btn sm" data-trs>🔄 เริ่มใหม่</button>';
     b.querySelector('[data-tlog]').onclick = downloadLog;
     b.querySelector('[data-trs]').onclick = () => Lobby.restartMenu();
@@ -7233,6 +7267,17 @@ window.CHAR_ART = {
     if (!txt) { const md = openModal('<h3>ดาวน์โหลด log ไม่ได้</h3><p>ติดต่อเจ้าของห้องไม่ได้ — ลองใหม่อีกครั้ง</p><div class="mbtns"><button class="btn" data-x>ปิด</button></div>'); md.querySelector('[data-x]').onclick = closeModal; return; }
     window.__lastLog = txt; saveText(txt);
   }
+  // v4.1.27: keep the End Turn stack clear of my Deck / discard piles on short or zoomed screens
+  function fitEndbar() {
+    const bar = $('endbar'); if (!bar) return;
+    bar.classList.remove('tight', 'tiny', 'micro');
+    const piles = [...document.querySelectorAll(`[data-key="pile:deck:${ME}"], [data-key="pile:disc:${ME}"]`)].flatMap(e => [e, e.querySelector('.pc')]).filter(Boolean).map(e => e.getBoundingClientRect()).filter(r => r.height);
+    const hit = () => { const b = bar.getBoundingClientRect(); return piles.some(r => b.top < r.bottom + 3 && b.left < r.right && b.right > r.left); };
+    if (hit()) bar.classList.add('tight');
+    if (hit()) bar.classList.add('tiny');
+    if (hit()) bar.classList.add('micro');
+  }
+  window.addEventListener('resize', () => { try { fitEndbar(); } catch (e) { /* not in game */ } });
   function showGameOver() {
     refreshView();
     const G = E.G; const win = G.winner === ME;
@@ -7261,9 +7306,12 @@ window.CHAR_ART = {
       <div class="mbtns" style="flex-direction:column">
         ${Sound.controlsHTML()}
         <button class="btn" data-rules>📖 กติกาย่อ</button>
+        ${ui.tester ? '<button class="btn" data-mtlog>📥 ดาวน์โหลด log (tester)</button><button class="btn" data-mtrs>🔄 เริ่มใหม่ (tester)</button>' : ''}
         <button class="btn danger" data-quit>${ui.net ? 'ออกจากเกม (ตัดการเชื่อมต่อ)' : 'ยอมแพ้ & กลับหน้าหลัก'}</button>
         <button class="btn" data-x>เล่นต่อ</button></div>`);
     Sound.bindControls(md);
+    if (md.querySelector('[data-mtlog]')) md.querySelector('[data-mtlog]').onclick = () => { closeModal(); downloadLog(); };
+    if (md.querySelector('[data-mtrs]')) md.querySelector('[data-mtrs]').onclick = () => { closeModal(); Lobby.restartMenu(); };
     md.querySelector('[data-x]').onclick = () => { closeModal(); reopen(); };
     md.querySelector('[data-rules]').onclick = () => {
       const m2 = openModal(`<div class="rules" style="padding:0">${App.rulesHTML()}</div><div class="mbtns"><button class="btn" data-x>ปิด</button></div>`);
@@ -8285,6 +8333,13 @@ window.CHAR_ART = {
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.27 — 17 ต.ค. 2026</h4>
+<ul>
+<li>แก้กล่อง Mana ทับ Deck / จำนวนการ์ดใน Deck: ย้าย "Mana ใช้ได้ · หลัก (+ ✦ ชั่วคราว)" เข้าไปในปุ่มจบเทิร์น · จอเตี้ย/ซูม 125–150% ปุ่มย้อนจะย่อเข้าไปในปุ่มจบเทิร์นอัตโนมัติ · จอแคบ/แนวตั้ง ปุ่มย้อนอยู่ข้างปุ่มจบเทิร์น</li>
+<li>ปุ่มห้อง tester (📥 log / 🔄 เริ่มใหม่) ย้ายไปแผงด้านข้าง และอยู่ในเมนู ☰ ด้วย — ไม่ลอยทับการ์ดบนมือ</li>
+<li>หน้าหลัก: ปุ่มเมนูเรียงเป็น 2 คอลัมน์ ไม่ต้องเลื่อนจอ · เพิ่มปุ่ม <b>🎁 จำลองเปิดซอง</b> (ไปหน้า /booster/)</li>
+<li>Top 10: ถ้าสถิติรวมยังไม่มีการ์ดจริง จะแสดงสถิติจากเครื่องนี้แทนรายการว่าง</li>
+</ul>
 <h4>v4.1.26 — 17 ต.ค. 2026</h4>
 <ul>
 <li><b>🧪 ห้อง tester (ห้องถาวร)</b> ในเมนูเล่นกับเพื่อน → ออนไลน์ ข้างปุ่มสร้างห้อง/เข้าห้อง — ไม่ต้องส่งรหัสห้อง ใส่รหัสผ่าน tester ครั้งแรกครั้งเดียว เครื่องจะจำไว้ · คนที่เข้าก่อนเป็นเจ้าของห้อง</li>
@@ -8525,7 +8580,7 @@ window.CHAR_ART = {
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'scr-top'));
     const box = document.getElementById('top-list'); box.innerHTML = '<p class="top-note">กำลังโหลด…</p>';
     let rows, src = '🌐 ผู้เล่นทุกคน';
-    try { rows = await fetchTop(); if (!rows.length) throw new Error('empty'); } catch (e) { rows = localRows(); src = '📱 สถิติจากเครื่องนี้ (ยังโหลดสถิติรวมออนไลน์ไม่ได้ — จะสลับเป็นสถิติรวมอัตโนมัติเมื่อพร้อม)'; }
+    try { rows = await fetchTop(); if (!score(rows).length) throw new Error('empty'); } catch (e) { rows = localRows(); src = '📱 สถิติจากเครื่องนี้ (ยังโหลดสถิติรวมออนไลน์ไม่ได้ — จะสลับเป็นสถิติรวมอัตโนมัติเมื่อพร้อม)'; }
     const top = score(rows).slice(0, 10);
     box.innerHTML = `<p class="top-note">${src} · นับเฉพาะการ์ดที่ผู้เล่น (ไม่ใช่ CPU) ลงจริง · คะแนน = จำนวนครั้งที่ลง × น้ำหนักตาม Cost</p>` + (top.length ? `<ol class="top10">${top.map((r, i) => `<li><span class="rk">${i + 1}</span><div class="tc" data-preview="${r.code}">${R.card(r.code, {})}</div><div class="ti"><b>${GQ.DB[r.code].name || (GQ.TYPE_LABEL[GQ.DB[r.code].type] || GQ.DB[r.code].type)}</b> <small>${r.code}</small><br>Cost ${r.cost} · ลง ${r.plays} ครั้ง · อยู่ในเด็ค ${r.decks} เกม<br>อัตราการลง ${(r.rate).toFixed(2)} ครั้ง/เกม · คะแนน <b>${r.score.toFixed(1)}</b></div></li>`).join('')}</ol>` : '<p>ยังไม่มีข้อมูล — ลองเล่นสักเกมก่อนนะ</p>'); }
   window.GQTOP = { openTop, score, fetchTop, localRows };
