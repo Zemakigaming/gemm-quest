@@ -863,7 +863,7 @@ function openMany(n){let p;for(let i=0;i<n;i++){p=makePack();record(p);}showPack
 function render(){const tot={C:0,UC:0,R:0,ER:0};let owned=0,fo=0,fu=0;
  CARDS.forEach(c=>{const n=S.cnt[c.code]||0;const f=S.foil[c.code]||0;fo+=f;if(f)fu++;if(n||f)owned++;tot[c.er?'ER':c.slot]+=n;});
  const all=tot.C+tot.UC+tot.R+tot.ER;
- document.getElementById('stats').innerHTML=`<div>เปิดแล้ว <b>${S.packs}</b> ซอง</div><div>การ์ดทั้งหมด <b>${all}</b> ใบ</div><div>สะสมครบ <b>${owned}/${CARDS.length}</b> แบบ</div><div>ฟอยล์ <b>${fo}</b> ใบ · <b>${fu}/${CARDS.length}</b> แบบ</div>`+
+ document.getElementById('stats').innerHTML=`<div>เปิดแล้ว <b>${S.packs}</b> ซอง</div><div>การ์ดทั้งหมด <b>${all+fo}</b> ใบ</div><div>สะสมครบ <b>${owned}/${CARDS.length}</b> แบบ</div><div>ฟอยล์ <b>${fo}</b> ใบ · <b>${fu}/${CARDS.length}</b> แบบ</div>`+
   ['C','UC','R','ER'].map(k=>`<div>${LAB[k]}: <b>${tot[k]}</b> (${all?(100*tot[k]/all).toFixed(1):0}%)</div>`).join('')+
   `<div>พูล: C ${POOL.C.length} · UC ${POOL.UC.length} · R ${POOL.R.length} (รวม ER ${CARDS.filter(c=>c.er).length})${UNMAPPED.length?' · แมปไม่ได้ '+UNMAPPED.length:''}</div>`;
  const fR=document.getElementById('fR').value,fO=document.getElementById('fO').value;
