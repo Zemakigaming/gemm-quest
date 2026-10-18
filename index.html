@@ -957,7 +957,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.29';
+window.GQ_VERSION = '4.1.30';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -4871,10 +4871,11 @@ window.CHAR_ART = {
       this.sfx('swing', 'm:' + m.uid);
       const tgt = this.parse(key);
       if (tgt.t === 'q') {
-        const qis = this.has(m, 'splash') ? this.questIdx() : [tgt.i];
-        this.log(`${this.mName(m)} Contest ${qis.length > 1 ? 'ทุก Quest (Splash)' : this.locName(tgt.i)} +${pw}`, 'act');
+        // v4.1.30 Splash: the contested Quest AND its adjacent Quests only (was: every Quest)
+        const qis = this.has(m, 'splash') ? [tgt.i].concat(this.adjacent(tgt.i)).sort((x, y) => x - y) : [tgt.i];
+        this.log(`${this.mName(m)} Contest ${qis.length > 1 ? qis.map(q => this.locName(q)).join(' + ') + ' (Splash: Quest ที่ Contest + Quest ข้างเคียง)' : this.locName(tgt.i)} +${pw}`, 'act');
         for (const qi of qis) {
-          // rulebook v3 — Splash: a Quest that has an opposing Guard hits that Guard instead of the Quest
+          // Splash (v4.1.30: adjacent only): a Quest that has an opposing Guard hits that Guard instead of the Quest
           const guards = qis.length > 1 ? this.enemyAt(pi, qi).filter(x => this.has(x, 'guard') && !this.abil(x).untouchable) : [];
           if (guards.length) {
             let g = guards[0];
@@ -5448,9 +5449,10 @@ window.CHAR_ART = {
     if (!m) return 0;
     const t = E.parse(key), pw = E.power(m);
     if (t.t === 'q') {
-      const q = E.G.quests[t.i]; const thr = E.threshold(t.i);
-      if (q.points[m.ctrl] + pw >= thr) return 150;
-      return 20 + pw * 2;
+      // v4.1.30: Splash hits the chosen Quest + its adjacent Quests — value every Quest it reaches (prefers the middle Quest)
+      const qs = E.has(m, 'splash') ? [t.i].concat(E.adjacent(t.i)) : [t.i];
+      if (qs.some(qi => E.G.quests[qi].points[m.ctrl] + pw >= E.threshold(qi) && !E.enemyAt(m.ctrl, qi).some(x => qi !== t.i && E.has(x, 'guard')))) return 150;
+      return 20 + pw * 2 * qs.length;
     }
     const x = t.m; if (!x) return -1;
     const real = Math.max(0, pw - E.armor(x));
@@ -6205,7 +6207,7 @@ window.CHAR_ART = {
       hl: E => { const p = mine(E, 'MSCGR-001'); return [mKey(p), p && typeof p.loc === 'number' ? `[data-key="q:${p.loc}"]` : null]; },
       text: 'Ponpon แรงขึ้นเป็น 5 แล้ว — <b>ลาก PONPON Contest Quest</b> อีกครั้ง' },
     { title: 'กฎสำคัญที่ควรรู้', kind: 'next',
-      text: '• <b>HP</b> หมด = ถูกทำลาย ลงกองทิ้ง<br>• <b>Armor X</b> ลดแต้มที่โดน <b>Deal</b> และ <b>Contest</b> ลง X — แต่ไม่ลดการ<b>เสีย HP โดยตรง</b> (เช่น "lose 2 HP")<br>• <b>Stun</b> = Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ถัดไป<br>• <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน · <b>Splash</b> Contest ทุก Quest · <b>Ranged Attack</b> Contest เป้าหมายใน Quest ข้างเคียงได้<br>• Quest ละ<b>ไม่เกิน 2 ตัว/ฝ่าย</b> และชื่อซ้ำไม่ได้ · ดูกฎทั้งหมดได้ที่ <b>📖 กติกา</b>' },
+      text: '• <b>HP</b> หมด = ถูกทำลาย ลงกองทิ้ง<br>• <b>Armor X</b> ลดแต้มที่โดน <b>Deal</b> และ <b>Contest</b> ลง X — แต่ไม่ลดการ<b>เสีย HP โดยตรง</b> (เช่น "lose 2 HP")<br>• <b>Stun</b> = Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ถัดไป<br>• <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน · <b>Splash</b> Contest Quest ที่เลือก + Quest ข้างเคียง · <b>Ranged Attack</b> Contest เป้าหมายใน Quest ข้างเคียงได้<br>• Quest ละ<b>ไม่เกิน 2 ตัว/ฝ่าย</b> และชื่อซ้ำไม่ได้ · ดูกฎทั้งหมดได้ที่ <b>📖 กติกา</b>' },
     { title: 'จบบทฝึกแล้ว! 🎉', kind: 'finish',
       text: 'อีกนิดเดียวจะถึง Threshold — เมื่อแต้มถึง คุณจะพิชิต Quest, Character บนนั้นกลับ Backstage และผู้แพ้วาง Quest ใหม่แทน<br><b>สรุป:</b> ลากการ์ดลงสนาม · ลาก Character ไป Contest / Move · คลิกเพื่อ Show · ทิ้งการ์ดเพื่อรับ Mana · กดค้างดูข้อมูล · จบเทิร์นเพื่อรับ Mana และจั่ว<br>เล่นต่อให้จบเกมได้เลย — ต่อจากนี้ CPU จะเล่นเต็มที่' },
   ];
@@ -7108,7 +7110,7 @@ window.CHAR_ART = {
   const KW_TH = {
     Guard: 'ฝ่ายตรงข้ามต้อง Contest Character ตัวนี้ก่อน ถ้าทำได้',
     Armor: 'ลดแต้มที่โดน Deal และ Contest ลงตามตัวเลข (ไม่ลดการเสีย HP โดยตรง)',
-    Splash: 'Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้ามอยู่ Guard จะรับแต้มแทน Quest',
+    Splash: 'Contest Quest ที่เลือก และ Quest ข้างเคียง (Adjacent) พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้ามอยู่ Guard จะรับแต้มแทน Quest',
     Stun: 'Character ที่ถูก Stun จะตะแคงและไม่ Ready ใน Ready Phase ครั้งถัดไป',
     Rush: 'ลงมาในสถานะ Ready — Contest/Show/Move ได้ทันทีในเทิร์นที่ลง · แต่ Move จะทำให้ Exhaust เหมือน Character ทั่วไป (Move แล้ว Contest ต่อไม่ได้)',
     Hiding: 'ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ (ยกเว้นถูก Character ฝ่ายตรงข้าม Contest)',
@@ -8622,7 +8624,7 @@ window.CHAR_ART = {
     <h3>Backstage</h3><div class="box">• พื้นที่หน้าผู้เล่นที่ลง Character ได้<br>• เมื่อ Quest ถูกพิชิต Character ทุกตัวบน Quest นั้นย้ายมา Backstage ของเจ้าของอัตโนมัติ<br>• Move จาก Quest กลับมา Backstage ได้ (v4.1.3) · Move จาก Backstage เพื่อออกไป Quest<br>• Character ใน Backstage ถูก Contest ไม่ได้</div>
     <h3>ทอยลูกเต๋าในการ์ด</h3><div class="box">การ์ดที่เขียนว่า <b>Roll d6</b> ระบบจะทอยให้และแสดงผลกลางจอ (เช่น จั่ว/ได้ Mana เท่าครึ่งหนึ่งของแต้มที่ทอย <b>ปัดขึ้น</b>)</div>
     <h3>คำสำคัญ</h3><div class="box">
-      <b>จำกัด 2 ตัว/Quest</b> แต่ละฝ่ายมี Character บน Quest เดียวกันได้ไม่เกิน 2 ตัว (Empower ไม่นับเพิ่ม) · <b>Retaliate</b> เมื่อถูก Character อื่น Contest ตัวนี้จะ Contest ตอบกลับทันที · <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน ถ้าทำได้ · <b>Armor X</b> ลดแต้มที่โดน Deal/Contest ลง X (ไม่ลดการเสีย HP โดยตรง) · <b>Splash</b> Contest ทุก Quest พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้าม Guard จะรับแทน · <b>Rush</b> ลงมาในสถานะ Ready — Contest/Show หรือ Move ได้ทันทีในเทิร์นที่ลง · <b>Move ทำให้ Exhaust</b> เหมือน Character ทั่วไป (Move แล้ว Contest ต่อไม่ได้) · <b>Hiding</b> ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม Contest · <b>Breakthrough</b> Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว · <b>Ranged Attack</b> Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน · <b>Regenerate</b> ฟื้น HP เต็มเมื่อจบเทิร์น · <b>Stun</b> Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ครั้งถัดไป · <b>Gain control</b> ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา<br>
+      <b>จำกัด 2 ตัว/Quest</b> แต่ละฝ่ายมี Character บน Quest เดียวกันได้ไม่เกิน 2 ตัว (Empower ไม่นับเพิ่ม) · <b>Retaliate</b> เมื่อถูก Character อื่น Contest ตัวนี้จะ Contest ตอบกลับทันที · <b>Guard</b> ฝ่ายตรงข้ามต้อง Contest ตัวนี้ก่อน ถ้าทำได้ · <b>Armor X</b> ลดแต้มที่โดน Deal/Contest ลง X (ไม่ลดการเสีย HP โดยตรง) · <b>Splash</b> Contest Quest ที่เลือก + Quest ข้างเคียง พร้อมกัน — Quest ไหนมี Guard ฝ่ายตรงข้าม Guard จะรับแทน · <b>Rush</b> ลงมาในสถานะ Ready — Contest/Show หรือ Move ได้ทันทีในเทิร์นที่ลง · <b>Move ทำให้ Exhaust</b> เหมือน Character ทั่วไป (Move แล้ว Contest ต่อไม่ได้) · <b>Hiding</b> ฝ่ายตรงข้ามเลือกเป็นเป้าหมายไม่ได้ ยกเว้นถูก Character ฝ่ายตรงข้าม Contest · <b>Breakthrough</b> Contest ทั้ง Character เป้าหมายและ Quest ในครั้งเดียว · <b>Ranged Attack</b> Contest เป้าหมายใดก็ได้ใน Quest ที่อยู่ติดกัน · <b>Regenerate</b> ฟื้น HP เต็มเมื่อจบเทิร์น · <b>Stun</b> Character ตะแคงและ<b>ไม่ Ready</b> ใน Ready Phase ครั้งถัดไป · <b>Gain control</b> ยึดการ์ดฝ่ายตรงข้ามมาเป็นของเรา<br>
       <b>When played</b> เกิดผลทันทีที่ลงการ์ด · <b>Whenever …</b> เกิดผลทุกครั้งที่เงื่อนไขเกิด · <b>End turn / At the end of your turn</b> เกิดผลใน End Phase ของเรา · <b>Play … for free</b> เล่นโดยไม่จ่าย Mana</div>
     <h3>⚡ ความสามารถทำงานเมื่อไร</h3><div class="box">ทุกครั้งที่ความสามารถของการ์ดทำงาน จะมีสัญลักษณ์ <b>⚡</b> เด้งเหนือการ์ด พร้อมบรรทัดสีเหลืองในบันทึกเกม — ถ้าไม่เห็น ⚡ แปลว่าเงื่อนไขยังไม่ครบ (เช่น Rexxa ต้อง Contest <i>Quest</i> ถึงจะจั่ว)</div>
     <h3>วิธีเล่นในเกมนี้</h3><div class="box"><b>ลากวาง</b>การ์ดจากมือไปยังช่องที่ไฮไลต์ (Backstage / ช่องใต้ Quest / Character ชื่อเดียวกันเพื่อ Empower / Character เพื่อติด Artifact / Quest เพื่อวาง Location) หรือคลิกการ์ด → <kbd>เล่นการ์ดนี้</kbd> แล้วคลิกที่วาง · <b>ลาก Character</b> ที่พร้อม (กรอบเขียว) ไปที่ศัตรูหรือ Quest เพื่อ Contest หรือไปที่ช่องของ Quest อื่นเพื่อ Move (หรือคลิกเพื่อเลือก Contest / Move / Show) · <b>กดค้าง</b>ที่การ์ด (หรือคลิกขวา) เพื่อเปิดหน้าข้อมูลการ์ดใหญ่ · กด <kbd>จบเทิร์น</kbd> หรือ <kbd>Enter</kbd> เมื่อเสร็จ</div>`;
@@ -8673,6 +8675,9 @@ window.CHAR_ART = {
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.30 — 18 ต.ค. 2026</h4>
+<ul><li><b>เปลี่ยนกติกา Splash:</b> Contest เฉพาะ Quest ที่เลือก + Quest ที่อยู่ติดกัน (Adjacent) — จากเดิม Contest ทุก Quest · Contest Quest กลาง = โดนทั้ง 3 Quest, Contest Quest ริม = โดน 2 Quest (Quest นั้น + Quest กลาง) · Guard ยังรับแต้มแทน Quest เหมือนเดิม · มีผลกับ Jewel MSCWH-004, Jummo MSCWH-003, EQPWH-002, Smyle MSCGR-016, Neona MSCBR-008</li>
+<li><b>🏆 Top 10 ออนไลน์:</b> แก้บั๊กที่ทำให้สถิติจากเกมที่เล่นจบไม่ถูกส่งขึ้นเซิร์ฟเวอร์ (ถูกปฏิเสธทุกครั้ง) — เกมที่ค้างคิวไว้ในเครื่องจะถูกส่งอัตโนมัติ · ถ้ายังไม่มีข้อมูลจะขึ้น "ยังไม่มีข้อมูล — เล่นจบเกมเพื่อเริ่มเก็บสถิติ" แทนข้อความโหลดไม่ได้</li></ul>
 <h4>v4.1.29 — 18 ต.ค. 2026</h4>
 <ul><li><b>ทอยลูกเต๋าจากการ์ด</b> (ACTGR-001, ACTGR-003, ACTGR-010, ACTGR-011, ACTBK-002, ACTBK-012, Yuzu Mumu MSCBK-014): ตาเรากดปุ่ม <b>ทอยเต๋า 🎲</b> เอง แล้วมีแอนิเมชันลูกเต๋า+ผล · CPU ทอยอัตโนมัติแต่เห็นผลชัดเจน · ออนไลน์เห็นผลเดียวกันทั้งสองเครื่อง</li>
 <li>เด็ค: กองทัพเงามืด เอา Samruay MSCBK-018 (ต้องมี Avocean ซึ่งไม่มีในเด็ค) ออก ใส่ Lykyou MSCBK-016 ใบที่ 3 และเปลี่ยน ACTBK-012 เป็น Yuzu Mumu MSCBK-013 ใบที่ 3 · ขุนพลเกราะเหล็ก เอา Neona MSCBR-008 (ต้องมี Smyle) ออก ใส่ Muvmuv MSCBR-014 ใบที่ 2</li>
@@ -8901,7 +8906,10 @@ window.CHAR_ART = {
     queue(row) { try { const q = JSON.parse(localStorage.getItem(this.QKEY) || '[]'); q.push(row); localStorage.setItem(this.QKEY, JSON.stringify(q.slice(-100))); } catch (e) {} },
     async flush() { if (guard() || location.protocol === 'file:' || !navigator.onLine) return; if (Date.now() - this.lastPost < (this.lastErr === 404 ? 600000 : 20000)) return;
       let q; try { q = JSON.parse(localStorage.getItem(this.QKEY) || '[]'); } catch (e) { q = []; } if (!q.length) return; this.lastPost = Date.now();
-      try { const r = await fetch(NET.URL + '/rest/v1/gemm_games', { method: 'POST', headers: { apikey: NET.KEY, Authorization: 'Bearer ' + NET.KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal,resolution=ignore-duplicates' }, body: JSON.stringify(q) });
+      // v4.1.30: plain insert (anon is insert-only; 'resolution=ignore-duplicates' needs SELECT and was rejected with 401, so no game was ever stored)
+      const post = rows => fetch(NET.URL + '/rest/v1/gemm_games', { method: 'POST', headers: { apikey: NET.KEY, Authorization: 'Bearer ' + NET.KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(rows) });
+      try { let r = await post(q);
+        if (r.status === 409 && q.length > 1) { let bad = 0; for (const row of q) { const r1 = await post([row]); if (!r1.ok && r1.status !== 409) bad = r1.status; } r = { ok: !bad, status: bad || 201 }; } // a duplicate row (already sent) is skipped
         if (r.ok || r.status === 409) { localStorage.setItem(this.QKEY, '[]'); this.lastErr = null; } else this.lastErr = r.status; } catch (e) { this.lastErr = String(e); } } };
   window.GQSTATS = STATS;
   const PR = Engine.prototype;
@@ -8928,8 +8936,10 @@ window.CHAR_ART = {
     const md = document.getElementById('modal'); if (md) { md.classList.remove('on'); md.innerHTML = ''; }
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'scr-top'));
     const box = document.getElementById('top-list'); box.innerHTML = '<p class="top-note">กำลังโหลด…</p>';
-    let rows, src = '🌐 ผู้เล่นทุกคน';
-    try { rows = await fetchTop(); if (!score(rows).length) throw new Error('empty'); } catch (e) { rows = localRows(); src = '📱 สถิติจากเครื่องนี้ (ยังโหลดสถิติรวมออนไลน์ไม่ได้ — จะสลับเป็นสถิติรวมอัตโนมัติเมื่อพร้อม)'; }
+    let rows, src = '🌐 ผู้เล่นทุกคน', empty = false;
+    // v4.1.30: an empty online list is not an error — show a friendly note (plus this device's stats if any); real errors still say so
+    try { rows = await fetchTop(); if (!score(rows).length) { empty = true; const lr = localRows(); rows = lr; src = '🌐 ยังไม่มีข้อมูล — เล่นจบเกมเพื่อเริ่มเก็บสถิติ' + (score(lr).length ? ' · ระหว่างนี้แสดง 📱 สถิติจากเครื่องนี้' : ''); } }
+    catch (e) { rows = localRows(); src = `📱 สถิติจากเครื่องนี้ (โหลดสถิติรวมออนไลน์ไม่ได้: ${GQ.esc(String(e && e.message || e))})`; }
     const top = score(rows).slice(0, 10);
     box.innerHTML = `<p class="top-note">${src} · นับเฉพาะการ์ดที่ผู้เล่น (ไม่ใช่ CPU) ลงจริง · คะแนน = จำนวนครั้งที่ลง × น้ำหนักตาม Cost</p>` + (top.length ? `<ol class="top10">${top.map((r, i) => `<li><span class="rk">${i + 1}</span><div class="tc" data-preview="${r.code}">${R.card(r.code, {})}</div><div class="ti"><b>${GQ.DB[r.code].name || (GQ.TYPE_LABEL[GQ.DB[r.code].type] || GQ.DB[r.code].type)}</b> <small>${r.code}</small><br>Cost ${r.cost} · ลง ${r.plays} ครั้ง · อยู่ในเด็ค ${r.decks} เกม<br>อัตราการลง ${(r.rate).toFixed(2)} ครั้ง/เกม · คะแนน <b>${r.score.toFixed(1)}</b></div></li>`).join('')}</ol>` : '<p>ยังไม่มีข้อมูล — ลองเล่นสักเกมก่อนนะ</p>'); }
   window.GQTOP = { openTop, score, fetchTop, localRows };
