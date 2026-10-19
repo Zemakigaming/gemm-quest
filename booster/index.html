@@ -823,13 +823,12 @@ table.col tr.zero{opacity:.35}
 .flt{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}.flt select{font-family:inherit;font-size:14px}
 </style></head><body class="bst">
 <header><h1>GEMM QUEST · เปิดซอง</h1>
-<button class="b" id="bOpen">เปิดซอง</button>
+<button class="b" id="bOpen">เปิด 1 ซอง</button>
 <button class="b s" id="bReveal">เปิดทุกใบ</button>
-<button class="b s" id="b10">เปิด 10 ซอง</button>
-<button class="b s" id="bBox">เปิดทั้งกล่อง (24 ซอง)</button>
+<button class="b s" id="b12">เปิด 12 ซอง</button>
 <button class="b d" id="bReset">รีเซ็ต</button>
 <span class="info">1 ซอง = 12 ใบ: คอมมอน 6 · อันคอมมอน 3 · แรร์ 2 · ฟอยล์ 1 (สุ่มจากทุกใบ เปิดท้ายสุด) — คลิกการ์ดเพื่อพลิก</span></header>
-<div id="pack"></div>
+<div id="multi" class="panel" style="display:none"></div><div id="pack"></div>
 <div class="panel"><h2>สถิติ</h2><div class="stats" id="stats"></div></div>
 <div class="panel"><h2>คอลเลกชัน</h2>
 <div class="flt">แสดง: <select id="fR"><option value="">ทุกระดับ</option><option>C</option><option>UC</option><option>R</option><option>ER</option></select>
@@ -858,8 +857,13 @@ function showPack(p){clearTimeout(timer);cur=p;window.lastPack=p.map(c=>({code:c
  el.innerHTML=p.map((c,i)=>{const t=c.foil?'F':c.er?'ER':c.slot==='UC'?'U':c.slot;return `<div class="slot ${c.foil?'foil':c.slot==='R'?'rare':''} ${c.er&&!c.foil?'er':''}" data-i="${i}" data-slot="${c.foil?'F':c.slot}"><div class="flip"><div class="bk">${fill(BACK)}</div><div class="fr">${cardHTML(c)}</div></div><div class="lbl ${t}">${c.foil?'✦ FOIL ✦ · ':''}${c.er?LAB.ER:LAB[c.slot]} · ${c.rarity}</div></div>`}).join('');
  el.querySelectorAll('.slot').forEach(s=>s.onclick=()=>s.classList.add('open'));}
 function revealSeq(i=0){const s=document.querySelectorAll('#pack .slot');if(i>=s.length)return;s[i].classList.add('open');timer=setTimeout(()=>revealSeq(i+1),i>=12?1000:i>=9?650:220);}
-function openOne(){const p=makePack();record(p);showPack(p);timer=setTimeout(()=>revealSeq(0),300);render();}
-function openMany(n){let p;for(let i=0;i<n;i++){p=makePack();record(p);}showPack(p);document.querySelectorAll('#pack .slot').forEach(s=>s.classList.add('open'));render();}
+function openOne(){document.getElementById('multi').style.display='none';const p=makePack();record(p);showPack(p);timer=setTimeout(()=>revealSeq(0),300);render();}
+function openMany(n){const had=new Set(CARDS.filter(c=>(S.cnt[c.code]||0)+(S.foil[c.code]||0)).map(c=>c.code));const all=[];for(let i=0;i<n;i++){const p=makePack();record(p);all.push(...p);}
+ const k={C:0,UC:0,R:0,ER:0,F:0};const nw=new Set();all.forEach(c=>{c.foil?k.F++:k[c.er?'ER':c.slot]++;if(!had.has(c.code))nw.add(c.code);});
+ const foils=all.filter(c=>c.foil),hits=all.filter(c=>!c.foil&&(c.slot==='R'||c.er)).sort((a,b)=>(b.er?1:0)-(a.er?1:0));
+ const m=document.getElementById('multi');m.style.display='';
+ m.innerHTML=`<h2>ผลการเปิด ${n} ซอง</h2><div class="stats"><div>รวม <b>${all.length}</b> ใบ</div><div>คอมมอน <b>${k.C}</b></div><div>อันคอมมอน <b>${k.UC}</b></div><div>แรร์ <b>${k.R+k.ER}</b> (ER <b>${k.ER}</b>)</div><div>✦ ฟอยล์ <b>${k.F}</b></div><div>การ์ดแบบใหม่ <b>${nw.size}</b> แบบ</div></div><p class="info">ด้านล่าง: ฟอยล์ ${foils.length} ใบ (ไฮไลต์) ตามด้วยแรร์/ER ทั้งหมด</p>`;
+ showPack([...foils,...hits]);document.querySelectorAll('#pack .slot').forEach(s=>s.classList.add('open'));render();}
 function render(){const tot={C:0,UC:0,R:0,ER:0};let owned=0,fo=0,fu=0;
  CARDS.forEach(c=>{const n=S.cnt[c.code]||0;const f=S.foil[c.code]||0;fo+=f;if(f)fu++;if(n||f)owned++;tot[c.er?'ER':c.slot]+=n;});
  const all=tot.C+tot.UC+tot.R+tot.ER;
@@ -873,9 +877,8 @@ function render(){const tot={C:0,UC:0,R:0,ER:0};let owned=0,fo=0,fu=0;
   rows.map(c=>`<tr class="${S.cnt[c.code]||S.foil[c.code]?'':'zero'}"><td>${c.code}</td><td>${c.name||'—'}</td><td>${c.type}</td><td>${c.tab}</td><td>${c.rarity}</td><td>${c.slot||'?'}</td><td><b>${S.cnt[c.code]||0}</b></td><td>${S.foil[c.code]?'✦ '+S.foil[c.code]:'0'}</td></tr>`).join('');}
 document.getElementById('bOpen').onclick=openOne;
 document.getElementById('bReveal').onclick=()=>{clearTimeout(timer);document.querySelectorAll('#pack .slot').forEach(s=>s.classList.add('open'));};
-document.getElementById('b10').onclick=()=>openMany(10);
-document.getElementById('bBox').onclick=()=>openMany(24);
-document.getElementById('bReset').onclick=()=>{if(!confirm('ล้างคอลเลกชันทั้งหมด?'))return;S={packs:0,cnt:{},foil:{}};save();document.getElementById('pack').innerHTML='';render();};
+document.getElementById('b12').onclick=()=>openMany(12);
+document.getElementById('bReset').onclick=()=>{if(!confirm('ล้างคอลเลกชันทั้งหมด?'))return;S={packs:0,cnt:{},foil:{}};save();document.getElementById('pack').innerHTML='';document.getElementById('multi').style.display='none';render();};
 fR.onchange=fO.onchange=render;
 window.BOOSTER={makePack,POOL,UNMAPPED,openOne,openMany,state:()=>S};
 render();
