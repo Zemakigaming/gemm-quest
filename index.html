@@ -957,7 +957,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.31';
+window.GQ_VERSION = '4.1.32';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -1686,7 +1686,7 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "",
   "cost": null,
-  "text": "Reward: exhaust up to 3 opponent's Characters.",
+  "text": "Reward: Stun up to 3 opponent's Characters.",
   "rarity": "C",
   "stat": "14",
   "threshold": 14
@@ -3945,7 +3945,7 @@ window.CHAR_ART = {
   A['MSCWH-020'] = { kw: { guard: 1 } };
   A['QSTWH-001'] = { onComplete: async (E, c) => { for (const qi of E.questIdx()) if (qi !== c.qi) await E.points(qi, c.pi, 2, {}); } };
   A['QSTWH-002'] = {
-    onComplete: async (E, c) => { const ms = await E.chooseMascots(c.pi, 3, { title: 'Exhaust Character ฝ่ายตรงข้าม', filter: enemyOf(c.pi), hint: 'exhaust' }); ms.forEach(m => E.exhaust(m)); },
+    onComplete: async (E, c) => { const ms = await E.chooseMascots(c.pi, 3, { title: 'Stun Character ฝ่ายตรงข้ามสูงสุด 3 ตัว (ไม่ Ready ใน Ready Phase ถัดไป)', filter: enemyOf(c.pi), hint: 'stun' }); ms.forEach(m => E.stun(m)); },
   };
   A['QSTWH-003'] = { onComplete: (E, c) => E.draw(c.pi, 1) };
 
@@ -8684,6 +8684,8 @@ window.CHAR_ART = {
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.32 — 21 ต.ค. 2026</h4>
+<ul><li>Quest QSTWH-002: รางวัลเปลี่ยนจาก Exhaust เป็น <b>Stun</b> Character ฝ่ายตรงข้ามสูงสุด 3 ตัว (ตะแคง + ไม่ Ready ใน Ready Phase ถัดไป) ตามชีตการ์ด</li></ul>
 <h4>v4.1.31 — 18 ต.ค. 2026</h4>
 <ul><li><b>เด็คคอมโบคู่ใหม่ 3 เด็ค</b> (เพิ่มจาก 11 เด็คเดิม): คู่หูดินฟ้า Neona×Smyle (ดิน+ลม) · คู่ซี้ Domiia×Tomafox (ไฟ) · เงาใต้คลื่น Samruay×Avocean (น้ำ+เงา)</li>
 <li>CPU พยายามลงตัวที่เป็นคู่กัน (Smyle/Neona, Domiia/Tomafox, Samruay/Avocean) ใน Quest เดียวกัน</li></ul>
