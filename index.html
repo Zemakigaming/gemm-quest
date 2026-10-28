@@ -861,7 +861,7 @@ button { font-family: inherit; }
       <button class="btn" id="btn-demo">👀 ดู CPU เล่นกันเอง</button>
     </nav>
     <button class="btn sm snd-fab" data-snd title="ตั้งค่าเสียง"><span>🔊</span> เสียง</button>
-    <p class="foot-note">ต้นแบบเกมการ์ด · การ์ด 179 ใบ จาก 6 ธาตุ · <span id="ver"></span></p>
+    <p class="foot-note">ต้นแบบเกมการ์ด · การ์ด 175 ใบ จาก 6 ธาตุ · <span id="ver"></span></p>
   </div>
 </section>
 
@@ -957,7 +957,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.34';
+window.GQ_VERSION = '4.1.35';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -995,7 +995,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 2,
   "text": "Draw 3 cards.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -1015,7 +1015,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 1,
   "text": "Reveal top 5 cards from your Deck and choose up to 2 Aqua cards to your hand and discard the rest",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -1035,7 +1035,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 3,
   "text": "Put 1 enemy Character to top of their deck",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -1057,7 +1057,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 1,
   "text": "This Character cannot Move out from this Quest.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "+2/+2",
   "modPow": 2,
   "modMor": 2
@@ -1092,7 +1092,7 @@ window.CARD_LIST = [
   "name": "Polcasan",
   "cost": 2,
   "text": "",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "0/1",
   "cud": 2,
   "pow": 0,
@@ -1117,8 +1117,8 @@ window.CARD_LIST = [
   "el": "AQUA",
   "name": "Polcasan",
   "cost": 5,
-  "text": "Draw 1 additional Cards in each Draw Phase.",
-  "rarity": "R",
+  "text": "Draw 1 additional Card in each Draw Phase.",
+  "rarity": "ER",
   "stat": "4/5",
   "cud": 2,
   "pow": 4,
@@ -1182,8 +1182,8 @@ window.CARD_LIST = [
   "el": "AQUA",
   "name": "Wesley",
   "cost": 1,
-  "text": "Guard (opponent must contest this Character if able)",
-  "rarity": "C",
+  "text": "Guard",
+  "rarity": "UC",
   "stat": "0/3",
   "cud": 1,
   "pow": 0,
@@ -1222,7 +1222,7 @@ window.CARD_LIST = [
   "name": "Nongnooong",
   "cost": 3,
   "text": "When a Character Contest him, return him to the owner hand. (not go to discard pile)",
-  "rarity": "R",
+  "rarity": "ER",
   "stat": "5/3",
   "cud": 1,
   "pow": 5,
@@ -1235,7 +1235,7 @@ window.CARD_LIST = [
   "name": "Nongnooong",
   "cost": 5,
   "text": "This Character have Armor exact to the current number of Aqua Characters you're controlling",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "4/4",
   "cud": 2,
   "pow": 4,
@@ -1248,7 +1248,7 @@ window.CARD_LIST = [
   "name": "Momo",
   "cost": 2,
   "text": "When this character Contest another Character, Stun that Character.",
-  "rarity": "ER",
+  "rarity": "R",
   "stat": "1/3",
   "cud": 1,
   "pow": 1,
@@ -1301,23 +1301,13 @@ window.CARD_LIST = [
   "threshold": 15
  },
  {
-  "code": "PRPBL-002",
-  "type": "Set Props",
-  "el": "AQUA",
-  "name": "",
-  "cost": 2,
-  "text": "Increase the threshold of this Quest by 5.",
-  "rarity": "C",
-  "stat": ""
- },
- {
   "code": "ACTWH-002",
   "type": "Action",
   "el": "AURORA",
   "name": "",
   "cost": 2,
   "text": "Draw a card for each Aurora Character you control.",
-  "rarity": "C",
+  "rarity": "R",
   "stat": ""
  },
  {
@@ -1327,7 +1317,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 1,
   "text": "Stun an enemy Character.",
-  "rarity": "C",
+  "rarity": "R",
   "stat": ""
  },
  {
@@ -1336,7 +1326,7 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "",
   "cost": 4,
-  "text": "Defeat all Character on Play Area.",
+  "text": "Defeat all Characters on Play Area.",
   "rarity": "R",
   "stat": ""
  },
@@ -1353,25 +1343,13 @@ window.CARD_LIST = [
   "modMor": 2
  },
  {
-  "code": "EQPWH-002",
-  "type": "Equipment",
-  "el": "AURORA",
-  "name": "",
-  "cost": 2,
-  "text": "Splash",
-  "rarity": "C",
-  "stat": "+1/+1",
-  "modPow": 1,
-  "modMor": 1
- },
- {
   "code": "MSCWH-008",
   "type": "Mascot",
   "el": "AURORA",
   "name": "Mr.Saturnworld",
   "cost": 5,
   "text": "Debut: May choose a target Character on this Quest. The chosen Character is stay Exhausted until he leave the Play Area.",
-  "rarity": "R",
+  "rarity": "ER",
   "stat": "5/7",
   "cud": 2,
   "pow": 5,
@@ -1410,7 +1388,7 @@ window.CARD_LIST = [
   "name": "Jewel",
   "cost": 3,
   "text": "Splash",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "2/2",
   "cud": 1,
   "pow": 2,
@@ -1435,7 +1413,7 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "",
   "cost": 2,
-  "text": "At the end of your turn, Remove up to 2 opponent's Contest Points on this Quests.",
+  "text": "At the end of your turn, Remove up to 2 opponent's Contest Points on this Quest.",
   "rarity": "C",
   "stat": ""
  },
@@ -1446,7 +1424,7 @@ window.CARD_LIST = [
   "name": "Jummo",
   "cost": 4,
   "text": "Armor 2",
-  "rarity": "R",
+  "rarity": "ER",
   "stat": "3/5",
   "cud": 1,
   "pow": 3,
@@ -1459,7 +1437,7 @@ window.CARD_LIST = [
   "name": "Jummo",
   "cost": 2,
   "text": "Rush",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "1/4",
   "cud": 1,
   "pow": 1,
@@ -1482,7 +1460,7 @@ window.CARD_LIST = [
   "name": "Mr.Saturnworld",
   "cost": 1,
   "text": "Debut: May Stun target Character on this Quest.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "1/1",
   "cud": 1,
   "pow": 1,
@@ -1495,7 +1473,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 2,
   "text": "Each Aurora Character on this Quest gain +1/+2",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -1555,8 +1533,8 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "Paody",
   "cost": 6,
-  "text": "When another Character contest this character, Retaliate",
-  "rarity": "C",
+  "text": "Retaliate",
+  "rarity": "UC",
   "stat": "5/7",
   "cud": 2,
   "pow": 5,
@@ -1568,8 +1546,8 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "Look Khunnoo",
   "cost": 1,
-  "text": "When another Character contest this character, Retaliate",
-  "rarity": "C",
+  "text": "Retaliate",
+  "rarity": "UC",
   "stat": "1/1",
   "cud": 1,
   "pow": 1,
@@ -1582,7 +1560,7 @@ window.CARD_LIST = [
   "name": "Look Khunnoo",
   "cost": 3,
   "text": "Guard",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "2/4",
   "cud": 1,
   "pow": 2,
@@ -1594,7 +1572,7 @@ window.CARD_LIST = [
   "el": "AURORA",
   "name": "Look Khunnoo",
   "cost": 4,
-  "text": "When another Character contest this character, Retaliate",
+  "text": "Retaliate",
   "rarity": "R",
   "stat": "5/2",
   "cud": 1,
@@ -1619,7 +1597,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": null,
   "text": "Reward: Stun up to 3 opponent's Characters.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "14",
   "threshold": 14
  },
@@ -1641,7 +1619,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 1,
   "text": "Roll d6: Gain Main Mana equal to half of the result rounded up.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -1649,7 +1627,7 @@ window.CARD_LIST = [
   "type": "Action",
   "el": "AERO",
   "name": "",
-  "cost": 1,
+  "cost": 0,
   "text": "One of your Character Fight with an opponent Character. (Deal Contest Point to each others)",
   "rarity": "C",
   "stat": ""
@@ -1671,7 +1649,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 2,
   "text": "Move up to 2 Character to any Quest. (do not have to be the same Quest)",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -1681,7 +1659,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 4,
   "text": "Move all opponent's Characters to the Backstage.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -1690,23 +1668,11 @@ window.CARD_LIST = [
   "el": "AERO",
   "name": "",
   "cost": 1,
-  "text": "Hiding (Cannot be the target by opponent except for Character Contest)",
+  "text": "Hiding",
   "rarity": "C",
   "stat": "+1/+1",
   "modPow": 1,
   "modMor": 1
- },
- {
-  "code": "EQPGR-003",
-  "type": "Equipment",
-  "el": "AERO",
-  "name": "",
-  "cost": 1,
-  "text": "Gain 1 Energy",
-  "rarity": "C",
-  "stat": "+0/+2",
-  "modPow": 0,
-  "modMor": 2
  },
  {
   "code": "EQPGR-006",
@@ -1740,7 +1706,7 @@ window.CARD_LIST = [
   "name": "Babii",
   "cost": 2,
   "text": "",
-  "rarity": "R",
+  "rarity": "ER",
   "stat": "1/3",
   "cud": 2,
   "pow": 1,
@@ -1766,11 +1732,11 @@ window.CARD_LIST = [
   "name": "Babii",
   "cost": 5,
   "text": "Heal HP to full at the end of the turn",
-  "rarity": "C",
-  "stat": "3/6",
+  "rarity": "R",
+  "stat": "4/7",
   "cud": 2,
-  "pow": 3,
-  "mor": 6
+  "pow": 4,
+  "mor": 7
  },
  {
   "code": "PRPGR-001",
@@ -1779,7 +1745,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 2,
   "text": "When Characrer contest on this quest, move that Character to the backstage after that.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -1802,7 +1768,7 @@ window.CARD_LIST = [
   "name": "Any",
   "cost": 5,
   "text": "Opponent can't activate more than 1 Character on this Quest.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "5/5",
   "cud": 2,
   "pow": 5,
@@ -1814,11 +1780,11 @@ window.CARD_LIST = [
   "el": "AERO",
   "name": "Any",
   "cost": 1,
-  "text": "",
+  "text": "All cost 1 Characters you control gain +1/+1",
   "rarity": "C",
-  "stat": "1/1",
+  "stat": "0/1",
   "cud": 1,
-  "pow": 1,
+  "pow": 0,
   "mor": 1
  },
  {
@@ -1827,7 +1793,7 @@ window.CARD_LIST = [
   "el": "AERO",
   "name": "",
   "cost": 3,
-  "text": "End turn. If your have more Cuddiness than the opponent on this Quest, draw a card.",
+  "text": "At the End of your turn. If your have more Energy than opponent on this Quest, draw a card.",
   "rarity": "R",
   "stat": ""
  },
@@ -1838,7 +1804,7 @@ window.CARD_LIST = [
   "name": "Smyle",
   "cost": 4,
   "text": "Choose one: 6/2 or 3/7",
-  "rarity": "R",
+  "rarity": "ER",
   "stat": "6/2 - 3/7",
   "cud": 1,
   "pow": 0,
@@ -1851,7 +1817,7 @@ window.CARD_LIST = [
   "name": "Smyle",
   "cost": 7,
   "text": "If there are Neona on this Quest, he gain Splash and +1/+2",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "6/10",
   "cud": 2,
   "pow": 6,
@@ -1875,12 +1841,12 @@ window.CARD_LIST = [
   "type": "Mascot",
   "el": "AERO",
   "name": "Tingting",
-  "cost": 7,
+  "cost": 6,
   "text": "All Aero Character you control gain Rush.",
   "rarity": "R",
-  "stat": "8/3",
+  "stat": "7/3",
   "cud": 2,
-  "pow": 8,
+  "pow": 7,
   "mor": 3
  },
  {
@@ -1890,7 +1856,7 @@ window.CARD_LIST = [
   "name": "Ponpon",
   "cost": 4,
   "text": "Ranged Attack",
-  "rarity": "R",
+  "rarity": "ER",
   "stat": "3/5",
   "cud": 1,
   "pow": 3,
@@ -1900,7 +1866,7 @@ window.CARD_LIST = [
   "code": "MSCGR-020",
   "type": "Mascot",
   "el": "AERO",
-  "name": "Tingting",
+  "name": "Babii",
   "cost": 4,
   "text": "",
   "rarity": "C",
@@ -1916,7 +1882,7 @@ window.CARD_LIST = [
   "name": "Ponpon",
   "cost": 1,
   "text": "Ranged Attack",
-  "rarity": "C",
+  "rarity": "R",
   "stat": "1/1",
   "cud": 0,
   "pow": 1,
@@ -1929,7 +1895,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": null,
   "text": "Reward: each of your Character on this Quest heal HP to full.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "12",
   "threshold": 12
  },
@@ -1962,7 +1928,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 1,
   "text": "Search 1 Artifact from your Deck. Shuffle your Deck.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -1972,7 +1938,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 3,
   "text": "Draw a number of cards for each of your Artifact on the Play Area.",
-  "rarity": "C",
+  "rarity": "R",
   "stat": ""
  },
  {
@@ -1982,20 +1948,8 @@ window.CARD_LIST = [
   "name": "",
   "cost": 2,
   "text": "Move all Artifacts you control to a Character.",
-  "rarity": "C",
+  "rarity": "R",
   "stat": ""
- },
- {
-  "code": "EQPBR-002",
-  "type": "Equipment",
-  "el": "TERRA",
-  "name": "",
-  "cost": 2,
-  "text": "",
-  "rarity": "C",
-  "stat": "+3/+2",
-  "modPow": 3,
-  "modMor": 2
  },
  {
   "code": "EQPBR-003",
@@ -2027,7 +1981,7 @@ window.CARD_LIST = [
   "el": "TERRA",
   "name": "",
   "cost": 6,
-  "text": "Breakthrough (Contest both a Character and Quest)",
+  "text": "Breakthrough",
   "rarity": "R",
   "stat": "+6/+6",
   "modPow": 6,
@@ -2040,7 +1994,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 1,
   "text": "Gain 3 main Mana. Opponent draw a card",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -2075,11 +2029,11 @@ window.CARD_LIST = [
   "el": "TERRA",
   "name": "Vimmy",
   "cost": 5,
-  "text": "Breakthrough (Contest both a Character and Quest)",
+  "text": "Breakthrough",
   "rarity": "R",
-  "stat": "3/6",
+  "stat": "4/6",
   "cud": 2,
-  "pow": 3,
+  "pow": 4,
   "mor": 6
  },
  {
@@ -2103,10 +2057,10 @@ window.CARD_LIST = [
   "cost": 3,
   "text": "",
   "rarity": "C",
-  "stat": "3/4",
+  "stat": "3/5",
   "cud": 1,
   "pow": 3,
-  "mor": 4
+  "mor": 5
  },
  {
   "code": "MSCBR-007",
@@ -2128,7 +2082,7 @@ window.CARD_LIST = [
   "name": "Neona",
   "cost": 4,
   "text": "If there are Smyle on this Quest, he gain Splash and +1/+1",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "3/4",
   "cud": 1,
   "pow": 3,
@@ -2140,8 +2094,8 @@ window.CARD_LIST = [
   "el": "TERRA",
   "name": "Jaidee",
   "cost": 5,
-  "text": "Guard (opponent must contest this Character if able)",
-  "rarity": "C",
+  "text": "Guard",
+  "rarity": "UC",
   "stat": "3/7",
   "cud": 2,
   "pow": 3,
@@ -2154,7 +2108,7 @@ window.CARD_LIST = [
   "name": "Neona",
   "cost": 6,
   "text": "Debut: deal 4 Contest points to this Quest and each opponent's Characters on this Quest.",
-  "rarity": "R",
+  "rarity": "ER",
   "stat": "3/6",
   "cud": 2,
   "pow": 3,
@@ -2167,7 +2121,7 @@ window.CARD_LIST = [
   "name": "Permpoon",
   "cost": 1,
   "text": "Debut: take 1 Artifact in your Discard Pile to your hand",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "1/1",
   "cud": 1,
   "pow": 1,
@@ -2178,9 +2132,9 @@ window.CARD_LIST = [
   "type": "Set Props",
   "el": "TERRA",
   "name": "",
-  "cost": 1,
+  "cost": 0,
   "text": "Each Character on this quest gain 1 Energy",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -2190,7 +2144,7 @@ window.CARD_LIST = [
   "name": "Neona",
   "cost": 5,
   "text": "If there are opponent's Character on this Quest, he must Contest them on the Action phase if possible",
-  "rarity": "C",
+  "rarity": "R",
   "stat": "6/7",
   "cud": 2,
   "pow": 6,
@@ -2216,7 +2170,7 @@ window.CARD_LIST = [
   "name": "Muvmuv",
   "cost": 6,
   "text": "Breakthrough, Hiding (Cannot be the target by opponent except for Character Contest)",
-  "rarity": "R",
+  "rarity": "ER",
   "stat": "7/4",
   "cud": 2,
   "pow": 7,
@@ -2228,12 +2182,12 @@ window.CARD_LIST = [
   "el": "TERRA",
   "name": "Muvmuv",
   "cost": 3,
-  "text": "Regenarate (Heal HP to full at the end of the turn)",
-  "rarity": "C",
-  "stat": "3/3",
+  "text": "Heal HP to full at the end of the turn",
+  "rarity": "R",
+  "stat": "3/4",
   "cud": 1,
   "pow": 3,
-  "mor": 3
+  "mor": 4
  },
  {
   "code": "MSCBR-013",
@@ -2241,7 +2195,7 @@ window.CARD_LIST = [
   "el": "TERRA",
   "name": "Renjin",
   "cost": 1,
-  "text": "Range Attack (May Contest any target in adjacent Quest)",
+  "text": "Ranged Attack",
   "rarity": "C",
   "stat": "1/1",
   "cud": 0,
@@ -2266,7 +2220,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": null,
   "text": "Reward: Count as 2 Quests completed.",
-  "rarity": "R",
+  "rarity": "UC",
   "stat": "24",
   "threshold": 24
  },
@@ -2308,7 +2262,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 1,
   "text": "Deal 2 Contest Points to any target.",
-  "rarity": "C",
+  "rarity": "R",
   "stat": ""
  },
  {
@@ -2327,7 +2281,7 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "",
   "cost": 5,
-  "text": "Deal 8 Contest Point, may divide to any number of targets.",
+  "text": "Deal 8 Contest Points, may divide to any number of targets.",
   "rarity": "C",
   "stat": ""
  },
@@ -2338,7 +2292,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 3,
   "text": "Equip only Ember Character. After this Character Contest, this Character may Contest 1 additional time in a turn.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "",
   "modPow": 0,
   "modMor": 0
@@ -2363,10 +2317,10 @@ window.CARD_LIST = [
   "cost": 4,
   "text": "Each opponent's Character lose 1 Energy while on this Quest.",
   "rarity": "R",
-  "stat": "2/3",
+  "stat": "4/4",
   "cud": 1,
-  "pow": 2,
-  "mor": 3
+  "pow": 4,
+  "mor": 4
  },
  {
   "code": "MSCRD-001",
@@ -2375,7 +2329,7 @@ window.CARD_LIST = [
   "name": "Tomafox",
   "cost": 2,
   "text": "Debut: May deal 3 Contest Points to any target.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "1/2",
   "cud": 1,
   "pow": 1,
@@ -2387,7 +2341,7 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "Flarey",
   "cost": 3,
-  "text": "Rush (enters Ready)",
+  "text": "Rush",
   "rarity": "R",
   "stat": "3/2",
   "cud": 1,
@@ -2401,7 +2355,7 @@ window.CARD_LIST = [
   "name": "Domiia",
   "cost": 3,
   "text": "If Tomafox on this Quest, that Tomafox gain Rush and +1/+1",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "4/2",
   "cud": 1,
   "pow": 4,
@@ -2426,8 +2380,8 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "Lunar",
   "cost": 1,
-  "text": "Debut: May destroy an Artifact or Location on this Quest.",
-  "rarity": "C",
+  "text": "Debut: May destroy 1 Artifact or Location on this Quest.",
+  "rarity": "UC",
   "stat": "0/1",
   "cud": 1,
   "pow": 0,
@@ -2440,7 +2394,7 @@ window.CARD_LIST = [
   "name": "Nilknhake",
   "cost": 2,
   "text": "Cannot contest if other Character on the same quest",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "4/3",
   "cud": 1,
   "pow": 4,
@@ -2466,7 +2420,7 @@ window.CARD_LIST = [
   "name": "Flarey",
   "cost": 6,
   "text": "Debut: deal 5 Contest Points, may split to any targets in any number.",
-  "rarity": "C",
+  "rarity": "R",
   "stat": "6/4",
   "cud": 2,
   "pow": 6,
@@ -2478,8 +2432,8 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "Domiia",
   "cost": 1,
-  "text": "Rush (enters Ready)",
-  "rarity": "R",
+  "text": "Rush",
+  "rarity": "ER",
   "stat": "1/1",
   "cud": 0,
   "pow": 1,
@@ -2505,17 +2459,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 3,
   "text": "At the end of your turn, Deal 2 Contest Points to this Quest.",
-  "rarity": "C",
-  "stat": ""
- },
- {
-  "code": "PRPRD-002",
-  "type": "Set Props",
-  "el": "EMBER",
-  "name": "",
-  "cost": 2,
-  "text": "All Characters on this Quest must Contest the Quest on their turn if able.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -2538,7 +2482,7 @@ window.CARD_LIST = [
   "name": "Tomafox",
   "cost": 7,
   "text": "",
-  "rarity": "R",
+  "rarity": "ER",
   "stat": "9/9",
   "cud": 2,
   "pow": 9,
@@ -2563,11 +2507,11 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "Nilknhake",
   "cost": 5,
-  "text": "When you play an Ember Spell card, deal 2 Contest Points to any target.",
+  "text": "When you play an Ember Spell card, deal 3 Contest Points to any target.",
   "rarity": "R",
-  "stat": "6/5",
+  "stat": "5/5",
   "cud": 2,
-  "pow": 6,
+  "pow": 5,
   "mor": 5
  },
  {
@@ -2576,8 +2520,8 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "",
   "cost": null,
-  "text": "Reward: Deal 4 Contest Point to another Quest.",
-  "rarity": "C",
+  "text": "Reward: Deal 4 Contest Points to another Quest.",
+  "rarity": "UC",
   "stat": "15",
   "threshold": 15
  },
@@ -2610,7 +2554,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 1,
   "text": "Target opponent reveal their hand, you choose a card to discard.",
-  "rarity": "C",
+  "rarity": "R",
   "stat": ""
  },
  {
@@ -2620,7 +2564,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 1,
   "text": "Roll d6: on 5-6 play a Character from your hand for free.",
-  "rarity": "C",
+  "rarity": "R",
   "stat": ""
  },
  {
@@ -2640,7 +2584,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 3,
   "text": "Defeat a target Character on the Quest that Eclipes Character present.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": ""
  },
  {
@@ -2650,7 +2594,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 4,
   "text": "Search 1 Character from your discard pile, Return it to the Backstage",
-  "rarity": "C",
+  "rarity": "R",
   "stat": ""
  },
  {
@@ -2673,7 +2617,7 @@ window.CARD_LIST = [
   "name": "Metaa",
   "cost": 4,
   "text": "x = the number of Character cards in your Discard pile.",
-  "rarity": "R",
+  "rarity": "ER",
   "stat": "x/x",
   "cud": 1,
   "pow": 0,
@@ -2686,7 +2630,7 @@ window.CARD_LIST = [
   "name": "Metaa",
   "cost": 3,
   "text": "When opponent Character enter this Quest, you draw a card.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "3/2",
   "cud": 1,
   "pow": 3,
@@ -2725,7 +2669,7 @@ window.CARD_LIST = [
   "name": "Yuzu Mumu",
   "cost": 2,
   "text": "You may play him from your Discard pile.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "1/2",
   "cud": 1,
   "pow": 1,
@@ -2738,11 +2682,11 @@ window.CARD_LIST = [
   "name": "Guinzly",
   "cost": 4,
   "text": "Contest Power and Max HP are reduced by the number of cards in the opponent’s hand.",
-  "rarity": "R",
-  "stat": "7*/7*",
+  "rarity": "ER",
+  "stat": "8*/8*",
   "cud": 1,
-  "pow": 7,
-  "mor": 7
+  "pow": 8,
+  "mor": 8
  },
  {
   "code": "MSCBK-011",
@@ -2777,7 +2721,7 @@ window.CARD_LIST = [
   "name": "King Man",
   "cost": 7,
   "text": "Debut on Quest, Defeat all Character on all others Quests",
-  "rarity": "C",
+  "rarity": "R",
   "stat": "6/8",
   "cud": 2,
   "pow": 6,
@@ -2815,7 +2759,17 @@ window.CARD_LIST = [
   "name": "",
   "cost": 2,
   "text": "Defeat a Character on the Backstage.",
-  "rarity": "C",
+  "rarity": "UC",
+  "stat": ""
+ },
+ {
+  "code": "ACTBK-008",
+  "type": "Action",
+  "el": "ECLIPSE",
+  "name": "",
+  "cost": 2,
+  "text": "Can use this card only If the number of opponent's Character is greater than your, play a Character from your discard pile for free.",
+  "rarity": "R",
   "stat": ""
  },
  {
@@ -2846,9 +2800,9 @@ window.CARD_LIST = [
   "cost": 5,
   "text": "Cannot be the target by opponent spell or quest reward",
   "rarity": "C",
-  "stat": "5/6",
+  "stat": "6/6",
   "cud": 2,
-  "pow": 5,
+  "pow": 6,
   "mor": 6
  },
  {
@@ -2859,10 +2813,10 @@ window.CARD_LIST = [
   "cost": 4,
   "text": "Debut, Defeat another Character you control and roll d6: draw cards equal to half of the result rounded up.",
   "rarity": "R",
-  "stat": "4/5",
+  "stat": "5/6",
   "cud": 1,
-  "pow": 4,
-  "mor": 5
+  "pow": 5,
+  "mor": 6
  },
  {
   "code": "MSCBK-015",
@@ -2871,11 +2825,11 @@ window.CARD_LIST = [
   "name": "Samruay",
   "cost": 4,
   "text": "Gain 1 Energy for each ally Eclipse Character.",
-  "rarity": "C",
-  "stat": "2/6",
+  "rarity": "UC",
+  "stat": "2/7",
   "cud": 0,
   "pow": 2,
-  "mor": 6
+  "mor": 7
  },
  {
   "code": "QSTBK-002",
@@ -2895,7 +2849,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": null,
   "text": "Reward: opponent discard 2 cards form their hand randomly.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "14",
   "threshold": 14
  },
@@ -2928,7 +2882,7 @@ window.CARD_LIST = [
   "name": "Rexxa",
   "cost": 5,
   "text": "Debut: draw 1 card for each other ally Aqua Character.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "5/7",
   "cud": 1,
   "pow": 5,
@@ -2989,7 +2943,7 @@ window.CARD_LIST = [
   "name": "Tingting",
   "cost": 3,
   "text": "Rush. Debut: May move 1 of your other Characters to any Quest.",
-  "rarity": "C",
+  "rarity": "R",
   "stat": "2/3",
   "cud": 1,
   "pow": 2,
@@ -3012,9 +2966,9 @@ window.CARD_LIST = [
   "type": "Action",
   "el": "AERO",
   "name": "",
-  "cost": 3,
+  "cost": 2,
   "text": "Target an Aero Character, then Roll d6: That Character gain +X/+X until the end of turn and Heal HP equal to the result.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "",
   "new4128": true
  },
@@ -3025,7 +2979,7 @@ window.CARD_LIST = [
   "name": "Renjin",
   "cost": 4,
   "text": "Debut: may attach an Artifact from your hand to this Character.",
-  "rarity": "C",
+  "rarity": "R",
   "stat": "3/4",
   "cud": 1,
   "pow": 3,
@@ -3036,7 +2990,7 @@ window.CARD_LIST = [
   "code": "MSCBR-018",
   "type": "Mascot",
   "el": "TERRA",
-  "name": "Neona",
+  "name": "Vimmy",
   "cost": 3,
   "text": "Guard. When this character takes contest damage, draw a card.",
   "rarity": "C",
@@ -3053,7 +3007,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 2,
   "text": "Terra Character here gain +3 max HP.",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "",
   "new4128": true
  },
@@ -3063,8 +3017,8 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "Tomafox",
   "cost": 3,
-  "text": "Whenever this character Contest, return 1 Ember Spell from the discardpile to your hand.",
-  "rarity": "C",
+  "text": "Whenever this character Contest, return 1 Ember Spell from the discard pile to your hand.",
+  "rarity": "UC",
   "stat": "1/3",
   "cud": 1,
   "pow": 1,
@@ -3077,7 +3031,7 @@ window.CARD_LIST = [
   "el": "EMBER",
   "name": "",
   "cost": 1,
-  "text": "Deal X Contest Points to any target. (X=Ember spell in your discardpile)",
+  "text": "Deal X Contest Points to any target. (X=Ember spell in your discard pile)",
   "rarity": "C",
   "stat": "",
   "new4128": true
@@ -3089,7 +3043,7 @@ window.CARD_LIST = [
   "name": "Domiia",
   "cost": 5,
   "text": "On defeated, Contest 3 point to each quest",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "6/4",
   "cud": 1,
   "pow": 6,
@@ -3103,7 +3057,7 @@ window.CARD_LIST = [
   "name": "",
   "cost": 0,
   "text": "Defeat 1 Eclipse Character you control, then draw 3 cards",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "",
   "new4128": true
  },
@@ -3125,7 +3079,7 @@ window.CARD_LIST = [
   "name": "Samruay",
   "cost": 2,
   "text": "If Avocean also on this quest, this character gain Rush and +1/+1",
-  "rarity": "C",
+  "rarity": "UC",
   "stat": "2/3",
   "cud": 1,
   "pow": 2,
@@ -3134,9 +3088,9 @@ window.CARD_LIST = [
  }
 ];
 window.STARTER_DECKS = {"EMBER": {"MSCRD-001": 3, "MSCRD-002": 1, "MSCRD-003": 2, "MSCRD-007": 2, "MSCRD-008": 1, "MSCRD-009": 3, "MSCRD-010": 2, "MSCRD-011": 2, "MSCRD-012": 2, "MSCRD-014": 1, "MSCRD-016": 1, "ACTRD-002": 3, "ACTRD-003": 1, "ACTRD-005": 2, "ACTRD-006": 2, "ACTRD-007": 3, "EQPRD-001": 3, "EQPRD-002": 1, "PRPRD-001": 2, "PRPRD-002": 3}, "AQUA": {"MSCBL-001": 2, "MSCBL-002": 1, "MSCBL-003": 3, "MSCBL-005": 1, "MSCBL-006": 3, "MSCBL-007": 1, "MSCBL-008": 1, "MSCBL-009": 1, "MSCBL-010": 1, "MSCBL-011": 3, "MSCBL-013": 1, "MSCBL-014": 1, "MSCBL-015": 1, "MSCBL-017": 3, "ACTBL-001": 3, "ACTBL-002": 1, "ACTBL-003": 2, "ACTBL-006": 2, "EQPBL-001": 3, "EQPBL-002": 2, "PRPBL-003": 1, "PRPBL-001": 1, "PRPBL-002": 2}, "AERO": {"MSCGR-001": 1, "MSCGR-002": 1, "MSCGR-003": 3, "MSCGR-009": 2, "MSCGR-010": 1, "MSCGR-011": 2, "MSCGR-012": 2, "MSCGR-015": 2, "MSCGR-016": 2, "MSCGR-017": 3, "MSCGR-018": 1, "MSCGR-019": 1, "MSCGR-020": 1, "MSCGR-021": 2, "ACTGR-001": 3, "ACTGR-003": 3, "ACTGR-005": 1, "ACTGR-006": 2, "EQPGR-002": 2, "EQPGR-003": 1, "EQPGR-004": 1, "PRPGR-001": 1, "PRPGR-003": 1}, "AURORA": {"MSCWH-001": 3, "MSCWH-003": 3, "MSCWH-004": 3, "MSCWH-007": 1, "MSCWH-009": 1, "MSCWH-012": 3, "MSCWH-013": 3, "MSCWH-015": 1, "MSCWH-016": 2, "MSCWH-019": 1, "MSCWH-020": 1, "MSCWH-021": 1, "ACTWH-002": 3, "ACTWH-004": 3, "ACTWH-005": 1, "EQPWH-001": 3, "EQPWH-002": 3, "EQPWH-003": 2, "PRPWH-001": 1, "PRPWH-002": 1}, "ECLIPSE": {"MSCBK-001": 1, "MSCBK-002": 2, "MSCBK-003": 2, "MSCBK-004": 2, "MSCBK-005": 1, "MSCBK-008": 3, "MSCBK-009": 2, "MSCBK-010": 2, "MSCBK-011": 3, "MSCBK-013": 3, "MSCBK-014": 1, "MSCBK-015": 3, "MSCBK-016": 1, "MSCBK-017": 2, "ACTBK-002": 2, "ACTBK-004": 2, "ACTBK-006": 2, "ACTBK-007": 2, "ACTBK-008": 1, "EQPBK-001": 1, "PRPBK-003": 2}, "TERRA": {"MSCBR-001": 1, "MSCBR-002": 2, "MSCBR-004": 1, "MSCBR-005": 2, "MSCBR-006": 2, "MSCBR-007": 1, "MSCBR-008": 2, "MSCBR-009": 2, "MSCBR-010": 1, "MSCBR-011": 2, "MSCBR-012": 2, "MSCBR-013": 2, "MSCBR-014": 2, "MSCBR-015": 1, "MSCBR-016": 2, "ACTBR-001": 1, "ACTBR-002": 2, "ACTBR-006": 2, "ACTBR-004": 1, "EQPBR-002": 2, "EQPBR-003": 2, "EQPBR-005": 1, "PRPBR-001": 1}};
-window.GQ_DECKS = [{"id": "mono-TERRA", "name": "ขุนพลเกราะเหล็ก", "plan": "[คุมเกม] Artifact + Guard: Renjin ติด Artifact ฟรี, Neona Guard จั่วการ์ด, Jaidee ลดราคา Artifact", "quests": ["QSTBR-001", "QSTBR-003", "QSTBR-002"], "cards": ["MSCBR-011", "MSCBR-011", "MSCBR-014", "MSCBR-005", "MSCBR-005", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-006", "MSCBR-006", "MSCBR-016", "MSCBR-016", "MSCBR-018", "MSCBR-018", "MSCBR-018", "MSCBR-017", "MSCBR-017", "MSCBR-017", "MSCBR-001", "MSCBR-001", "MSCBR-014", "MSCBR-009", "MSCBR-009", "MSCBR-004", "MSCBR-015", "ACTBR-001", "ACTBR-001", "ACTBR-001", "ACTBR-006", "ACTBR-006", "EQPBR-002", "EQPBR-002", "EQPBR-002", "EQPBR-003", "EQPBR-003", "EQPBR-004", "EQPBR-004", "EQPBR-003", "PRPBR-004", "PRPBR-004"]}, {"id": "mono-AQUA", "name": "คลื่นปัญญา", "plan": "[คุมเกม] จั่วการ์ด/เด้งคืนมือ: Rexxa จั่วตามจำนวน Aqua, Wesley 4/5, Location จั่วเพิ่ม", "quests": ["QSTBL-001", "QSTBL-002", "QSTBL-003"], "cards": ["MSCBL-008", "MSCBL-008", "MSCBL-011", "MSCBL-011", "MSCBL-007", "MSCBL-007", "MSCBL-013", "MSCBL-013", "MSCBL-013", "MSCBL-006", "MSCBL-006", "MSCBL-016", "MSCBL-016", "MSCBL-012", "MSCBL-012", "MSCBL-012", "MSCBL-014", "MSCBL-014", "MSCBL-014", "MSCBL-009", "MSCBL-009", "MSCBL-015", "MSCBL-015", "MSCBL-005", "MSCBL-005", "MSCBL-018", "MSCBL-018", "MSCBL-010", "ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-002", "ACTBL-002", "ACTBL-002", "ACTBL-007", "ACTBL-006", "PRPBL-004", "PRPBL-004", "EQPBL-002", "EQPBL-002"]}, {"id": "mono-AERO", "name": "พายุหมุนมานา", "plan": "[บุกเร็ว] Rush + Hiding: Tingting ลงพร้อมสู้และย้ายพวก, เร่ง Mana ด้วยลูกเต๋า", "quests": ["QSTGR-001", "QSTGR-002", "QSTGR-003"], "cards": ["MSCGR-021", "MSCGR-021", "MSCGR-012", "MSCGR-012", "MSCGR-003", "MSCGR-003", "MSCGR-003", "MSCGR-002", "MSCGR-002", "MSCGR-001", "MSCGR-001", "MSCGR-001", "MSCGR-022", "MSCGR-022", "MSCGR-022", "MSCGR-019", "MSCGR-019", "MSCGR-020", "MSCGR-020", "MSCGR-015", "MSCGR-015", "MSCGR-011", "MSCGR-011", "MSCGR-007", "MSCGR-018", "ACTGR-001", "ACTGR-001", "ACTGR-001", "ACTGR-010", "ACTGR-010", "ACTGR-011", "ACTGR-011", "ACTGR-003", "ACTGR-003", "ACTGR-005", "EQPGR-002", "EQPGR-002", "EQPGR-002", "EQPGR-006", "ACTGR-005"]}, {"id": "mono-EMBER", "name": "ไฟลามทุ่ง", "plan": "[บุกเร็ว] Burn: Rush ตัวถูก + สเปลไฟ, Tomafox ดึงสเปลกลับ, ACTRD-009 แรงขึ้นตามกองทิ้ง", "quests": ["QSTRD-002", "QSTRD-001", "QSTRD-003"], "cards": ["MSCRD-017", "MSCRD-017", "MSCRD-017", "MSCRD-006", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-007", "MSCRD-007", "MSCRD-002", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-018", "MSCRD-018", "MSCRD-018", "MSCRD-005", "MSCRD-005", "MSCRD-012", "MSCRD-012", "MSCRD-009", "MSCRD-009", "MSCRD-019", "MSCRD-019", "MSCRD-011", "ACTRD-007", "ACTRD-007", "ACTRD-007", "ACTRD-009", "ACTRD-009", "ACTRD-009", "ACTRD-002", "ACTRD-002", "ACTRD-004", "ACTRD-004", "ACTRD-005", "EQPRD-002", "EQPRD-002", "PRPRD-001"]}, {"id": "mono-AURORA", "name": "ป้อมปราการแสง", "plan": "กลางเกม: Armor/Guard ทั้งทีม, Stun และลดพลังศัตรู, Ceri ปิดความสามารถศัตรู", "quests": ["QSTWH-001", "QSTWH-002", "QSTWH-003"], "cards": ["MSCWH-013", "MSCWH-013", "MSCWH-019", "ACTWH-004", "MSCWH-019", "MSCWH-019", "MSCWH-007", "MSCWH-007", "MSCWH-012", "MSCWH-012", "MSCWH-012", "MSCWH-020", "MSCWH-020", "MSCWH-017", "MSCWH-017", "MSCWH-009", "MSCWH-009", "MSCWH-001", "MSCWH-001", "MSCWH-021", "MSCWH-003", "MSCWH-003", "MSCWH-022", "MSCWH-022", "MSCWH-008", "MSCWH-018", "ACTWH-004", "ACTWH-004", "ACTWH-002", "ACTWH-002", "ACTWH-007", "ACTWH-007", "ACTWH-006", "EQPWH-004", "EQPWH-004", "EQPWH-001", "EQPWH-001", "PRPWH-003", "PRPWH-004", "PRPWH-004"]}, {"id": "mono-ECLIPSE", "name": "กองทัพเงามืด", "plan": "กลางเกม: สังเวยตัวเองเพื่อจั่ว/Mana (ACTBK-011/012), Yuzu Mumu ชุบจากกองทิ้ง, Metaa โตตามกองทิ้ง", "quests": ["QSTBK-001", "QSTBK-002", "QSTBK-003"], "cards": ["MSCBK-004", "MSCBK-004", "MSCBK-003", "MSCBK-003", "MSCBK-003", "MSCBK-016", "MSCBK-016", "MSCBK-004", "MSCBK-005", "ACTBK-012", "MSCBK-016", "MSCBK-017", "MSCBK-017", "MSCBK-017", "MSCBK-002", "MSCBK-002", "MSCBK-010", "MSCBK-010", "MSCBK-001", "MSCBK-001", "MSCBK-014", "MSCBK-014", "MSCBK-005", "MSCBK-005", "MSCBK-015", "MSCBK-015", "MSCBK-013", "MSCBK-013", "MSCBK-007", "MSCBK-009", "ACTBK-011", "ACTBK-011", "MSCBK-013", "ACTBK-012", "ACTBK-004", "ACTBK-004", "ACTBK-004", "MSCBK-002", "EQPBK-003", "EQPBK-003"]}, {"id": "duo-AURORA-ECLIPSE", "name": "กรงขังแสงเงา", "plan": "[คุมเกม] Stun + ทำลาย: คุมสนามด้วย Stun/ลดพลัง แล้วเก็บด้วยสเปลเงา", "quests": ["QSTWH-003", "QSTWH-002", "QSTBK-003"], "cards": ["MSCWH-013", "MSCWH-013", "MSCWH-013", "MSCWH-017", "MSCWH-020", "MSCWH-020", "MSCWH-001", "MSCWH-001", "MSCWH-022", "MSCWH-022", "MSCWH-008", "ACTWH-004", "ACTWH-004", "ACTWH-004", "ACTWH-006", "ACTWH-006", "ACTWH-006", "EQPWH-004", "EQPWH-004", "MSCBK-003", "MSCBK-003", "MSCBK-003", "ACTBK-001", "MSCBK-004", "MSCBK-004", "MSCBK-002", "MSCBK-002", "MSCBK-014", "MSCBK-014", "MSCBK-013", "MSCBK-013", "MSCBK-007", "ACTBK-001", "ACTBK-001", "ACTBK-004", "ACTBK-004", "ACTBK-011", "ACTBK-011", "ACTBK-006", "EQPBK-003"]}, {"id": "duo-AQUA-TERRA", "name": "คลังอาวุธปัญญา", "plan": "กลางเกม: ตัวน้ำทนๆ จั่วการ์ด + Artifact ดิน, Renjin/Jaidee ติดอาวุธเร็ว", "quests": ["QSTBL-001", "QSTBR-001", "QSTBR-003"], "cards": ["MSCBL-008", "MSCBL-008", "MSCBL-013", "MSCBL-013", "MSCBL-012", "MSCBL-012", "MSCBL-012", "MSCBL-014", "MSCBL-014", "MSCBL-009", "MSCBL-009", "MSCBL-018", "ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-002", "ACTBL-002", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-006", "MSCBR-006", "MSCBR-018", "MSCBR-018", "MSCBR-018", "MSCBR-017", "MSCBR-017", "MSCBR-017", "MSCBR-001", "MSCBR-001", "MSCBR-009", "ACTBR-001", "ACTBR-001", "EQPBR-002", "EQPBR-002", "EQPBR-002", "EQPBR-004", "EQPBR-004", "EQPBR-003", "EQPBR-003"]}, {"id": "duo-AERO-EMBER", "name": "พายุเพลิง", "plan": "[บุกเร็ว] Rush สองธาตุ + สเปลยิงตรง ปิดเกมก่อนอีกฝ่ายตั้งตัว", "quests": ["QSTRD-002", "QSTGR-003", "QSTGR-001"], "cards": ["MSCGR-021", "MSCGR-021", "MSCGR-003", "MSCGR-003", "MSCGR-003", "MSCGR-001", "MSCGR-001", "MSCGR-001", "MSCGR-022", "MSCGR-022", "MSCGR-022", "MSCGR-020", "MSCGR-020", "ACTGR-001", "ACTGR-001", "ACTGR-011", "ACTGR-011", "EQPGR-002", "EQPGR-002", "MSCRD-017", "MSCRD-017", "MSCRD-017", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-002", "MSCRD-018", "MSCRD-018", "MSCRD-009", "MSCRD-009", "ACTRD-007", "ACTRD-007", "ACTRD-007", "ACTRD-009", "ACTRD-009", "ACTRD-002", "ACTRD-002", "MSCRD-019", "ACTGR-010", "ACTGR-010"]}, {"id": "tri-TERRA-AURORA-AQUA", "name": "ป้อมเหล็กสามธาตุ", "plan": "[คุมเกม] กำแพง Guard/Armor สามธาตุ ตั้งรับแล้วค่อยๆ เก็บ Quest", "quests": ["QSTBR-001", "QSTWH-003", "QSTBL-001"], "cards": ["MSCBR-018", "MSCBR-018", "MSCBR-018", "MSCBR-017", "MSCBR-017", "MSCBR-007", "MSCBR-007", "MSCBR-009", "MSCBR-009", "EQPBR-002", "EQPBR-002", "EQPBR-004", "EQPBR-004", "PRPBR-004", "MSCWH-012", "MSCWH-012", "MSCWH-012", "MSCWH-020", "MSCWH-020", "MSCWH-009", "MSCWH-009", "MSCWH-003", "ACTWH-004", "ACTWH-004", "EQPWH-004", "EQPWH-004", "MSCBL-008", "MSCBL-008", "MSCBL-013", "MSCBL-013", "MSCBL-013", "MSCBL-012", "MSCBL-012", "MSCBL-012", "MSCBL-009", "MSCBL-009", "ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-002"]}, {"id": "tri-AERO-ECLIPSE-EMBER", "name": "เถ้าถ่านพายุเงา", "plan": "[บุกเร็ว] Rush + สังเวยเป็น Mana: Domiia ตายแล้วยังได้แต้มทุก Quest", "quests": ["QSTGR-003", "QSTBK-003", "QSTRD-002"], "cards": ["MSCGR-003", "MSCGR-003", "MSCGR-003", "MSCGR-022", "MSCGR-022", "MSCGR-022", "MSCGR-001", "MSCGR-001", "MSCGR-001", "ACTGR-001", "ACTGR-001", "EQPGR-002", "EQPGR-002", "MSCBK-016", "MSCRD-001", "MSCRD-001", "MSCBK-016", "MSCBK-016", "MSCBK-010", "MSCBK-010", "ACTBK-012", "ACTBK-012", "ACTBK-004", "ACTBK-004", "MSCBK-014", "MSCRD-017", "MSCRD-017", "MSCRD-017", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-002", "ACTRD-007", "ACTRD-007", "ACTRD-007", "MSCRD-019", "MSCRD-019", "MSCRD-009", "MSCBK-002", "MSCBK-002"]}, {"id": "combo-TERRA-AERO", "name": "คู่หูดินฟ้า Neona×Smyle", "plan": "คอมโบคู่: Neona (ดิน) + Smyle (ลม) อยู่ Quest เดียวกัน ต่างได้ Splash และพลังเพิ่ม · ACTGR-005/Tingting ย้ายให้มาเจอกัน", "quests": ["QSTBR-001", "QSTGR-001", "QSTGR-003"], "cards": ["MSCBR-008", "MSCBR-008", "MSCBR-008", "MSCBR-018", "MSCBR-018", "MSCBR-018", "MSCBR-010", "MSCBR-009", "MSCBR-009", "EQPBR-004", "EQPBR-004", "EQPBR-002", "EQPBR-002", "PRPBR-004", "PRPBR-004", "MSCGR-016", "MSCGR-016", "MSCGR-017", "MSCGR-017", "MSCGR-017", "MSCGR-015", "MSCGR-015", "MSCGR-015", "MSCGR-022", "MSCGR-022", "MSCGR-022", "MSCGR-003", "MSCGR-003", "MSCGR-002", "MSCGR-002", "ACTGR-005", "ACTGR-005", "ACTGR-005", "ACTGR-010", "ACTGR-010", "ACTGR-001", "ACTGR-001", "ACTGR-001", "EQPGR-002", "EQPGR-002"]}, {"id": "combo-EMBER", "name": "คู่ซี้ Domiia×Tomafox", "plan": "[บุกเร็ว] คอมโบคู่: Domiia MSCRD-003 ให้ Tomafox, Tomafox MSCRD-012 ให้ Domiia ได้ Rush +1/+1 บน Quest เดียวกัน", "quests": ["QSTRD-002", "QSTRD-001", "QSTRD-003"], "cards": ["MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-012", "MSCRD-012", "MSCRD-012", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-018", "MSCRD-018", "MSCRD-018", "MSCRD-014", "MSCRD-017", "MSCRD-017", "MSCRD-017", "MSCRD-008", "MSCRD-008", "MSCRD-019", "MSCRD-019", "MSCRD-002", "MSCRD-002", "MSCRD-002", "MSCRD-005", "MSCRD-005", "MSCRD-006", "MSCRD-009", "ACTRD-007", "ACTRD-007", "ACTRD-007", "ACTRD-009", "ACTRD-009", "ACTRD-002", "ACTRD-002", "ACTRD-004", "ACTRD-004", "ACTRD-002", "ACTRD-005", "EQPRD-002", "EQPRD-002"]}, {"id": "combo-AQUA-ECLIPSE", "name": "เงาใต้คลื่น Samruay×Avocean", "plan": "คอมโบคู่: Samruay MSCBK-018 ได้ Rush +1/+1 เมื่ออยู่กับ Avocean · Avocean ฮีลพวก ตัวน้ำทนๆ คุม Quest", "quests": ["QSTBL-001", "QSTBK-003", "QSTBK-001"], "cards": ["MSCBK-018", "MSCBK-018", "MSCBK-018", "MSCBL-008", "MSCBL-008", "MSCBL-008", "MSCBL-009", "MSCBL-009", "MSCBL-009", "MSCBL-010", "EQPBL-002", "EQPBL-002", "MSCBL-011", "MSCBL-011", "MSCBL-012", "MSCBL-012", "PRPBL-004", "PRPBL-004", "ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-003", "ACTBL-003", "ACTBL-002", "ACTBL-002", "MSCBL-013", "MSCBL-013", "MSCBL-013", "MSCBL-018", "MSCBL-018", "MSCBK-003", "MSCBK-003", "ACTBL-003", "MSCBK-002", "MSCBK-013", "MSCBK-013", "MSCBK-002", "ACTBK-004", "ACTBK-004", "ACTBK-006"]}];
-window.TUNED_DECKS = {"TERRA": {"quests": ["QSTBR-001", "QSTBR-002", "QSTBR-003"], "cards": ["ACTBR-001", "ACTBR-001", "ACTBR-002", "ACTBR-002", "ACTBR-004", "EQPBR-002", "EQPBR-002", "EQPBR-002", "EQPBR-003", "EQPBR-003", "EQPBR-004", "EQPBR-004", "MSCBR-001", "MSCBR-001", "MSCBR-001", "MSCBR-003", "MSCBR-003", "MSCBR-005", "MSCBR-005", "MSCBR-006", "MSCBR-006", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-008", "MSCBR-009", "MSCBR-011", "MSCBR-011", "MSCBR-013", "MSCBR-013", "MSCBR-014", "MSCBR-014", "MSCBR-015", "MSCBR-015", "MSCBR-016", "MSCBR-016"], "plan": "[กลางเกม] Artifact midrange: ลงตัวถูก แล้วติด Artifact ราคาถูกจาก Jaidee ทำตัวใหญ่ จั่วต่อด้วย ACTBR-002"}, "AQUA": {"quests": ["QSTBL-001", "QSTBL-002", "QSTBL-003"], "cards": ["ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-002", "ACTBL-002", "ACTBL-003", "ACTBL-003", "ACTBL-006", "ACTBL-006", "MSCBL-001", "MSCBL-001", "MSCBL-003", "MSCBL-003", "MSCBL-003", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-007", "MSCBL-008", "MSCBL-008", "MSCBL-009", "MSCBL-011", "MSCBL-011", "MSCBL-012", "MSCBL-013", "MSCBL-013", "MSCBL-014", "MSCBL-014", "MSCBL-015", "MSCBL-015", "MSCBL-016", "MSCBL-016", "MSCBL-017", "MSCBL-017"], "plan": "[คุมเกม] Draw-control: จั่วไพ่เยอะ ให้ Wesley แปลงการจั่วเป็นแต้ม Quest และเด้ง/Stun ตัวคู่แข่ง"}, "AERO": {"quests": ["QSTGR-001", "QSTGR-002", "QSTGR-003"], "cards": ["ACTGR-001", "ACTGR-001", "ACTGR-001", "ACTGR-002", "ACTGR-002", "EQPGR-003", "EQPGR-003", "MSCGR-001", "MSCGR-001", "MSCGR-002", "MSCGR-002", "MSCGR-003", "MSCGR-003", "MSCGR-003", "MSCGR-007", "MSCGR-007", "MSCGR-010", "MSCGR-010", "MSCGR-011", "MSCGR-011", "MSCGR-012", "MSCGR-012", "MSCGR-015", "MSCGR-015", "MSCGR-016", "MSCGR-017", "MSCGR-017", "MSCGR-018", "MSCGR-018", "MSCGR-019", "MSCGR-019", "MSCGR-020", "MSCGR-020", "MSCGR-021", "MSCGR-021", "MSCGR-021", "PRPGR-001"], "plan": "[เร่งมานา] Ramp: เร่ง Mana แล้วลงตัวใหญ่ Babii/Tingting ทั้งหมดได้ Rush"}, "EMBER": {"quests": ["QSTRD-001", "QSTRD-002", "QSTRD-003"], "cards": ["ACTRD-002", "ACTRD-002", "ACTRD-003", "ACTRD-004", "ACTRD-004", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "EQPRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-005", "MSCRD-005", "MSCRD-006", "MSCRD-008", "MSCRD-008", "MSCRD-009", "MSCRD-009", "MSCRD-010", "MSCRD-010", "MSCRD-011", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-015", "MSCRD-015", "MSCRD-016", "MSCRD-016", "MSCRD-017", "MSCRD-017"], "plan": "[บุกเร็ว] Aggro burn: Tomafox+Domiia ได้ Rush บุกเร็ว ใช้ burn เคลียร์ตัวขวาง"}, "AURORA": {"quests": ["QSTWH-001", "QSTWH-002", "QSTWH-003"], "cards": ["ACTWH-002", "ACTWH-002", "ACTWH-004", "ACTWH-004", "ACTWH-006", "EQPWH-001", "EQPWH-001", "EQPWH-002", "EQPWH-002", "MSCWH-001", "MSCWH-001", "MSCWH-003", "MSCWH-003", "MSCWH-004", "MSCWH-004", "MSCWH-007", "MSCWH-007", "MSCWH-008", "MSCWH-008", "MSCWH-009", "MSCWH-009", "MSCWH-012", "MSCWH-012", "MSCWH-013", "MSCWH-013", "MSCWH-014", "MSCWH-015", "MSCWH-015", "MSCWH-018", "MSCWH-018", "MSCWH-018", "MSCWH-019", "MSCWH-019", "MSCWH-020", "MSCWH-020", "MSCWH-021", "MSCWH-021", "PRPWH-003", "PRPWH-003"], "plan": "[คุมเกม] Fortress: Guard + ตีกลับ ป้องกัน Quest แล้วใช้ Splash/Stun ปิดเกม"}, "ECLIPSE": {"quests": ["QSTBK-002", "QSTBK-001", "QSTBK-003"], "cards": ["ACTBK-001", "ACTBK-001", "ACTBK-002", "ACTBK-002", "ACTBK-004", "ACTBK-004", "ACTBK-006", "MSCBK-001", "MSCBK-001", "MSCBK-001", "MSCBK-002", "MSCBK-003", "MSCBK-003", "MSCBK-003", "MSCBK-004", "MSCBK-004", "MSCBK-004", "MSCBK-005", "MSCBK-005", "MSCBK-007", "MSCBK-007", "MSCBK-009", "MSCBK-009", "MSCBK-010", "MSCBK-010", "MSCBK-011", "MSCBK-011", "MSCBK-011", "MSCBK-013", "MSCBK-013", "MSCBK-015", "MSCBK-015", "MSCBK-015", "MSCBK-016", "MSCBK-017", "MSCBK-017"], "plan": "[คอมโบ] Eclipse swarm: Samruay โตตามจำนวนตัวเงา + Metaa/Yuzu จากสุสาน"}, "TERRA+AQUA": {"quests": ["QSTBL-001", "QSTBL-002", "QSTBR-001"], "cards": ["ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-006", "ACTBR-001", "ACTBR-001", "ACTBR-002", "ACTBR-002", "EQPBR-002", "EQPBR-002", "EQPBR-002", "EQPBR-003", "EQPBR-003", "MSCBL-001", "MSCBL-001", "MSCBL-003", "MSCBL-003", "MSCBL-003", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-007", "MSCBL-009", "MSCBL-012", "MSCBL-012", "MSCBR-001", "MSCBR-003", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-008", "MSCBR-011", "MSCBR-011"], "plan": "[กลางเกม] Equip-draw: ACTBR-002 จั่วตาม Artifact ป้อน Wesley/Rexxa"}, "TERRA+AERO": {"quests": ["QSTBR-001", "QSTBR-002", "QSTGR-001"], "cards": ["ACTGR-001", "ACTGR-001", "ACTGR-001", "EQPGR-003", "EQPGR-003", "MSCBR-001", "MSCBR-001", "MSCBR-001", "MSCBR-005", "MSCBR-005", "MSCBR-008", "MSCBR-008", "MSCBR-008", "MSCBR-010", "MSCBR-010", "MSCBR-011", "MSCBR-012", "MSCBR-012", "MSCBR-014", "MSCBR-014", "MSCBR-014", "MSCBR-015", "MSCBR-015", "MSCBR-016", "MSCBR-016", "MSCGR-003", "MSCGR-003", "MSCGR-003", "MSCGR-007", "MSCGR-010", "MSCGR-012", "MSCGR-012", "MSCGR-015", "MSCGR-015", "MSCGR-016", "MSCGR-016", "MSCGR-017", "MSCGR-017", "MSCGR-020", "PRPGR-001"], "plan": "[กลางเกม] Cross-color combo: Neona(ดิน)+Smyle(ลม) ต่างได้ Splash +1/+1 เมื่ออยู่ Quest เดียวกัน"}, "TERRA+EMBER": {"quests": ["QSTBR-003", "QSTRD-002", "QSTRD-001"], "cards": ["ACTBR-001", "ACTBR-001", "ACTBR-002", "ACTBR-002", "EQPBR-002", "EQPBR-002", "EQPBR-002", "EQPBR-003", "EQPBR-003", "MSCBR-001", "MSCBR-001", "MSCBR-003", "MSCBR-003", "MSCBR-005", "MSCBR-005", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-009", "MSCBR-011", "MSCBR-011", "MSCBR-014", "MSCBR-014", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-008", "MSCRD-008", "MSCRD-012", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-014", "MSCRD-017", "MSCRD-017"], "plan": "[บุกเร็ว] Equip aggro: Tomafox/Domiia Rush + Artifact ราคาถูก"}, "TERRA+AURORA": {"quests": ["QSTBR-001", "QSTBR-002", "QSTWH-001"], "cards": ["ACTBR-001", "ACTBR-001", "ACTBR-002", "ACTBR-002", "EQPBR-002", "EQPBR-002", "EQPBR-002", "EQPBR-003", "EQPBR-003", "EQPWH-001", "EQPWH-001", "EQPWH-001", "EQPWH-002", "EQPWH-004", "EQPWH-004", "MSCBR-001", "MSCBR-001", "MSCBR-003", "MSCBR-005", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-009", "MSCBR-011", "MSCBR-011", "MSCWH-001", "MSCWH-003", "MSCWH-007", "MSCWH-018", "MSCWH-019", "MSCWH-019", "MSCWH-020", "MSCWH-020", "MSCWH-021", "MSCWH-021"], "plan": "[คุมเกม] Armored fortress: Artifact ของทั้งสองสีนับให้ ACTBR-002/Jaidee + Guard ตีกลับ"}, "TERRA+ECLIPSE": {"quests": ["QSTBR-001", "QSTBR-002", "QSTBK-002"], "cards": ["ACTBK-001", "ACTBK-001", "ACTBR-001", "ACTBR-001", "ACTBR-002", "ACTBR-002", "EQPBR-002", "EQPBR-002", "EQPBR-002", "EQPBR-003", "EQPBR-003", "MSCBK-001", "MSCBK-004", "MSCBK-004", "MSCBK-005", "MSCBK-005", "MSCBK-007", "MSCBK-007", "MSCBK-009", "MSCBK-010", "MSCBK-010", "MSCBK-016", "MSCBR-001", "MSCBR-001", "MSCBR-003", "MSCBR-003", "MSCBR-005", "MSCBR-005", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-009", "MSCBR-009", "MSCBR-011", "MSCBR-011", "MSCBR-014"], "plan": "[กลางเกม] Equip + King Man buff + hand attack"}, "AQUA+AERO": {"quests": ["QSTBL-001", "QSTBL-002", "QSTGR-001"], "cards": ["ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTGR-001", "ACTGR-001", "ACTGR-001", "EQPGR-002", "EQPGR-003", "EQPGR-003", "MSCBL-001", "MSCBL-001", "MSCBL-003", "MSCBL-003", "MSCBL-003", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-007", "MSCBL-008", "MSCBL-008", "MSCBL-011", "MSCBL-011", "MSCBL-012", "MSCBL-014", "MSCBL-017", "MSCGR-002", "MSCGR-002", "MSCGR-007", "MSCGR-007", "MSCGR-012", "MSCGR-017", "MSCGR-017", "PRPGR-001"], "plan": "[เร่งมานา] Draw-ramp: จั่ว+เร่ง Mana ลง Babii"}, "AQUA+EMBER": {"quests": ["QSTBL-001", "QSTBL-002", "QSTRD-001"], "cards": ["ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTRD-002", "ACTRD-002", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "MSCBL-001", "MSCBL-001", "MSCBL-003", "MSCBL-003", "MSCBL-003", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-007", "MSCBL-008", "MSCBL-011", "MSCBL-012", "MSCBL-012", "MSCBL-013", "MSCBL-016", "MSCBL-017", "MSCBL-017", "MSCRD-002", "MSCRD-002", "MSCRD-010", "MSCRD-010", "MSCRD-011"], "plan": "[คอมโบ] Draw-discard: จั่วเยอะ แล้วทิ้งให้ Flarey/ACTRD-008"}, "AQUA+AURORA": {"quests": ["QSTBL-001", "QSTBL-002", "QSTWH-001"], "cards": ["ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-002", "ACTBL-002", "ACTBL-006", "ACTBL-006", "ACTWH-004", "ACTWH-004", "ACTWH-006", "EQPWH-004", "MSCBL-001", "MSCBL-001", "MSCBL-003", "MSCBL-003", "MSCBL-003", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-008", "MSCBL-011", "MSCBL-011", "MSCBL-016", "MSCBL-016", "MSCBL-017", "MSCWH-008", "MSCWH-013", "MSCWH-013", "MSCWH-014", "MSCWH-017", "MSCWH-017", "MSCWH-021"], "plan": "[คุมเกม] Cantrip control: Ceri ป้อน Wesley + Stun/Bounce"}, "AQUA+ECLIPSE": {"quests": ["QSTBL-003", "QSTBK-001", "QSTBL-002"], "cards": ["ACTBK-006", "ACTBL-002", "ACTBL-002", "ACTBL-006", "ACTBL-006", "EQPBL-002", "MSCBK-001", "MSCBK-001", "MSCBK-001", "MSCBK-002", "MSCBK-003", "MSCBK-003", "MSCBK-003", "MSCBK-004", "MSCBK-004", "MSCBK-004", "MSCBK-005", "MSCBK-005", "MSCBK-011", "MSCBK-011", "MSCBK-013", "MSCBK-013", "MSCBL-001", "MSCBL-001", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-007", "MSCBL-007", "MSCBL-008", "MSCBL-008", "MSCBL-011", "MSCBL-011", "MSCBL-011", "MSCBL-012", "MSCBL-012", "MSCBL-016", "MSCBL-016"], "plan": "[คอมโบ] Self-mill graveyard: Polcasan mill ตัวเอง ป้อน Metaa/Yuzu"}, "AERO+EMBER": {"quests": ["QSTRD-001", "QSTRD-002", "QSTGR-001"], "cards": ["ACTGR-001", "ACTGR-001", "ACTGR-001", "ACTRD-002", "ACTRD-002", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "EQPGR-003", "EQPGR-003", "MSCGR-012", "MSCGR-012", "MSCGR-017", "MSCGR-017", "MSCGR-021", "MSCGR-021", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-006", "MSCRD-006", "MSCRD-008", "MSCRD-008", "MSCRD-010", "MSCRD-010", "MSCRD-011", "MSCRD-011", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-014", "MSCRD-017", "MSCRD-017", "PRPGR-001"], "plan": "[เร่งมานา] Ramp-burn: เร่ง Mana แล้ว burn ใหญ่/ Tomafox 9/9"}, "AERO+AURORA": {"quests": ["QSTWH-001", "QSTWH-002", "QSTGR-001"], "cards": ["ACTGR-001", "ACTGR-001", "ACTGR-001", "EQPGR-003", "EQPGR-003", "EQPWH-002", "EQPWH-002", "MSCGR-002", "MSCGR-002", "MSCGR-003", "MSCGR-007", "MSCGR-007", "MSCGR-012", "MSCGR-012", "MSCGR-017", "MSCGR-017", "MSCGR-021", "MSCWH-003", "MSCWH-003", "MSCWH-004", "MSCWH-004", "MSCWH-007", "MSCWH-007", "MSCWH-009", "MSCWH-009", "MSCWH-012", "MSCWH-012", "MSCWH-013", "MSCWH-013", "MSCWH-014", "MSCWH-014", "MSCWH-015", "MSCWH-015", "MSCWH-019", "MSCWH-019", "PRPGR-001"], "plan": "[เร่งมานา] Ramp-splash: เร่ง Mana ลง Jummo/Jewel Splash"}, "AERO+ECLIPSE": {"quests": ["QSTGR-001", "QSTGR-002", "QSTBK-002"], "cards": ["ACTBK-001", "ACTGR-001", "ACTGR-001", "ACTGR-001", "EQPGR-003", "EQPGR-003", "MSCBK-001", "MSCBK-001", "MSCBK-002", "MSCBK-002", "MSCBK-003", "MSCBK-003", "MSCBK-004", "MSCBK-004", "MSCBK-007", "MSCBK-007", "MSCBK-009", "MSCBK-009", "MSCBK-010", "MSCBK-010", "MSCBK-011", "MSCBK-011", "MSCBK-016", "MSCBK-016", "MSCBK-017", "MSCBK-017", "MSCGR-001", "MSCGR-001", "MSCGR-002", "MSCGR-003", "MSCGR-012", "MSCGR-012", "MSCGR-017", "MSCGR-017", "MSCGR-019", "MSCGR-019", "MSCGR-021", "MSCGR-021", "PRPBK-004", "PRPGR-001"], "plan": "[กลางเกม] Ramp King Man + Ponpon range"}, "EMBER+AURORA": {"quests": ["QSTWH-002", "QSTRD-001", "QSTRD-002"], "cards": ["ACTRD-002", "ACTRD-002", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "ACTWH-004", "ACTWH-004", "ACTWH-006", "EQPWH-004", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-006", "MSCRD-006", "MSCRD-008", "MSCRD-008", "MSCRD-010", "MSCRD-011", "MSCRD-011", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-014", "MSCRD-017", "MSCRD-017", "MSCWH-008", "MSCWH-008", "MSCWH-012", "MSCWH-013", "MSCWH-013", "MSCWH-019", "MSCWH-019"], "plan": "[บุกเร็ว] Aggro-control: Tomafox/Domiia + Stun เปิดทาง"}, "EMBER+ECLIPSE": {"quests": ["QSTBK-002", "QSTBK-001", "QSTRD-001"], "cards": ["ACTBK-001", "ACTBK-001", "ACTBK-006", "MSCBK-001", "MSCBK-001", "MSCBK-001", "MSCBK-002", "MSCBK-002", "MSCBK-003", "MSCBK-003", "MSCBK-003", "MSCBK-004", "MSCBK-004", "MSCBK-005", "MSCBK-005", "MSCBK-011", "MSCBK-011", "MSCBK-013", "MSCBK-013", "MSCBK-016", "MSCBK-016", "MSCBK-016", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-006", "MSCRD-006", "MSCRD-010", "MSCRD-010", "MSCRD-011", "MSCRD-011", "MSCRD-015", "MSCRD-017"], "plan": "[คอมโบ] Discard-graveyard: ทิ้งไพ่ป้อนสุสาน Metaa/Yuzu + hand attack"}, "AURORA+ECLIPSE": {"quests": ["QSTBK-002", "QSTBK-001", "QSTWH-001"], "cards": ["ACTBK-001", "ACTBK-001", "ACTWH-004", "ACTWH-004", "ACTWH-006", "EQPWH-001", "EQPWH-001", "MSCBK-004", "MSCBK-005", "MSCBK-005", "MSCBK-007", "MSCBK-007", "MSCBK-009", "MSCBK-010", "MSCBK-010", "MSCBK-011", "MSCBK-011", "MSCBK-017", "MSCWH-001", "MSCWH-001", "MSCWH-007", "MSCWH-008", "MSCWH-008", "MSCWH-008", "MSCWH-012", "MSCWH-013", "MSCWH-013", "MSCWH-018", "MSCWH-018", "MSCWH-019", "MSCWH-019", "MSCWH-019", "MSCWH-020", "MSCWH-020", "MSCWH-021", "MSCWH-021"], "plan": "[คุมเกม] Lockdown: Guard/Stun + hand attack + King Man"}};
-window.TRI_DECKS = {"AQUA+AURORA+ECLIPSE": {"quests": ["QSTBL-002", "QSTWH-003", "QSTBK-003"], "cards": ["ACTBK-006", "ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTWH-004", "ACTWH-004", "ACTWH-006", "MSCBK-001", "MSCBK-001", "MSCBK-001", "MSCBK-003", "MSCBK-003", "MSCBK-003", "MSCBK-004", "MSCBK-004", "MSCBK-013", "MSCBL-001", "MSCBL-001", "MSCBL-003", "MSCBL-003", "MSCBL-003", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-007", "MSCBL-007", "MSCBL-011", "MSCWH-013", "MSCWH-013", "MSCWH-017", "MSCWH-017", "MSCWH-017"], "plan": "[คอมโบ] Draw-graveyard: Ceri/Wesley จั่ว + Polcasan mill ตัวเอง ป้อน Metaa/Yuzu + Stun"}, "TERRA+EMBER+AERO": {"quests": ["QSTBR-003", "QSTRD-002", "QSTGR-001"], "cards": ["ACTRD-002", "ACTRD-002", "ACTRD-002", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "MSCBR-008", "MSCBR-008", "MSCBR-008", "MSCBR-014", "MSCBR-014", "MSCBR-016", "MSCBR-016", "MSCGR-003", "MSCGR-003", "MSCGR-003", "MSCGR-010", "MSCGR-015", "MSCGR-015", "MSCGR-016", "MSCGR-016", "MSCGR-017", "MSCGR-017", "MSCGR-020", "MSCGR-020", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-011", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-017", "MSCRD-017"], "plan": "[บุกเร็ว] Neona/Smyle cross + Tomafox/Domiia Rush + burn"}, "EMBER+AURORA+AERO": {"quests": ["QSTRD-002", "QSTWH-003", "QSTGR-001"], "cards": ["ACTGR-001", "ACTGR-001", "ACTGR-001", "ACTRD-002", "ACTRD-002", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "ACTWH-004", "ACTWH-004", "ACTWH-006", "EQPWH-002", "EQPWH-002", "MSCGR-003", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-011", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-017", "MSCRD-017", "MSCWH-003", "MSCWH-004", "MSCWH-004", "MSCWH-009", "MSCWH-009", "MSCWH-012", "MSCWH-012", "MSCWH-013", "MSCWH-013", "PRPGR-001"], "plan": "[บุกเร็ว] Aggro 3 สี: Tomafox+Domiia บุกเร็ว + Stun เปิดทาง + เร่ง Mana ลง Jummo/Babii ปิดเกม"}, "EMBER+AURORA+ECLIPSE": {"quests": ["QSTRD-002", "QSTWH-003", "QSTBK-003"], "cards": ["ACTBK-001", "ACTBK-001", "ACTRD-002", "ACTRD-002", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "ACTWH-004", "ACTWH-004", "ACTWH-006", "MSCBK-003", "MSCBK-005", "MSCBK-005", "MSCBK-011", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-010", "MSCRD-010", "MSCRD-011", "MSCRD-011", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-017", "MSCRD-017", "MSCWH-008", "MSCWH-012", "MSCWH-013", "MSCWH-013", "MSCWH-017"], "plan": "[บุกเร็ว] Aggro-disrupt: Tomafox/Domiia + Stun + ทิ้งมือคู่แข่ง (Guinzly)"}};
+window.GQ_DECKS = [{"id": "mono-TERRA", "name": "ขุนพลเกราะเหล็ก", "plan": "[คุมเกม] Artifact + Guard: Renjin ติด Artifact ฟรี, Neona Guard จั่วการ์ด, Jaidee ลดราคา Artifact", "quests": ["QSTBR-001", "QSTBR-003", "QSTBR-002"], "cards": ["MSCBR-011", "MSCBR-011", "MSCBR-014", "MSCBR-005", "MSCBR-005", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-006", "MSCBR-006", "MSCBR-016", "MSCBR-016", "MSCBR-018", "MSCBR-018", "MSCBR-018", "MSCBR-017", "MSCBR-017", "MSCBR-017", "MSCBR-001", "MSCBR-001", "MSCBR-014", "MSCBR-009", "MSCBR-009", "MSCBR-004", "MSCBR-015", "ACTBR-001", "ACTBR-001", "ACTBR-001", "ACTBR-006", "ACTBR-006", "EQPBR-004", "PRPBR-001", "PRPBR-004", "EQPBR-003", "EQPBR-003", "EQPBR-004", "EQPBR-004", "EQPBR-003", "PRPBR-004", "PRPBR-004"]}, {"id": "mono-AQUA", "name": "คลื่นปัญญา", "plan": "[คุมเกม] จั่วการ์ด/เด้งคืนมือ: Rexxa จั่วตามจำนวน Aqua, Wesley 4/5, Location จั่วเพิ่ม", "quests": ["QSTBL-001", "QSTBL-002", "QSTBL-003"], "cards": ["MSCBL-008", "MSCBL-008", "MSCBL-011", "MSCBL-011", "MSCBL-007", "MSCBL-007", "MSCBL-013", "MSCBL-013", "MSCBL-013", "MSCBL-006", "MSCBL-006", "MSCBL-016", "MSCBL-016", "MSCBL-012", "MSCBL-012", "MSCBL-012", "MSCBL-014", "MSCBL-014", "MSCBL-014", "MSCBL-009", "MSCBL-009", "MSCBL-015", "MSCBL-015", "MSCBL-005", "MSCBL-005", "MSCBL-018", "MSCBL-018", "MSCBL-010", "ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-002", "ACTBL-002", "ACTBL-002", "ACTBL-007", "ACTBL-006", "PRPBL-004", "PRPBL-004", "EQPBL-002", "EQPBL-002"]}, {"id": "mono-AERO", "name": "พายุหมุนมานา", "plan": "[บุกเร็ว] Rush + Hiding: Tingting ลงพร้อมสู้และย้ายพวก, เร่ง Mana ด้วยลูกเต๋า", "quests": ["QSTGR-001", "QSTGR-002", "QSTGR-003"], "cards": ["MSCGR-021", "MSCGR-021", "MSCGR-012", "MSCGR-012", "MSCGR-003", "MSCGR-003", "MSCGR-003", "MSCGR-002", "MSCGR-002", "MSCGR-001", "MSCGR-001", "MSCGR-001", "MSCGR-022", "MSCGR-022", "MSCGR-022", "MSCGR-019", "MSCGR-019", "MSCGR-020", "MSCGR-020", "MSCGR-015", "MSCGR-015", "MSCGR-011", "MSCGR-011", "MSCGR-010", "MSCGR-018", "ACTGR-001", "ACTGR-001", "ACTGR-001", "ACTGR-010", "ACTGR-010", "ACTGR-011", "ACTGR-011", "ACTGR-003", "ACTGR-003", "ACTGR-005", "EQPGR-002", "EQPGR-002", "EQPGR-002", "EQPGR-006", "ACTGR-005"]}, {"id": "mono-EMBER", "name": "ไฟลามทุ่ง", "plan": "[บุกเร็ว] Burn: Rush ตัวถูก + สเปลไฟ, Tomafox ดึงสเปลกลับ, ACTRD-009 แรงขึ้นตามกองทิ้ง", "quests": ["QSTRD-002", "QSTRD-001", "QSTRD-003"], "cards": ["MSCRD-017", "MSCRD-017", "MSCRD-017", "MSCRD-006", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-007", "MSCRD-007", "MSCRD-002", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-018", "MSCRD-018", "MSCRD-018", "MSCRD-005", "MSCRD-005", "MSCRD-012", "MSCRD-012", "MSCRD-009", "MSCRD-009", "MSCRD-019", "MSCRD-019", "MSCRD-011", "ACTRD-007", "ACTRD-007", "ACTRD-007", "ACTRD-009", "ACTRD-009", "ACTRD-009", "ACTRD-002", "ACTRD-002", "ACTRD-004", "ACTRD-004", "ACTRD-005", "EQPRD-002", "EQPRD-002", "PRPRD-001"]}, {"id": "mono-AURORA", "name": "ป้อมปราการแสง", "plan": "กลางเกม: Armor/Guard ทั้งทีม, Stun และลดพลังศัตรู, Ceri ปิดความสามารถศัตรู", "quests": ["QSTWH-001", "QSTWH-002", "QSTWH-003"], "cards": ["MSCWH-013", "MSCWH-013", "MSCWH-019", "ACTWH-004", "MSCWH-019", "MSCWH-019", "MSCWH-007", "MSCWH-007", "MSCWH-012", "MSCWH-012", "MSCWH-012", "MSCWH-020", "MSCWH-020", "MSCWH-017", "MSCWH-017", "MSCWH-009", "MSCWH-009", "MSCWH-001", "MSCWH-001", "MSCWH-021", "MSCWH-003", "MSCWH-003", "MSCWH-022", "MSCWH-022", "MSCWH-008", "MSCWH-018", "ACTWH-004", "ACTWH-004", "ACTWH-002", "ACTWH-002", "ACTWH-007", "ACTWH-007", "ACTWH-006", "EQPWH-004", "EQPWH-004", "EQPWH-001", "EQPWH-001", "PRPWH-003", "PRPWH-004", "PRPWH-004"]}, {"id": "mono-ECLIPSE", "name": "กองทัพเงามืด", "plan": "กลางเกม: สังเวยตัวเองเพื่อจั่ว/Mana (ACTBK-011/012), Yuzu Mumu ชุบจากกองทิ้ง, Metaa โตตามกองทิ้ง", "quests": ["QSTBK-001", "QSTBK-002", "QSTBK-003"], "cards": ["MSCBK-004", "MSCBK-004", "MSCBK-003", "MSCBK-003", "MSCBK-003", "MSCBK-016", "MSCBK-016", "MSCBK-004", "MSCBK-005", "ACTBK-012", "MSCBK-016", "MSCBK-017", "MSCBK-017", "MSCBK-017", "MSCBK-002", "MSCBK-002", "MSCBK-010", "MSCBK-010", "MSCBK-001", "MSCBK-001", "MSCBK-014", "MSCBK-014", "MSCBK-005", "MSCBK-005", "MSCBK-015", "MSCBK-015", "MSCBK-013", "MSCBK-013", "MSCBK-007", "MSCBK-009", "ACTBK-011", "ACTBK-011", "MSCBK-013", "ACTBK-012", "ACTBK-004", "ACTBK-004", "ACTBK-004", "MSCBK-002", "EQPBK-003", "EQPBK-003"]}, {"id": "duo-AURORA-ECLIPSE", "name": "กรงขังแสงเงา", "plan": "[คุมเกม] Stun + ทำลาย: คุมสนามด้วย Stun/ลดพลัง แล้วเก็บด้วยสเปลเงา", "quests": ["QSTWH-003", "QSTWH-002", "QSTBK-003"], "cards": ["MSCWH-013", "MSCWH-013", "MSCWH-013", "MSCWH-017", "MSCWH-020", "MSCWH-020", "MSCWH-001", "MSCWH-001", "MSCWH-022", "MSCWH-022", "MSCWH-008", "ACTWH-004", "ACTWH-004", "ACTWH-004", "ACTWH-006", "ACTWH-006", "ACTWH-006", "EQPWH-004", "EQPWH-004", "MSCBK-003", "MSCBK-003", "MSCBK-003", "ACTBK-001", "MSCBK-004", "MSCBK-004", "MSCBK-002", "MSCBK-002", "MSCBK-014", "MSCBK-014", "MSCBK-013", "MSCBK-013", "MSCBK-007", "ACTBK-001", "ACTBK-001", "ACTBK-004", "ACTBK-004", "ACTBK-011", "ACTBK-011", "ACTBK-006", "EQPBK-003"]}, {"id": "duo-AQUA-TERRA", "name": "คลังอาวุธปัญญา", "plan": "กลางเกม: ตัวน้ำทนๆ จั่วการ์ด + Artifact ดิน, Renjin/Jaidee ติดอาวุธเร็ว", "quests": ["QSTBL-001", "QSTBR-001", "QSTBR-003"], "cards": ["MSCBL-008", "MSCBL-008", "MSCBL-013", "MSCBL-013", "MSCBL-012", "MSCBL-012", "MSCBL-012", "MSCBL-014", "MSCBL-014", "MSCBL-009", "MSCBL-009", "MSCBL-018", "ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-002", "ACTBL-002", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-006", "MSCBR-006", "MSCBR-018", "MSCBR-018", "MSCBR-018", "MSCBR-017", "MSCBR-017", "MSCBR-017", "MSCBR-001", "MSCBR-001", "MSCBR-009", "ACTBR-001", "ACTBR-001", "EQPBR-003", "EQPBR-004", "MSCBR-009", "EQPBR-004", "EQPBR-004", "EQPBR-003", "EQPBR-003"]}, {"id": "duo-AERO-EMBER", "name": "พายุเพลิง", "plan": "[บุกเร็ว] Rush สองธาตุ + สเปลยิงตรง ปิดเกมก่อนอีกฝ่ายตั้งตัว", "quests": ["QSTRD-002", "QSTGR-003", "QSTGR-001"], "cards": ["MSCGR-021", "MSCGR-021", "MSCGR-003", "MSCGR-003", "MSCGR-003", "MSCGR-001", "MSCGR-001", "MSCGR-001", "MSCGR-022", "MSCGR-022", "MSCGR-022", "MSCGR-020", "MSCGR-020", "ACTGR-001", "ACTGR-001", "ACTGR-011", "ACTGR-011", "EQPGR-002", "EQPGR-002", "MSCRD-017", "MSCRD-017", "MSCRD-017", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-002", "MSCRD-018", "MSCRD-018", "MSCRD-009", "MSCRD-009", "ACTRD-007", "ACTRD-007", "ACTRD-007", "ACTRD-009", "ACTRD-009", "ACTRD-002", "ACTRD-002", "MSCRD-019", "ACTGR-010", "ACTGR-010"]}, {"id": "tri-TERRA-AURORA-AQUA", "name": "ป้อมเหล็กสามธาตุ", "plan": "[คุมเกม] กำแพง Guard/Armor สามธาตุ ตั้งรับแล้วค่อยๆ เก็บ Quest", "quests": ["QSTBR-001", "QSTWH-003", "QSTBL-001"], "cards": ["MSCBR-018", "MSCBR-018", "MSCBR-018", "MSCBR-017", "MSCBR-017", "MSCBR-007", "MSCBR-007", "MSCBR-009", "MSCBR-009", "EQPBR-004", "EQPWH-004", "EQPBR-004", "EQPBR-004", "PRPBR-004", "MSCWH-012", "MSCWH-012", "MSCWH-012", "MSCWH-020", "MSCWH-020", "MSCWH-009", "MSCWH-009", "MSCWH-003", "ACTWH-004", "ACTWH-004", "EQPWH-004", "EQPWH-004", "MSCBL-008", "MSCBL-008", "MSCBL-013", "MSCBL-013", "MSCBL-013", "MSCBL-012", "MSCBL-012", "MSCBL-012", "MSCBL-009", "MSCBL-009", "ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-002"]}, {"id": "tri-AERO-ECLIPSE-EMBER", "name": "เถ้าถ่านพายุเงา", "plan": "[บุกเร็ว] Rush + สังเวยเป็น Mana: Domiia ตายแล้วยังได้แต้มทุก Quest", "quests": ["QSTGR-003", "QSTBK-003", "QSTRD-002"], "cards": ["MSCGR-003", "MSCGR-003", "MSCGR-003", "MSCGR-022", "MSCGR-022", "MSCGR-022", "MSCGR-001", "MSCGR-001", "MSCGR-001", "ACTGR-001", "ACTGR-001", "EQPGR-002", "EQPGR-002", "MSCBK-016", "MSCRD-001", "MSCRD-001", "MSCBK-016", "MSCBK-016", "MSCBK-010", "MSCBK-010", "ACTBK-012", "ACTBK-012", "ACTBK-004", "ACTBK-004", "MSCBK-014", "MSCRD-017", "MSCRD-017", "MSCRD-017", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-002", "ACTRD-007", "ACTRD-007", "ACTRD-007", "MSCRD-019", "MSCRD-019", "MSCRD-009", "MSCBK-002", "MSCBK-002"]}, {"id": "combo-TERRA-AERO", "name": "คู่หูดินฟ้า Neona×Smyle", "plan": "คอมโบคู่: Neona (ดิน) + Smyle (ลม) อยู่ Quest เดียวกัน ต่างได้ Splash และพลังเพิ่ม · ACTGR-005/Tingting ย้ายให้มาเจอกัน", "quests": ["QSTBR-001", "QSTGR-001", "QSTGR-003"], "cards": ["MSCBR-008", "MSCBR-008", "MSCBR-008", "MSCBR-018", "MSCBR-018", "MSCBR-018", "MSCBR-010", "MSCBR-009", "MSCBR-009", "EQPBR-004", "EQPBR-004", "EQPBR-004", "EQPGR-002", "PRPBR-004", "PRPBR-004", "MSCGR-016", "MSCGR-016", "MSCGR-017", "MSCGR-017", "MSCGR-017", "MSCGR-015", "MSCGR-015", "MSCGR-015", "MSCGR-022", "MSCGR-022", "MSCGR-022", "MSCGR-003", "MSCGR-003", "MSCGR-002", "MSCGR-002", "ACTGR-005", "ACTGR-005", "ACTGR-005", "ACTGR-010", "ACTGR-010", "ACTGR-001", "ACTGR-001", "ACTGR-001", "EQPGR-002", "EQPGR-002"]}, {"id": "combo-EMBER", "name": "คู่ซี้ Domiia×Tomafox", "plan": "[บุกเร็ว] คอมโบคู่: Domiia MSCRD-003 ให้ Tomafox, Tomafox MSCRD-012 ให้ Domiia ได้ Rush +1/+1 บน Quest เดียวกัน", "quests": ["QSTRD-002", "QSTRD-001", "QSTRD-003"], "cards": ["MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-012", "MSCRD-012", "MSCRD-012", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-018", "MSCRD-018", "MSCRD-018", "MSCRD-014", "MSCRD-017", "MSCRD-017", "MSCRD-017", "MSCRD-008", "MSCRD-008", "MSCRD-019", "MSCRD-019", "MSCRD-002", "MSCRD-002", "MSCRD-002", "MSCRD-005", "MSCRD-005", "MSCRD-006", "MSCRD-009", "ACTRD-007", "ACTRD-007", "ACTRD-007", "ACTRD-009", "ACTRD-009", "ACTRD-002", "ACTRD-002", "ACTRD-004", "ACTRD-004", "ACTRD-002", "ACTRD-005", "EQPRD-002", "EQPRD-002"]}, {"id": "combo-AQUA-ECLIPSE", "name": "เงาใต้คลื่น Samruay×Avocean", "plan": "คอมโบคู่: Samruay MSCBK-018 ได้ Rush +1/+1 เมื่ออยู่กับ Avocean · Avocean ฮีลพวก ตัวน้ำทนๆ คุม Quest", "quests": ["QSTBL-001", "QSTBK-003", "QSTBK-001"], "cards": ["MSCBK-018", "MSCBK-018", "MSCBK-018", "MSCBL-008", "MSCBL-008", "MSCBL-008", "MSCBL-009", "MSCBL-009", "MSCBL-009", "MSCBL-010", "EQPBL-002", "EQPBL-002", "MSCBL-011", "MSCBL-011", "MSCBL-012", "MSCBL-012", "PRPBL-004", "PRPBL-004", "ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-003", "ACTBL-003", "ACTBL-002", "ACTBL-002", "MSCBL-013", "MSCBL-013", "MSCBL-013", "MSCBL-018", "MSCBL-018", "MSCBK-003", "MSCBK-003", "ACTBL-003", "MSCBK-002", "MSCBK-013", "MSCBK-013", "MSCBK-002", "ACTBK-004", "ACTBK-004", "ACTBK-006"]}];
+window.TUNED_DECKS = {"TERRA": {"quests": ["QSTBR-001", "QSTBR-002", "QSTBR-003"], "cards": ["ACTBR-001", "ACTBR-001", "ACTBR-002", "ACTBR-002", "ACTBR-004", "EQPBR-003", "EQPBR-003", "EQPBR-004", "EQPBR-004", "MSCBR-001", "MSCBR-001", "MSCBR-001", "MSCBR-003", "MSCBR-003", "MSCBR-005", "MSCBR-005", "MSCBR-006", "MSCBR-006", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-008", "MSCBR-009", "MSCBR-011", "MSCBR-011", "MSCBR-013", "MSCBR-013", "MSCBR-014", "MSCBR-014", "MSCBR-015", "MSCBR-015", "MSCBR-016", "MSCBR-016"], "plan": "[กลางเกม] Artifact midrange: ลงตัวถูก แล้วติด Artifact ราคาถูกจาก Jaidee ทำตัวใหญ่ จั่วต่อด้วย ACTBR-002"}, "AQUA": {"quests": ["QSTBL-001", "QSTBL-002", "QSTBL-003"], "cards": ["ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-002", "ACTBL-002", "ACTBL-003", "ACTBL-003", "ACTBL-006", "ACTBL-006", "MSCBL-001", "MSCBL-001", "MSCBL-003", "MSCBL-003", "MSCBL-003", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-007", "MSCBL-008", "MSCBL-008", "MSCBL-009", "MSCBL-011", "MSCBL-011", "MSCBL-012", "MSCBL-013", "MSCBL-013", "MSCBL-014", "MSCBL-014", "MSCBL-015", "MSCBL-015", "MSCBL-016", "MSCBL-016", "MSCBL-017", "MSCBL-017"], "plan": "[คุมเกม] Draw-control: จั่วไพ่เยอะ ให้ Wesley แปลงการจั่วเป็นแต้ม Quest และเด้ง/Stun ตัวคู่แข่ง"}, "AERO": {"quests": ["QSTGR-001", "QSTGR-002", "QSTGR-003"], "cards": ["ACTGR-001", "ACTGR-001", "ACTGR-001", "ACTGR-002", "ACTGR-002", "MSCGR-001", "MSCGR-001", "MSCGR-002", "MSCGR-002", "MSCGR-003", "MSCGR-003", "MSCGR-003", "MSCGR-007", "MSCGR-007", "MSCGR-010", "MSCGR-010", "MSCGR-011", "MSCGR-011", "MSCGR-012", "MSCGR-012", "MSCGR-015", "MSCGR-015", "MSCGR-016", "MSCGR-017", "MSCGR-017", "MSCGR-018", "MSCGR-018", "MSCGR-019", "MSCGR-019", "MSCGR-020", "MSCGR-020", "MSCGR-021", "MSCGR-021", "MSCGR-021", "PRPGR-001"], "plan": "[เร่งมานา] Ramp: เร่ง Mana แล้วลงตัวใหญ่ Babii/Tingting ทั้งหมดได้ Rush"}, "EMBER": {"quests": ["QSTRD-001", "QSTRD-002", "QSTRD-003"], "cards": ["ACTRD-002", "ACTRD-002", "ACTRD-003", "ACTRD-004", "ACTRD-004", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "EQPRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-005", "MSCRD-005", "MSCRD-006", "MSCRD-008", "MSCRD-008", "MSCRD-009", "MSCRD-009", "MSCRD-010", "MSCRD-010", "MSCRD-011", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-015", "MSCRD-015", "MSCRD-016", "MSCRD-016", "MSCRD-017", "MSCRD-017"], "plan": "[บุกเร็ว] Aggro burn: Tomafox+Domiia ได้ Rush บุกเร็ว ใช้ burn เคลียร์ตัวขวาง"}, "AURORA": {"quests": ["QSTWH-001", "QSTWH-002", "QSTWH-003"], "cards": ["ACTWH-002", "ACTWH-002", "ACTWH-004", "ACTWH-004", "ACTWH-006", "EQPWH-001", "EQPWH-001", "MSCWH-001", "MSCWH-001", "MSCWH-003", "MSCWH-003", "MSCWH-004", "MSCWH-004", "MSCWH-007", "MSCWH-007", "MSCWH-008", "MSCWH-008", "MSCWH-009", "MSCWH-009", "MSCWH-012", "MSCWH-012", "MSCWH-013", "MSCWH-013", "MSCWH-014", "MSCWH-015", "MSCWH-015", "MSCWH-018", "MSCWH-018", "MSCWH-018", "MSCWH-019", "MSCWH-019", "MSCWH-020", "MSCWH-020", "MSCWH-021", "MSCWH-021", "PRPWH-003", "PRPWH-003"], "plan": "[คุมเกม] Fortress: Guard + ตีกลับ ป้องกัน Quest แล้วใช้ Splash/Stun ปิดเกม"}, "ECLIPSE": {"quests": ["QSTBK-002", "QSTBK-001", "QSTBK-003"], "cards": ["ACTBK-001", "ACTBK-001", "ACTBK-002", "ACTBK-002", "ACTBK-004", "ACTBK-004", "ACTBK-006", "MSCBK-001", "MSCBK-001", "MSCBK-001", "MSCBK-002", "MSCBK-003", "MSCBK-003", "MSCBK-003", "MSCBK-004", "MSCBK-004", "MSCBK-004", "MSCBK-005", "MSCBK-005", "MSCBK-007", "MSCBK-007", "MSCBK-009", "MSCBK-009", "MSCBK-010", "MSCBK-010", "MSCBK-011", "MSCBK-011", "MSCBK-011", "MSCBK-013", "MSCBK-013", "MSCBK-015", "MSCBK-015", "MSCBK-015", "MSCBK-016", "MSCBK-017", "MSCBK-017"], "plan": "[คอมโบ] Eclipse swarm: Samruay โตตามจำนวนตัวเงา + Metaa/Yuzu จากสุสาน"}, "TERRA+AQUA": {"quests": ["QSTBL-001", "QSTBL-002", "QSTBR-001"], "cards": ["ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-006", "ACTBR-001", "ACTBR-001", "ACTBR-002", "ACTBR-002", "EQPBR-003", "EQPBR-003", "MSCBL-001", "MSCBL-001", "MSCBL-003", "MSCBL-003", "MSCBL-003", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-007", "MSCBL-009", "MSCBL-012", "MSCBL-012", "MSCBR-001", "MSCBR-003", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-008", "MSCBR-011", "MSCBR-011"], "plan": "[กลางเกม] Equip-draw: ACTBR-002 จั่วตาม Artifact ป้อน Wesley/Rexxa"}, "TERRA+AERO": {"quests": ["QSTBR-001", "QSTBR-002", "QSTGR-001"], "cards": ["ACTGR-001", "ACTGR-001", "ACTGR-001", "MSCBR-001", "MSCBR-001", "MSCBR-001", "MSCBR-005", "MSCBR-005", "MSCBR-008", "MSCBR-008", "MSCBR-008", "MSCBR-010", "MSCBR-010", "MSCBR-011", "MSCBR-012", "MSCBR-012", "MSCBR-014", "MSCBR-014", "MSCBR-014", "MSCBR-015", "MSCBR-015", "MSCBR-016", "MSCBR-016", "MSCGR-003", "MSCGR-003", "MSCGR-003", "MSCGR-007", "MSCGR-010", "MSCGR-012", "MSCGR-012", "MSCGR-015", "MSCGR-015", "MSCGR-016", "MSCGR-016", "MSCGR-017", "MSCGR-017", "MSCGR-020", "PRPGR-001"], "plan": "[กลางเกม] Cross-color combo: Neona(ดิน)+Smyle(ลม) ต่างได้ Splash +1/+1 เมื่ออยู่ Quest เดียวกัน"}, "TERRA+EMBER": {"quests": ["QSTBR-003", "QSTRD-002", "QSTRD-001"], "cards": ["ACTBR-001", "ACTBR-001", "ACTBR-002", "ACTBR-002", "EQPBR-003", "EQPBR-003", "MSCBR-001", "MSCBR-001", "MSCBR-003", "MSCBR-003", "MSCBR-005", "MSCBR-005", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-009", "MSCBR-011", "MSCBR-011", "MSCBR-014", "MSCBR-014", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-008", "MSCRD-008", "MSCRD-012", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-014", "MSCRD-017", "MSCRD-017"], "plan": "[บุกเร็ว] Equip aggro: Tomafox/Domiia Rush + Artifact ราคาถูก"}, "TERRA+AURORA": {"quests": ["QSTBR-001", "QSTBR-002", "QSTWH-001"], "cards": ["ACTBR-001", "ACTBR-001", "ACTBR-002", "ACTBR-002", "EQPBR-003", "EQPBR-003", "EQPWH-001", "EQPWH-001", "EQPWH-001", "EQPWH-004", "EQPWH-004", "MSCBR-001", "MSCBR-001", "MSCBR-003", "MSCBR-005", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-009", "MSCBR-011", "MSCBR-011", "MSCWH-001", "MSCWH-003", "MSCWH-007", "MSCWH-018", "MSCWH-019", "MSCWH-019", "MSCWH-020", "MSCWH-020", "MSCWH-021", "MSCWH-021"], "plan": "[คุมเกม] Armored fortress: Artifact ของทั้งสองสีนับให้ ACTBR-002/Jaidee + Guard ตีกลับ"}, "TERRA+ECLIPSE": {"quests": ["QSTBR-001", "QSTBR-002", "QSTBK-002"], "cards": ["ACTBK-001", "ACTBK-001", "ACTBR-001", "ACTBR-001", "ACTBR-002", "ACTBR-002", "EQPBR-003", "EQPBR-003", "MSCBK-001", "MSCBK-004", "MSCBK-004", "MSCBK-005", "MSCBK-005", "MSCBK-007", "MSCBK-007", "MSCBK-009", "MSCBK-010", "MSCBK-010", "MSCBK-016", "MSCBR-001", "MSCBR-001", "MSCBR-003", "MSCBR-003", "MSCBR-005", "MSCBR-005", "MSCBR-007", "MSCBR-007", "MSCBR-007", "MSCBR-009", "MSCBR-009", "MSCBR-011", "MSCBR-011", "MSCBR-014"], "plan": "[กลางเกม] Equip + King Man buff + hand attack"}, "AQUA+AERO": {"quests": ["QSTBL-001", "QSTBL-002", "QSTGR-001"], "cards": ["ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTGR-001", "ACTGR-001", "ACTGR-001", "EQPGR-002", "MSCBL-001", "MSCBL-001", "MSCBL-003", "MSCBL-003", "MSCBL-003", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-007", "MSCBL-008", "MSCBL-008", "MSCBL-011", "MSCBL-011", "MSCBL-012", "MSCBL-014", "MSCBL-017", "MSCGR-002", "MSCGR-002", "MSCGR-007", "MSCGR-007", "MSCGR-012", "MSCGR-017", "MSCGR-017", "PRPGR-001"], "plan": "[เร่งมานา] Draw-ramp: จั่ว+เร่ง Mana ลง Babii"}, "AQUA+EMBER": {"quests": ["QSTBL-001", "QSTBL-002", "QSTRD-001"], "cards": ["ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTRD-002", "ACTRD-002", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "MSCBL-001", "MSCBL-001", "MSCBL-003", "MSCBL-003", "MSCBL-003", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-007", "MSCBL-008", "MSCBL-011", "MSCBL-012", "MSCBL-012", "MSCBL-013", "MSCBL-016", "MSCBL-017", "MSCBL-017", "MSCRD-002", "MSCRD-002", "MSCRD-010", "MSCRD-010", "MSCRD-011"], "plan": "[คอมโบ] Draw-discard: จั่วเยอะ แล้วทิ้งให้ Flarey/ACTRD-008"}, "AQUA+AURORA": {"quests": ["QSTBL-001", "QSTBL-002", "QSTWH-001"], "cards": ["ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTBL-002", "ACTBL-002", "ACTBL-006", "ACTBL-006", "ACTWH-004", "ACTWH-004", "ACTWH-006", "EQPWH-004", "MSCBL-001", "MSCBL-001", "MSCBL-003", "MSCBL-003", "MSCBL-003", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-008", "MSCBL-011", "MSCBL-011", "MSCBL-016", "MSCBL-016", "MSCBL-017", "MSCWH-008", "MSCWH-013", "MSCWH-013", "MSCWH-014", "MSCWH-017", "MSCWH-017", "MSCWH-021"], "plan": "[คุมเกม] Cantrip control: Ceri ป้อน Wesley + Stun/Bounce"}, "AQUA+ECLIPSE": {"quests": ["QSTBL-003", "QSTBK-001", "QSTBL-002"], "cards": ["ACTBK-006", "ACTBL-002", "ACTBL-002", "ACTBL-006", "ACTBL-006", "EQPBL-002", "MSCBK-001", "MSCBK-001", "MSCBK-001", "MSCBK-002", "MSCBK-003", "MSCBK-003", "MSCBK-003", "MSCBK-004", "MSCBK-004", "MSCBK-004", "MSCBK-005", "MSCBK-005", "MSCBK-011", "MSCBK-011", "MSCBK-013", "MSCBK-013", "MSCBL-001", "MSCBL-001", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-007", "MSCBL-007", "MSCBL-008", "MSCBL-008", "MSCBL-011", "MSCBL-011", "MSCBL-011", "MSCBL-012", "MSCBL-012", "MSCBL-016", "MSCBL-016"], "plan": "[คอมโบ] Self-mill graveyard: Polcasan mill ตัวเอง ป้อน Metaa/Yuzu"}, "AERO+EMBER": {"quests": ["QSTRD-001", "QSTRD-002", "QSTGR-001"], "cards": ["ACTGR-001", "ACTGR-001", "ACTGR-001", "ACTRD-002", "ACTRD-002", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "MSCGR-012", "MSCGR-012", "MSCGR-017", "MSCGR-017", "MSCGR-021", "MSCGR-021", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-006", "MSCRD-006", "MSCRD-008", "MSCRD-008", "MSCRD-010", "MSCRD-010", "MSCRD-011", "MSCRD-011", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-014", "MSCRD-017", "MSCRD-017", "PRPGR-001"], "plan": "[เร่งมานา] Ramp-burn: เร่ง Mana แล้ว burn ใหญ่/ Tomafox 9/9"}, "AERO+AURORA": {"quests": ["QSTWH-001", "QSTWH-002", "QSTGR-001"], "cards": ["ACTGR-001", "ACTGR-001", "ACTGR-001", "MSCGR-002", "MSCGR-002", "MSCGR-003", "MSCGR-007", "MSCGR-007", "MSCGR-012", "MSCGR-012", "MSCGR-017", "MSCGR-017", "MSCGR-021", "MSCWH-003", "MSCWH-003", "MSCWH-004", "MSCWH-004", "MSCWH-007", "MSCWH-007", "MSCWH-009", "MSCWH-009", "MSCWH-012", "MSCWH-012", "MSCWH-013", "MSCWH-013", "MSCWH-014", "MSCWH-014", "MSCWH-015", "MSCWH-015", "MSCWH-019", "MSCWH-019", "PRPGR-001"], "plan": "[เร่งมานา] Ramp-splash: เร่ง Mana ลง Jummo/Jewel Splash"}, "AERO+ECLIPSE": {"quests": ["QSTGR-001", "QSTGR-002", "QSTBK-002"], "cards": ["ACTBK-001", "ACTGR-001", "ACTGR-001", "ACTGR-001", "MSCBK-001", "MSCBK-001", "MSCBK-002", "MSCBK-002", "MSCBK-003", "MSCBK-003", "MSCBK-004", "MSCBK-004", "MSCBK-007", "MSCBK-007", "MSCBK-009", "MSCBK-009", "MSCBK-010", "MSCBK-010", "MSCBK-011", "MSCBK-011", "MSCBK-016", "MSCBK-016", "MSCBK-017", "MSCBK-017", "MSCGR-001", "MSCGR-001", "MSCGR-002", "MSCGR-003", "MSCGR-012", "MSCGR-012", "MSCGR-017", "MSCGR-017", "MSCGR-019", "MSCGR-019", "MSCGR-021", "MSCGR-021", "PRPBK-004", "PRPGR-001"], "plan": "[กลางเกม] Ramp King Man + Ponpon range"}, "EMBER+AURORA": {"quests": ["QSTWH-002", "QSTRD-001", "QSTRD-002"], "cards": ["ACTRD-002", "ACTRD-002", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "ACTWH-004", "ACTWH-004", "ACTWH-006", "EQPWH-004", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-006", "MSCRD-006", "MSCRD-008", "MSCRD-008", "MSCRD-010", "MSCRD-011", "MSCRD-011", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-014", "MSCRD-017", "MSCRD-017", "MSCWH-008", "MSCWH-008", "MSCWH-012", "MSCWH-013", "MSCWH-013", "MSCWH-019", "MSCWH-019"], "plan": "[บุกเร็ว] Aggro-control: Tomafox/Domiia + Stun เปิดทาง"}, "EMBER+ECLIPSE": {"quests": ["QSTBK-002", "QSTBK-001", "QSTRD-001"], "cards": ["ACTBK-001", "ACTBK-001", "ACTBK-006", "MSCBK-001", "MSCBK-001", "MSCBK-001", "MSCBK-002", "MSCBK-002", "MSCBK-003", "MSCBK-003", "MSCBK-003", "MSCBK-004", "MSCBK-004", "MSCBK-005", "MSCBK-005", "MSCBK-011", "MSCBK-011", "MSCBK-013", "MSCBK-013", "MSCBK-016", "MSCBK-016", "MSCBK-016", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-006", "MSCRD-006", "MSCRD-010", "MSCRD-010", "MSCRD-011", "MSCRD-011", "MSCRD-015", "MSCRD-017"], "plan": "[คอมโบ] Discard-graveyard: ทิ้งไพ่ป้อนสุสาน Metaa/Yuzu + hand attack"}, "AURORA+ECLIPSE": {"quests": ["QSTBK-002", "QSTBK-001", "QSTWH-001"], "cards": ["ACTBK-001", "ACTBK-001", "ACTWH-004", "ACTWH-004", "ACTWH-006", "EQPWH-001", "EQPWH-001", "MSCBK-004", "MSCBK-005", "MSCBK-005", "MSCBK-007", "MSCBK-007", "MSCBK-009", "MSCBK-010", "MSCBK-010", "MSCBK-011", "MSCBK-011", "MSCBK-017", "MSCWH-001", "MSCWH-001", "MSCWH-007", "MSCWH-008", "MSCWH-008", "MSCWH-008", "MSCWH-012", "MSCWH-013", "MSCWH-013", "MSCWH-018", "MSCWH-018", "MSCWH-019", "MSCWH-019", "MSCWH-019", "MSCWH-020", "MSCWH-020", "MSCWH-021", "MSCWH-021"], "plan": "[คุมเกม] Lockdown: Guard/Stun + hand attack + King Man"}};
+window.TRI_DECKS = {"AQUA+AURORA+ECLIPSE": {"quests": ["QSTBL-002", "QSTWH-003", "QSTBK-003"], "cards": ["ACTBK-006", "ACTBL-001", "ACTBL-001", "ACTBL-001", "ACTWH-004", "ACTWH-004", "ACTWH-006", "MSCBK-001", "MSCBK-001", "MSCBK-001", "MSCBK-003", "MSCBK-003", "MSCBK-003", "MSCBK-004", "MSCBK-004", "MSCBK-013", "MSCBL-001", "MSCBL-001", "MSCBL-003", "MSCBL-003", "MSCBL-003", "MSCBL-005", "MSCBL-005", "MSCBL-006", "MSCBL-006", "MSCBL-006", "MSCBL-007", "MSCBL-007", "MSCBL-007", "MSCBL-011", "MSCWH-013", "MSCWH-013", "MSCWH-017", "MSCWH-017", "MSCWH-017"], "plan": "[คอมโบ] Draw-graveyard: Ceri/Wesley จั่ว + Polcasan mill ตัวเอง ป้อน Metaa/Yuzu + Stun"}, "TERRA+EMBER+AERO": {"quests": ["QSTBR-003", "QSTRD-002", "QSTGR-001"], "cards": ["ACTRD-002", "ACTRD-002", "ACTRD-002", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "MSCBR-008", "MSCBR-008", "MSCBR-008", "MSCBR-014", "MSCBR-014", "MSCBR-016", "MSCBR-016", "MSCGR-003", "MSCGR-003", "MSCGR-003", "MSCGR-010", "MSCGR-015", "MSCGR-015", "MSCGR-016", "MSCGR-016", "MSCGR-017", "MSCGR-017", "MSCGR-020", "MSCGR-020", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-011", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-017", "MSCRD-017"], "plan": "[บุกเร็ว] Neona/Smyle cross + Tomafox/Domiia Rush + burn"}, "EMBER+AURORA+AERO": {"quests": ["QSTRD-002", "QSTWH-003", "QSTGR-001"], "cards": ["ACTGR-001", "ACTGR-001", "ACTGR-001", "ACTRD-002", "ACTRD-002", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "ACTWH-004", "ACTWH-004", "ACTWH-006", "MSCGR-003", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-011", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-017", "MSCRD-017", "MSCWH-003", "MSCWH-004", "MSCWH-004", "MSCWH-009", "MSCWH-009", "MSCWH-012", "MSCWH-012", "MSCWH-013", "MSCWH-013", "PRPGR-001"], "plan": "[บุกเร็ว] Aggro 3 สี: Tomafox+Domiia บุกเร็ว + Stun เปิดทาง + เร่ง Mana ลง Jummo/Babii ปิดเกม"}, "EMBER+AURORA+ECLIPSE": {"quests": ["QSTRD-002", "QSTWH-003", "QSTBK-003"], "cards": ["ACTBK-001", "ACTBK-001", "ACTRD-002", "ACTRD-002", "ACTRD-005", "ACTRD-007", "ACTRD-007", "ACTRD-007", "ACTWH-004", "ACTWH-004", "ACTWH-006", "MSCBK-003", "MSCBK-005", "MSCBK-005", "MSCBK-011", "MSCRD-001", "MSCRD-001", "MSCRD-001", "MSCRD-002", "MSCRD-002", "MSCRD-003", "MSCRD-003", "MSCRD-003", "MSCRD-010", "MSCRD-010", "MSCRD-011", "MSCRD-011", "MSCRD-012", "MSCRD-012", "MSCRD-014", "MSCRD-017", "MSCRD-017", "MSCWH-008", "MSCWH-012", "MSCWH-013", "MSCWH-013", "MSCWH-017"], "plan": "[บุกเร็ว] Aggro-disrupt: Tomafox/Domiia + Stun + ทิ้งมือคู่แข่ง (Guinzly)"}};
 
 </script>
 <script>
@@ -3622,7 +3576,6 @@ window.CHAR_ART = {
       if (got) { const h = E.P(c.pi).hand; h.splice(h.indexOf(got), 1); await E.resolveAction(c.pi, got); E.P(c.pi).discard.push(got); }
     },
   };
-  A['PRPBL-002'] = { thresholdMod: 5, aiTarget: 'theirs' };
 
   // =================== AURORA (White) ===================
   // Draw a card for each Aurora Character you control (anywhere in play)
@@ -3641,7 +3594,6 @@ window.CHAR_ART = {
   A['ACTWH-005'] = { play: async (E, c) => { for (const m of E.G.field.slice()) await E.defeat(m); E.log('ทำลาย Character ทุกตัวบน Play Area', 'big'); /* v4.1.7: Play Area includes Backstage */ } };
   A['EQPWH-003'] = { kw: { armor: 2 } };
   A['EQPWH-001'] = { kw: { guard: 1 } };
-  A['EQPWH-002'] = { kw: { splash: 1 } };
   A['MSCWH-009'] = { kw: { armor: 2 } }; // sheet swapped: Jummo is now MSCWH-009
   A['MSCWH-001'] = { kw: { guard: 1 } };
   A['MSCWH-003'] = { kw: { splash: 1 } };
@@ -3763,7 +3715,6 @@ window.CHAR_ART = {
     },
   };
   A['EQPGR-002'] = { kw: { hiding: 1 } };
-  A['EQPGR-003'] = { cud: 1 }; // v4.0.5 sheet: "Gain 1 Energy"
   A['EQPGR-006'] = { kw: { regen: 1 } };
   A['MSCGR-003'] = { kw: { rush: 1 } };
   A['MSCGR-007'] = { kw: { regen: 1 } };
@@ -3975,7 +3926,7 @@ window.CHAR_ART = {
   A['MSCRD-003'] = { auraTomafox: true }; // v4.1.17: an ally Tomafox on the same Quest gains Rush and +1/+1 (see Engine.cond)
   A['MSCRD-005'] = {};
   A['MSCRD-006'] = { play: async (E, c) => { if (onQuest(c.m)) await destroyAttachment(E, c.pi, c.m.loc, true, true); } };
-  A['MSCRD-016'] = { onActionPlayed: async (E, c) => { if (E.def(c.card).el === 'EMBER') E.trigger(c.m, 'เล่น Ember Spell → 2 Contest Point'), await E.dealAny(c.pi, 2, 'Nilknhake: 2 Contest Point ใส่เป้าหมายใดก็ได้'); } };
+  A['MSCRD-016'] = { onActionPlayed: async (E, c) => { if (E.def(c.card).el === 'EMBER') E.trigger(c.m, 'เล่น Ember Spell → 3 Contest Point'), await E.dealAny(c.pi, 3, 'Nilknhake: 3 Contest Point ใส่เป้าหมายใดก็ได้'); } };
   A['MSCRD-007'] = { cantContestIfOthers: true };
   A['MSCRD-010'] = {
     preContest: async (E, c) => {
@@ -3990,7 +3941,6 @@ window.CHAR_ART = {
   A['MSCRD-011'] = { play: (E, c) => E.divide(c.pi, 5, 'Flarey: แบ่ง 5 Contest Point') };
   A['MSCRD-017'] = { kw: { rush: 1 } };
   A['PRPRD-001'] = { aiTarget: 'mine', endTurn: async (E, c) => { E.triggerQ(c.qi, 'PRPRD-001 — +2 Contest Point'); await E.points(c.qi, c.pi, 2, {}); } };
-  A['PRPRD-002'] = { aiTarget: 'mine' };
   A['MSCRD-012'] = { auraDomiia: true }; // v4.1.11: an ally Domiia on the same Quest gains Rush and +1/+1 (see Engine.cond)
   A['MSCRD-015'] = { cantContestQuest: true };
   A['QSTRD-001'] = {
@@ -4127,6 +4077,16 @@ window.CHAR_ART = {
     },
   };
   A['ACTBK-009'] = { play: async (E, c) => { const o = E.opp(c.pi); await E.draw(o, 2); E.P(o).flags.noContestTurn = E.G.turn + 1; E.log('ฝ่ายตรงข้ามจั่ว 2 และ Contest ไม่ได้ในเทิร์นหน้า', 'act'); } };
+  A['ACTBK-008'] = { // v4.1.35: new card — only if opponent controls more Characters; play a Character from your discard pile for free
+    canPlay: (E, pi) => E.mascotsOf(E.opp(pi)).length > E.mascotsOf(pi).length && E.P(pi).discard.some(x => E.def(x).type === 'Mascot'),
+    play: async (E, c) => {
+      const p = E.P(c.pi); const cards = p.discard.filter(x => E.def(x).type === 'Mascot');
+      const [uid] = await E.ask(c.pi, { kind: 'cards', title: 'เลือก Character จากกองทิ้ง ลงฟรี', cards, min: 1, max: 1, hint: 'best' });
+      if (uid == null) return;
+      const k = await E.ask(c.pi, { kind: 'target', title: 'ลงที่ไหน?', targets: freeDests(E, cards.find(x => x.uid === uid), true), hint: 'dest' });
+      if (k) await E.playCard(c.pi, uid, k, { free: true });
+    },
+  };
   A['PRPBK-004'] = { aiTarget: 'theirs' };
   A['MSCBK-013'] = { immuneOppSpellQuest: true }; // v4.1.11: can't be targeted by opponent Spells or Quest rewards (no longer Hiding)
   A['MSCBK-014'] = {
@@ -4368,6 +4328,8 @@ window.CHAR_ART = {
     // Location on the Character's Quest that buff Characters of one element (PRPWH-003: Aurora +2/+2)
     propBuff(m) {
       const out = { pow: 0, mor: 0 };
+      // v4.1.35 Any MSCGR-012: all cost-1 Characters you control (itself included) +1/+1, stacks per Any
+      if ((this.def(m).cost) === 1 && this.def(m).type === 'Mascot') { const n = this.G.field.filter(x => x.code === 'MSCGR-012' && x.ctrl === m.ctrl && !this.blanked(x)).length; out.pow += n; out.mor += n; }
       if (!this.isQuest(m.loc)) return out;
       this.props(m.loc).forEach(p => {
         const b = this.abil(p).buffEl;
@@ -8457,6 +8419,10 @@ window.CHAR_ART = {
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.35 — 28 ต.ค. 2026</h4>
+<ul><li>ซิงก์กับชีตการ์ด: ลบ EQPBR-002, EQPGR-003, EQPWH-002, PRPBL-002, PRPRD-002 · เพิ่มการ์ดใหม่ ACTBK-008 (รวม 175 ใบ)</li>
+<li>ปรับค่า: PRPBR-001/ACTGR-002 cost 0, ACTGR-011 cost 2, Tingting MSCGR-018 cost 6 7/3, Babii MSCGR-007 4/7, Any MSCGR-012 0/1 + ออร่า Character cost 1 ฝ่ายเรา +1/+1, Nilknhake MSCRD-016 5/5 ยิง 3 แต้ม, ค่าพลังใหม่ MSCBR-004/006/016, MSCRD-008, MSCBK-005/013/014/015</li>
+<li>เปลี่ยนชื่อ: MSCBR-018 → Vimmy, MSCGR-020 → Babii · ปรับถ้อยคำการ์ด/ระดับความหายากตามชีต · ปรับเด็คที่ใช้ EQPBR-002</li></ul>
 <h4>v4.1.34 — 21 ต.ค. 2026</h4>
 <ul><li>คำตัดสินกติกา: Samruay MSCBK-015 ได้ +1 Energy ต่อ Character Eclipse ของเราทุกตัว <b>รวมตัวเองด้วย</b></li>
 <li>ลบการ์ด ACTRD-008 ออกจากเกม (เหลือ 179 ใบ)</li>
