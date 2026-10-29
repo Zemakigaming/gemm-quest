@@ -957,7 +957,7 @@ button { font-family: inherit; }
 
 <script>
 // GEMM QUEST — version (updated by tools/release.py; keep in sync with version.json)
-window.GQ_VERSION = '4.1.35';
+window.GQ_VERSION = '4.1.36';
 window.GQ_RELEASED = '2026-10-10';
 
 // When the game is served from a website, check for a newer published version and offer a reload.
@@ -6168,7 +6168,7 @@ window.CHAR_ART = {
     App.show('game');
     if (!tut) { const c = $('coach'); c.classList.remove('on'); c.innerHTML = ''; }
 
-    if (mode === 'guest') { startGuest(); return; }
+    if (mode === 'guest') { startGuest(!!opts.resume); return; }
 
     const names = opts.names || (opts.spectate ? ['CPU ล่าง', 'CPU บน'] : ['คุณ', 'CPU']);
     H = new Engine({
@@ -6181,6 +6181,13 @@ window.CHAR_ART = {
     window.GAME = H; H.fullLog = [];
     hookBotLog(H);
     if (mode === 'host') bindHost();
+    if (mode === 'host' && opts.resume) { // v4.1.36: continue the game from the host's last saved position
+      H.G = opts.resume.G; H.uidN = opts.resume.uidN; H.curSrc = null; H.settling = false;
+      H.log('🔄 เจ้าของห้องกลับเข้าห้อง — เล่นต่อจากจุดล่าสุด', 'dim');
+      ui.busy = false; ui.syncDirty = true; render(); pushState(); netNotice();
+      if (H.over()) showGameOver();
+      return;
+    }
     render();
     if (tut) {
       tut.onEnd = () => { ui.select = null; render(); };
@@ -6291,6 +6298,7 @@ window.CHAR_ART = {
     ui.busy = true; ui.select = null; closeMenu(); render();
     try { await fn(); } catch (err) { console.error(err); if (H) H.log('เกิดข้อผิดพลาด: ' + err.message, 'ko'); }
     ui.busy = false; render();
+    if (ui.mode === 'host') saveSnap();
     if (!H) return; // online guest: the host drives the game
     if (H.over()) { showGameOver(); return; }
     if (ui.mode === 'hotseat' && H.G.active !== ui.viewPi) await curtain(H.G.active, 'เริ่มเทิร์นของคุณ');
@@ -6337,16 +6345,41 @@ window.CHAR_ART = {
       return { ok: true };
     }));
     net.onClose = () => lostConnection();
+    net.onResync = () => { // v4.1.36: the guest reloaded → bring it back into the game
+      if (!H || ui.net !== net || H.over() || !$('scr-game').classList.contains('active')) return;
+      net.send({ t: 'start', resume: true });
+      ui.syncDirty = true; pushState();
+      if (ui.rollResend) ui.rollResend();
+      net.resendAsks();
+    };
     clearInterval(syncTimer);
     syncTimer = setInterval(() => { if (ui.mode === 'host' && H && ui.syncDirty) pushState(); }, 80);
   }
   function pushState() {
     ui.syncDirty = false;
     ui.net.send({ t: 'state', G: viewState(H.G, 1, true), fx: ui.netFx.splice(0), wait: ui.pending ? ui.pending.req.title : null });
+    saveSnap();
+  }
+  // v4.1.36: host keeps the last settled position in this tab so a page reload can continue the game
+  function saveSnap() {
+    if (!ui || ui.mode !== 'host' || !H || !ui.net || ui.net.via !== 'cf' || !window.CFRelay) return;
+    if (H.over()) { CFRelay.ss.set('snap', null); return; }
+    if (ui.busy || ui.pending || ui.remoteWait || H.G.phase !== 'action') return;
+    CFRelay.ss.set('snap', { code: ui.net.code, G: H.G, uidN: H.uidN, names: [H.P(0).name, H.P(1).name], decks: ui.decks, t: Date.now() });
+  }
+  // v4.1.36: connection notice (own link down / opponent away)
+  function netNotice() {
+    let el = document.getElementById('net-notice');
+    if (!el) { el = document.createElement('div'); el.id = 'net-notice'; document.body.appendChild(el); }
+    const n = ui && ui.net, inGame = $('scr-game').classList.contains('active');
+    const txt = !n || !inGame || !(ui.mode === 'host' || ui.mode === 'guest') ? ''
+      : n.linkDown ? '📡 การเชื่อมต่อของคุณหลุด — กำลังต่อใหม่… (Reconnecting)'
+      : n.peerAway ? `⚠ ${oppName()} หลุดการเชื่อมต่อ — รอกลับมา… (Opponent disconnected)` : '';
+    el.textContent = txt; el.classList.toggle('on', !!txt);
   }
 
   // ---------------------------------------------------------------- online: guest side
-  function startGuest() {
+  function startGuest(resume) {
     const net = ui.net;
     ui.busy = false;
     net.onState = (G, fx, wait) => {
@@ -6358,6 +6391,7 @@ window.CHAR_ART = {
     net.onAsk = req => localAsk(req);
     net.onRollState = m => guestRollState(m);
     net.onClose = () => lostConnection();
+    if (resume) { for (const k of Object.keys(net.waits || {})) { const w = net.waits[k]; delete net.waits[k]; try { w(false); } catch (e) {} } ui.pending = null; render(); netNotice(); return; } // v4.1.36: rejoined a running game — the host re-sends state/prompts
     const md = openModal(`<h3>เชื่อมต่อแล้ว 🎉</h3><p>รอ <b>${esc(net.peerName || 'เจ้าของห้อง')}</b> ทอยลูกเต๋าเริ่มเกม…</p>`, 'dice');
     md.dataset.wait = '1';
     render();
@@ -6365,7 +6399,9 @@ window.CHAR_ART = {
   function lostConnection() {
     if (!$('scr-game').classList.contains('active')) return;
     if (H) H.G.phase = 'over';
-    const md = openModal(`<h3>การเชื่อมต่อหลุด</h3><p>อีกฝ่ายออกจากเกม หรืออินเทอร์เน็ตมีปัญหา</p><div class="mbtns"><button class="btn primary" data-home>กลับหน้าหลัก</button></div>`);
+    if (window.CFRelay) CFRelay.ss.set('snap', null);
+    netNotice();
+    const md = openModal(`<h3>อีกฝ่ายออกจากห้องแล้ว (Opponent left)</h3><p>อีกฝ่ายออกจากเกม หรือการเชื่อมต่อขาดถาวร</p><div class="mbtns"><button class="btn primary" data-home>กลับหน้าหลัก</button></div>`);
     md.querySelector('[data-home]').onclick = () => { closeModal(); App.show('home'); };
   }
 
@@ -6483,6 +6519,7 @@ window.CHAR_ART = {
         check();
       });
       sendState({}); // lets the guest open its dice window and roll right away
+      ui.rollResend = () => { if (!done) sendState({}); }; // v4.1.36: guest reloaded during the roll-off
       ui.net.onMyRoll = async v => {
         if (done || rolls[1] != null) return;
         rolls[1] = Math.max(1, Math.min(6, v | 0));
@@ -6693,7 +6730,8 @@ window.CHAR_ART = {
     if (me.flags.noShowTurn === G.turn) flags.push('เทิร์นนี้ทำ Show ไม่ได้');
     if (me.flags.noManaTurn === G.turn) flags.push('เทิร์นนี้ไม่ได้ Mana หลัก +1 (ACTRD-001)');
     if (me.flags.noContestTurn === G.turn) flags.push('เทิร์นนี้ Contest ไม่ได้');
-    const viaTxt = ui.net ? (ui.net.via === 'relay' ? ' · 🛰 ผ่านตัวกลาง' : ' · 🔗 ต่อตรง') : '';
+    netNotice();
+    const viaTxt = ui.net ? (ui.net.via === 'cf' ? ' · ☁️ เซิร์ฟเวอร์ห้อง' : ui.net.via === 'relay' ? ' · 🛰 ผ่านตัวกลาง' : ' · 🔗 ต่อตรง') : '';
     const modeTxt = { hotseat: '👥 เล่นเครื่องเดียวกัน', host: '🌐 ออนไลน์ (เจ้าของห้อง)' + viaTxt, guest: '🌐 ออนไลน์' + viaTxt }[ui.mode];
     $('status').innerHTML = `
       ${modeTxt ? `<div class="phase">${modeTxt}</div>` : ''}
@@ -7463,7 +7501,8 @@ window.CHAR_ART = {
     window.addEventListener('resize', scheduleRender);
   }
 
-  window.GameUI = { buildLog: () => buildLog(), isTester: () => !!(ui && ui.tester), openModal: (h, c) => openModal(h, c), closeModal: () => closeModal(), start, bind, render, debug: () => ui, viewState };
+  window.GameUI = { buildLog: () => buildLog(), isTester: () => !!(ui && ui.tester), openModal: (h, c) => openModal(h, c), closeModal: () => closeModal(), start, bind, render, debug: () => ui, viewState, netNotice: () => netNotice(),
+    __t: { resolve: v => resolvePending(v), run: c => run(c), E: () => E, doEngine: f => doEngine(f), endTurn: () => endTurnNow(), idle: () => !!myIdle() } };
   window.viewCardModal = code => openInfo({ code });
 })();
 
@@ -7659,6 +7698,99 @@ window.CHAR_ART = {
 
 </script>
 <script>
+// v4.1.36 GEMM QUEST — online rooms through our own Cloudflare relay (Worker + Durable Object, one per room).
+// The relay only forwards messages between the room's two seats; the host's browser still runs the game and
+// the guest only ever receives masked snapshots. Seats are tied to a per-tab client id (sessionStorage), so a
+// refresh rejoins the same seat; messages for a briefly-disconnected seat are buffered by the relay.
+(function () {
+  const DEFAULT = 'https://gemm-quest-relay.slapcard.workers.dev';
+  const ss = {
+    get(k) { try { return JSON.parse(sessionStorage.getItem('gemmquest.' + k)); } catch (e) { return null; } },
+    set(k, v) { try { if (v == null) sessionStorage.removeItem('gemmquest.' + k); else sessionStorage.setItem('gemmquest.' + k, JSON.stringify(v)); } catch (e) { /* storage full/blocked */ } },
+  };
+  function base() {
+    try { const q = new URLSearchParams(location.search).get('relayUrl'); if (q) localStorage.setItem('gemmquest.relayUrl', q); } catch (e) { /* ignore */ }
+    let u = ''; try { u = localStorage.getItem('gemmquest.relayUrl') || ''; } catch (e) { /* ignore */ }
+    u = u || DEFAULT;
+    return /^https?:\/\//.test(u) ? u.replace(/\/$/, '') : '';
+  }
+  function cidFor(code, role) {
+    const k = 'cid.' + role + '.' + code; let c = ss.get(k);
+    if (!c) { c = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); ss.set(k, c); }
+    return c;
+  }
+  class CFConn {
+    constructor(code, role, name) {
+      Object.assign(this, { code, role, name, cid: cidFor(code, role), via: 'cf', h: {}, open: false, ended: false, out: [], tries: 0, fresh: 1, linkUp: false, peerOn: false, peerSeat: false });
+    }
+    on(ev, fn) { (this.h[ev] = this.h[ev] || []).push(fn); if (ev === 'open' && this.open) setTimeout(() => fn(), 0); }
+    emit(ev, ...a) { (this.h[ev] || []).slice().forEach(f => f(...a)); }
+    url() { return base().replace(/^http/, 'ws') + '/room/' + this.code + '?role=' + this.role + '&cid=' + encodeURIComponent(this.cid) + '&name=' + encodeURIComponent(this.name || '') + '&fresh=' + this.fresh; }
+    connect(ms = 9000) {
+      return new Promise((resolve, reject) => { this._res = resolve; this._rej = reject; this._t = setTimeout(() => this.fail('unreachable'), ms); this.dial(); });
+    }
+    fail(reason) {
+      const r = this._rej; this._res = this._rej = null; clearTimeout(this._t);
+      if (r) { this.ended = true; try { if (this.ws) this.ws.close(); } catch (e) { /* ignore */ } r(new Error(reason)); }
+    }
+    dial() {
+      let ws;
+      try { ws = this.ws = new WebSocket(this.url()); } catch (e) { this.fail('unreachable'); return; }
+      ws.onmessage = ev => { let d; try { d = JSON.parse(ev.data); } catch (e) { return; } if (d && typeof d === 'object') this.msg(d, ws); };
+      ws.onclose = ev => {
+        if (this.ws !== ws) return;
+        clearInterval(this.pinger); this.linkUp = false;
+        if (this.ended) return;
+        if (!this.open) { if (ev.code !== 4000) this.fail('unreachable'); return; }
+        if (ev.code === 4001) { this.end('replaced'); return; } // the same seat was opened in another tab
+        this.emit('link', false);
+        const wait = Math.min(800 * 2 ** this.tries++, 8000);
+        this.rt = setTimeout(() => { if (!this.ended) this.dial(); }, wait);
+      };
+    }
+    msg(d, ws) {
+      if (d.sys === 'hello') {
+        this.tries = 0; this.fresh = 0; this.linkUp = true;
+        clearInterval(this.pinger); this.pinger = setInterval(() => { try { ws.send('ping'); } catch (e) { /* closing */ } }, 20000);
+        this.peerSeat = !!d.peer; this.peerOn = !!(d.peer && d.peer.on); if (d.peer && d.peer.name) this.peerName = d.peer.name;
+        this.out.splice(0).forEach(m => ws.send(JSON.stringify({ m })));
+        if (!this.open) { this.open = true; clearTimeout(this._t); const r = this._res; this._res = this._rej = null; if (r) r(this); this.emit('open'); }
+        else this.emit('link', true);
+        return;
+      }
+      if (d.sys === 'error') { if (!this.open) this.fail(d.reason); else this.end(d.reason); return; }
+      if (d.sys === 'peer') {
+        if (d.left) { this.emit('peer', d); this.end(d.closed ? 'room-closed' : 'left'); return; }
+        this.peerSeat = true; this.peerOn = !!d.on; if (d.name) this.peerName = d.name;
+        this.emit('peer', d); return;
+      }
+      if ('m' in d) this.emit('data', d.m);
+    }
+    send(m) {
+      if (this.ended) return;
+      if (this.ws && this.ws.readyState === 1 && this.linkUp) this.ws.send(JSON.stringify({ m })); else this.out.push(m);
+    }
+    end(reason) { // the room/peer is gone for good
+      if (this.ended) return;
+      this.ended = true; clearTimeout(this.rt); clearInterval(this.pinger);
+      if (this.role === 'host' && reason === 'left') { try { this.ws.send(JSON.stringify({ sys: 'bye' })); } catch (e) { /* ignore */ } }
+      const ws = this.ws; setTimeout(() => { try { ws.close(); } catch (e) { /* ignore */ } }, 150);
+      this.endReason = reason;
+      if (this.open) { this.open = false; this.emit('close', reason); }
+    }
+    close() { // we leave
+      if (this.ended) return;
+      this.ended = true; clearTimeout(this.rt); clearInterval(this.pinger);
+      try { if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify({ sys: 'bye' })); } catch (e) { /* ignore */ }
+      const ws = this.ws; setTimeout(() => { try { ws.close(); } catch (e) { /* ignore */ } }, 150);
+      if (this.open) { this.open = false; this.emit('close', 'self'); }
+    }
+  }
+  window.CFRelay = { base, CFConn, ss, DEFAULT };
+})();
+
+</script>
+<script>
 // GEMM QUEST — playing together: hot-seat setup and online rooms
 // Online: first a direct WebRTC connection (PeerJS); if that can't be made, an encrypted relay through a
 // public MQTT broker (js/relay.js). The host listens on both at once; the guest falls back automatically.
@@ -7687,8 +7819,58 @@ window.CHAR_ART = {
       this.onLobby = null; this.onStatus = null;
     }
     status(s) { if (this.onStatus) this.onStatus(s); }
+    // v4.1.36: our Cloudflare relay first; the old direct/MQTT paths stay as a fallback
     host(fixed) {
-      this.role = 'host'; this.code = fixed || newCode(); this.fixed = !!fixed;
+      this.role = 'host'; this.code = fixed || this.code || newCode(); this.fixed = this.fixed || !!fixed;
+      if (window.CFRelay && CFRelay.base()) this.cfHost(); else this.legacyHost();
+    }
+    join(code) {
+      this.role = 'guest'; this.code = code;
+      if (window.CFRelay && CFRelay.base() && !/[?&]relay=1/.test(location.search)) this.cfJoin(); else this.legacyJoin(code);
+    }
+    saveRoom() { if (window.CFRelay) CFRelay.ss.set('room', { code: this.code, role: this.role, tester: !!this.tester }); }
+    cfWire(conn) {
+      conn.on('peer', d => {
+        if (this.cfc !== conn || d.left) return;
+        if (!this.conn) { if (d.on) this.cfAttach(conn); return; }
+        this.peerAway = !d.on;
+        if (d.on && d.fresh && this.onResync) this.onResync(); // the other side reloaded its page
+        this.status({ peer: !!d.on });
+      });
+      conn.on('link', up => { if (this.cfc !== conn) return; this.linkDown = !up; this.status({ link: up }); });
+    }
+    cfAttach(conn) { this.via = 'cf'; this.peerAway = !conn.peerOn; this.attach(conn); }
+    cfHost() {
+      const conn = this.cfc = new CFRelay.CFConn(this.code, 'host', this.myName);
+      this.cf = 'wait'; this.p2p = 'wait'; this.relayUp = 'wait';
+      this.status({ hosting: this.code });
+      this.cfWire(conn);
+      conn.connect().then(() => {
+        if (this.cfc !== conn) return;
+        this.cf = 'ok'; this.saveRoom();
+        if (conn.peerSeat) this.cfAttach(conn); else this.status({});
+      }, e => {
+        if (this.cfc !== conn) return;
+        this.cfc = null; this.cf = 'down';
+        if (this.resume) { if (window.CFRelay) { CFRelay.ss.set('room', null); CFRelay.ss.set('snap', null); } this.status({ err: 'ห้องเดิมปิดไปแล้ว (Room closed)' }); return; }
+        if (e.message === 'taken') { if (this.fixed) { this.status({ taken: true }); return; } this.code = newCode(); this.cfHost(); return; }
+        this.legacyHost(this.code);
+      });
+    }
+    cfJoin() {
+      const conn = this.cfc = new CFRelay.CFConn(this.code, 'guest', this.myName);
+      this.stage = 'cf'; this.status({ joining: this.code });
+      this.cfWire(conn);
+      conn.connect().then(() => { if (this.cfc !== conn) return; this.saveRoom(); this.cfAttach(conn); }, e => {
+        if (this.cfc !== conn) return;
+        this.cfc = null;
+        if (e.message === 'full') { this.status({ err: 'ห้องนี้มีผู้เล่นครบแล้ว (Room is full)' }); return; }
+        if (this.resume) { if (window.CFRelay) CFRelay.ss.set('room', null); this.status({ err: 'ห้องเดิมปิดไปแล้ว (Room closed)' }); return; }
+        this.legacyJoin(this.code); // older host version / relay unreachable
+      });
+    }
+    legacyHost(fixed) {
+      this.role = 'host'; this.code = fixed || this.code || newCode(); this.fixed = this.fixed || !!fixed;
       this.p2p = 'wait'; this.relayUp = 'wait';
       this.status({ hosting: this.code });
       // 1) direct connections (PeerJS)
@@ -7700,7 +7882,7 @@ window.CHAR_ART = {
           this.via = 'p2p'; this.attach(conn);
         });
         this.peer.on('error', err => {
-          if (err.type === 'unavailable-id') { if (this.fixed) { this.status({ taken: true }); return; } this.close(); this.host(); return; }
+          if (err.type === 'unavailable-id') { if (this.fixed) { this.status({ taken: true }); return; } this.close(); this.code = ''; this.host(); return; }
           if (['network', 'server-error', 'socket-error', 'socket-closed', 'browser-incompatible'].includes(err.type)) { this.p2p = 'down'; this.hostCheck(); }
         });
         this.peer.on('disconnected', () => { if (this.peer && !this.peer.destroyed) this.peer.reconnect(); });
@@ -7719,7 +7901,7 @@ window.CHAR_ART = {
       if (this.p2p === 'down' && this.relayUp === 'down' && !this.open) this.status({ err: 'เปิดห้องไม่ได้ — เครื่องนี้ต่ออินเทอร์เน็ตไม่ได้ หรือเครือข่ายบล็อกการเล่นออนไลน์ (ลองเปลี่ยนไปใช้เน็ตมือถือ)' });
       else this.status({});
     }
-    join(code) {
+    legacyJoin(code) {
       this.role = 'guest'; this.code = code; this.stage = 'p2p';
       const forceRelay = /[?&]relay=1/.test(location.search) || localStorage.getItem('gemmquest.forceRelay') === '1';
       if (!window.Peer || forceRelay) { this.fallback(); return; }
@@ -7761,19 +7943,20 @@ window.CHAR_ART = {
     // guest -> host: run a command, resolves when the host has finished it
     request(cmd) { const id = this.n++; this.send({ t: 'cmd', id, cmd }); return new Promise(r => { this.waits[id] = r; }); }
     // host -> guest: ask the guest to decide something, resolves with the answer
-    ask(req) { const id = this.n++; this.send({ t: 'ask', id, req }); return new Promise(r => { this.waits[id] = r; }); }
+    ask(req) { const id = this.n++; (this.asks = this.asks || {})[id] = req; this.send({ t: 'ask', id, req }); return new Promise(r => { this.waits[id] = r; }); }
+    resendAsks() { Object.keys(this.asks || {}).forEach(id => { if (this.waits[id]) this.send({ t: 'ask', id: +id, req: this.asks[id] }); }); }
     async receive(m) {
       switch (m.t) {
-        case 'hello': this.peerName = m.name || 'เพื่อน'; this.peerVer = m.ver || '?'; if (m.deck) this.peerDeck = m.deck; break;
+        case 'hello': this.peerName = m.name || 'เพื่อน'; this.peerVer = m.ver || '?'; if (m.deck) this.peerDeck = m.deck; if (this.role === 'guest' && this.onPeerHello) this.onPeerHello(); break;
         case 'full': this.status({ err: 'ห้องนี้มีผู้เล่นครบแล้ว' }); break;
         case 'deck': this.peerDeck = m.deck; break;
         case 'name': this.peerName = m.name; break;
-        case 'start': Lobby.guestStart(); return;
+        case 'start': Lobby.guestStart(!!m.resume); return;
         case 'state': if (this.onState) this.onState(m.G, m.fx || [], m.wait); return;
         case 'rollstate': if (this.onRollState) this.onRollState(m); return;
         case 'myroll': if (this.onMyRoll) this.onMyRoll(m.v); return;
         case 'ask': { const v = this.onAsk ? await this.onAsk(m.req) : null; this.send({ t: 'answer', id: m.id, v }); return; }
-        case 'answer': case 'done': { const w = this.waits[m.id]; delete this.waits[m.id]; if (w) w(m.t === 'answer' ? m.v : m.ok); return; }
+        case 'answer': case 'done': { const w = this.waits[m.id]; delete this.waits[m.id]; if (this.asks) delete this.asks[m.id]; if (w) w(m.t === 'answer' ? m.v : m.ok); return; }
         case 'cmd': { const res = this.onCmd ? await this.onCmd(m.cmd) : { ok: false }; this.send({ t: 'done', id: m.id, ok: !!(res && res.ok) }); return; }
         case 'room': Lobby.showRoom(); return;
         case 'logreq': this.send({ t: 'log', id: m.id, text: (window.GameUI && GameUI.buildLog()) || null }); return;
@@ -7785,8 +7968,10 @@ window.CHAR_ART = {
     }
     close() {
       try { this.send({ t: 'bye' }); } catch (e) { /* already closed */ }
-      const p = this.peer, c = this.conn, l = this.relayListener; this.onClose = null;
-      this.conn = null; this.peer = null; this.role = null; this.relayListener = null;
+      const p = this.peer, c = this.conn, l = this.relayListener, cf = this.cfc; this.onClose = null;
+      this.conn = null; this.peer = null; this.role = null; this.relayListener = null; this.cfc = null;
+      if (window.CFRelay) { CFRelay.ss.set('room', null); CFRelay.ss.set('snap', null); }
+      try { if (cf) cf.close(); } catch (e) { /* ignore */ }
       clearTimeout(this.p2pTimer);
       setTimeout(() => {
         try { if (c && c.via === 'relay') c.close(); } catch (e) { /* ignore */ }
@@ -7813,6 +7998,10 @@ window.CHAR_ART = {
   const stripDeck = d => ({ id: d.id, name: d.name, el: d.el, free: !!d.free, quests: d.quests.slice(), cards: d.cards.slice() });
 
   const pathIcon = s => (s === 'ok' ? '✓' : s === 'down' ? '✗' : '…');
+  const pathsHTML = net => (net.cf && net.cf !== 'down'
+    ? `<div class="paths">ช่องทาง: <span class="${net.cf}">☁️ เซิร์ฟเวอร์ห้อง (Room server) ${pathIcon(net.cf)}</span></div>`
+    : `<div class="paths">ช่องทาง: <span class="${net.p2p}">ต่อตรง ${pathIcon(net.p2p)}</span> · <span class="${net.relayUp}">ตัวกลาง ${pathIcon(net.relayUp)}</span></div>`);
+  const inviteLink = code => location.origin + location.pathname + '?room=' + code;
   function open() { render(); }
 
   function render() {
@@ -7825,7 +8014,8 @@ window.CHAR_ART = {
     if (online) {
       roomBox = `<div class="room ok">
         <div>${net.tester ? '🧪 ห้อง tester · ' : ''}✅ เชื่อมต่อแล้วกับ <b>${esc(net.peerName)}</b></div>
-        <div class="via ${net.via}">${net.via === 'relay' ? '🛰 เชื่อมผ่านตัวกลาง (เข้ารหัส) — ต่อตรงไม่ได้ แต่เล่นได้ปกติ' : '🔗 ต่อตรงระหว่าง 2 เครื่อง'}</div>
+        ${net.peerAway ? '<div class="mp-err">⚠ อีกฝ่ายหลุดการเชื่อมต่อ — รอกลับมาอัตโนมัติ… (Opponent disconnected)</div>' : ''}
+        <div class="via ${net.via}">${net.via === 'cf' ? '☁️ เชื่อมผ่านเซิร์ฟเวอร์ห้องของเกม (Cloudflare)' : net.via === 'relay' ? '🛰 เชื่อมผ่านตัวกลาง (เข้ารหัส) — ต่อตรงไม่ได้ แต่เล่นได้ปกติ' : '🔗 ต่อตรงระหว่าง 2 เครื่อง'}</div>
         ${net.peerVer && net.peerVer !== window.GQ_VERSION ? `<div class="mp-err">⚠ เวอร์ชันเกมไม่ตรงกัน (คุณ v${esc(window.GQ_VERSION)} · ${esc(net.peerName)} v${esc(net.peerVer)}) — ให้ทั้งคู่เปิดไฟล์/เว็บเวอร์ชันล่าสุดก่อนเล่น</div>` : ''}
         ${net.role === 'host'
           ? `<div class="dim">เด็คของเพื่อน: ${net.peerDeck ? esc(net.peerDeck.name) : 'รอเพื่อนเลือก…'}</div>
@@ -7836,21 +8026,22 @@ window.CHAR_ART = {
       roomBox = `<div class="room"><div>🧪 <b>ห้อง tester</b> เปิดอยู่</div>
         <div class="dim">⏳ รอ tester อีกคนกด “เข้าห้อง tester”…</div>
         <div class="mbtns"><button class="btn sm" data-mp-leave>ออกจากห้อง tester</button></div>
-        <div class="paths">ช่องทาง: <span class="${net.p2p}">ต่อตรง ${pathIcon(net.p2p)}</span> · <span class="${net.relayUp}">ตัวกลาง ${pathIcon(net.relayUp)}</span></div></div>`;
+        ${pathsHTML(net)}</div>`;
     } else if (net && net.role === 'host' && net.code) {
       roomBox = `<div class="room">
         <div>ส่งรหัสห้องนี้ให้เพื่อน (ทางแชทส่วนตัว)</div>
         <div class="code">${fmtCode(net.code)}</div>
-        <div class="mbtns"><button class="btn sm" data-mp-copy>📋 คัดลอกรหัส</button><button class="btn sm" data-mp-leave>ยกเลิกห้อง</button></div>
+        <div class="mp-link"><span>🔗 ลิงก์เชิญ (Invite link)</span><input readonly data-mp-link value="${esc(inviteLink(net.code))}"></div>
+        <div class="mbtns"><button class="btn sm" data-mp-copy>📋 คัดลอกรหัส</button><button class="btn sm" data-mp-copylink>🔗 คัดลอกลิงก์</button><button class="btn sm" data-mp-leave>ยกเลิกห้อง</button></div>
         <div class="dim">⏳ รอเพื่อนเข้าห้อง…</div>
-        <div class="paths">ช่องทาง: <span class="${net.p2p}">ต่อตรง ${pathIcon(net.p2p)}</span> · <span class="${net.relayUp}">ตัวกลาง ${pathIcon(net.relayUp)}</span></div></div>`;
+        ${pathsHTML(net)}</div>`;
     } else if (net) {
       roomBox = `<div class="room"><div>${net.stage === 'relay'
           ? `⏳ ต่อตรงไม่ได้ — กำลังเชื่อมผ่านตัวกลาง${net.brokers ? ` (${net.broker}/${net.brokers})` : ''}…`
-          : '⏳ กำลังเชื่อมต่อแบบต่อตรง… (ถ้าไม่ได้ใน ~9 วินาที จะสลับไปผ่านตัวกลางเอง)'}</div><button class="btn sm" data-mp-leave>ยกเลิก</button></div>`;
+          : net.stage === 'cf' ? '⏳ กำลังเข้าห้อง… (Joining)' : '⏳ กำลังเชื่อมต่อแบบต่อตรง… (ถ้าไม่ได้ใน ~9 วินาที จะสลับไปผ่านตัวกลางเอง)'}</div><button class="btn sm" data-mp-leave>ยกเลิก</button></div>`;
     } else {
-      roomBox = `<div class="mbtns" style="justify-content:flex-start"><button class="btn primary" data-mp-host>➕ สร้างห้อง</button></div>
-        <div class="join"><input data-mp-code placeholder="รหัสห้อง เช่น ABCD-2345" maxlength="9"><button class="btn" data-mp-join>เข้าห้อง</button></div>
+      roomBox = `<div class="mbtns" style="justify-content:flex-start"><button class="btn primary" data-mp-host>➕ สร้างห้อง (Create room)</button></div>
+        <div class="join"><input data-mp-code placeholder="รหัสห้อง เช่น ABCD-2345" maxlength="9"><button class="btn" data-mp-join>เข้าห้อง (Join)</button></div>
         <div class="tester-box"><b>🧪 ห้อง tester (ห้องถาวร)</b><div class="dim" style="font-size:13px">ไม่ต้องส่งรหัสห้อง — ใส่รหัสผ่าน tester ครั้งแรกครั้งเดียว เครื่องจะจำไว้ คนที่เข้าก่อนจะเป็นเจ้าของห้อง</div>
         <div class="join"><input data-tpass type="password" placeholder="รหัสผ่าน tester" value="${esc(store('testerPass') || '')}" maxlength="40"><button class="btn primary" data-tjoin>เข้าห้อง tester</button></div></div>`;
     }
@@ -7897,6 +8088,9 @@ window.CHAR_ART = {
       if (code.length !== 8) { st.err = 'รหัสห้องต้องมี 8 ตัว'; render(); return; }
       connect('guest', code);
     };
+    const cl = q('[data-mp-copylink]');
+    if (cl) cl.onclick = () => { try { navigator.clipboard.writeText(inviteLink(st.net.code)); cl.textContent = '✓ คัดลอกแล้ว'; } catch (e) { /* clipboard blocked */ } };
+    const li = q('[data-mp-link]'); if (li) li.onclick = () => li.select();
     const copy = q('[data-mp-copy]');
     if (copy) copy.onclick = () => { try { navigator.clipboard.writeText(fmtCode(st.net.code)); copy.textContent = '✓ คัดลอกแล้ว'; } catch (e) { /* clipboard blocked */ } };
     const leave = q('[data-mp-leave]');
@@ -7913,17 +8107,21 @@ window.CHAR_ART = {
     if (startBtn) startBtn.onclick = hostStart;
   }
 
-  function connect(role, code, tester) {
+  function connect(role, code, tester, resume) {
     if (st.net) st.net.close();
     st.err = '';
-    const net = st.net = new Net(); net.tester = !!tester;
+    const net = st.net = new Net(); net.tester = !!tester; net.resume = !!resume;
+    const sendDeck = () => { if (net.open) { net.send({ t: 'name', name: net.myName }); net.send({ t: 'deck', deck: stripDeck(deckById(store('onDeck') || GQ.STARTERS[1].id)) }); } };
+    net.onPeerHello = sendDeck;
     net.myName = store('name') || 'ผู้เล่น';
     net.onStatus = s => {
       if (s.broker) { net.broker = s.broker; net.brokers = s.brokers; }
       if (s.taken && st.net === net) { net.close(); connect('guest', net.code, true); return; } // tester room already open → join it
       if (s.err) { st.err = s.err; if (!net.open) { net.close(); if (st.net === net) st.net = null; } }
       if (s.connected && net.role === 'guest') net.send({ t: 'deck', deck: stripDeck(deckById(store('onDeck') || GQ.STARTERS[1].id)) });
-      if (s.closed && st.net === net) { st.err = 'อีกฝ่ายออกจากห้องแล้ว'; st.net = null; }
+      if (s.closed && st.net === net) { st.err = 'อีกฝ่ายออกจากห้องแล้ว (Opponent left)'; st.net = null; if (window.CFRelay) { CFRelay.ss.set('room', null); CFRelay.ss.set('snap', null); } }
+      if (s.connected && net.role === 'host' && net.resume && !net.resumed) { net.resumed = true; if (resumeHost(net)) return; }
+      if (s.peer != null || s.link != null) { if (window.GameUI && GameUI.netNotice) GameUI.netNotice(); }
       if ($('scr-mp').classList.contains('active')) render();
     };
     net.onLobby = () => { if ($('scr-mp').classList.contains('active')) render(); };
@@ -7940,7 +8138,25 @@ window.CHAR_ART = {
     const n1 = net.myName, n2 = net.peerName === n1 ? net.peerName + ' (2)' : net.peerName;
     GameUI.start(mine, net.peerDeck, { host: net, names: [n1, n2], tester: !!net.tester });
   }
-  function guestStart() { if (st.net) GameUI.start(null, null, { guest: st.net, tester: !!st.net.tester }); }
+  function guestStart(resume) { if (st.net) GameUI.start(null, null, { guest: st.net, tester: !!st.net.tester, resume: !!resume }); }
+  // v4.1.36: the host reloaded its page in the middle of a game → continue from the last saved position
+  function resumeHost(net) {
+    const snap = window.CFRelay && CFRelay.ss.get('snap');
+    if (!snap || snap.code !== net.code || !snap.G) return false;
+    st.last = { mine: snap.decks[0], peer: snap.decks[1] };
+    net.peerName = net.peerName || snap.names[1];
+    net.send({ t: 'start', resume: true });
+    GameUI.start(snap.decks[0], snap.decks[1], { host: net, names: snap.names, tester: !!net.tester, resume: snap });
+    return true;
+  }
+  // v4.1.36: a refresh rejoins the room of this tab; ?room=CODE joins a room from an invite link
+  function autoResume() {
+    const r = window.CFRelay && CFRelay.ss.get('room');
+    if (r && r.code && (r.role === 'host' || r.role === 'guest')) { App.show('mp'); connect(r.role, r.code, r.tester, true); return; }
+    let qp = null; try { qp = new URLSearchParams(location.search).get('room'); } catch (e) { /* ignore */ }
+    const code = (qp || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (code.length === 8) { App.show('mp'); connect('guest', code); try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { /* ignore */ } }
+  }
   // v4.1.26 tester room: restart synced for both players, with the other side's confirmation
   const RS_LBL = { same: 'เริ่มเกมใหม่ (deck เดิม)', deck: 'กลับไปเลือก deck' };
   function restartMenu() {
@@ -7983,7 +8199,7 @@ window.CHAR_ART = {
   }
   function showRoom() { if (st.net) { st.net.onState = st.net.onAsk = st.net.onRollState = null; } App.show('mp'); }
 
-  window.Lobby = { open, guestStart, backToRoom, showRoom, Net, restartMenu, restartAsked, restartAnswered, testerCode, TESTER_PASS_SHA256 };
+  window.Lobby = { open, guestStart, backToRoom, showRoom, Net, autoResume, st, restartMenu, restartAsked, restartAnswered, testerCode, TESTER_PASS_SHA256 };
 })();
 
 </script>
@@ -8389,6 +8605,7 @@ window.CHAR_ART = {
   });
   GameUI.bind();
   window.App = { show, rulesHTML };
+  setTimeout(() => { try { if (window.Lobby && Lobby.autoResume) Lobby.autoResume(); } catch (e) { console.error(e); } }, 0); // v4.1.36
 
   // hash shortcuts: #setup #deck #gallery #rules #demo (watch CPU vs CPU)
   function route() {
@@ -8413,12 +8630,22 @@ window.CHAR_ART = {
 #changelog .cl-head h3 { margin: 0; font-size: 18px; }
 #changelog .cl-body { overflow-y: auto; padding: 4px 18px 16px; font-size: 14px; line-height: 1.55; }
 #changelog h4 { margin: 14px 0 4px; color: #4a3aa8; }
+#net-notice { display: none; position: fixed; left: 50%; top: 6px; transform: translateX(-50%); z-index: 9500; max-width: min(92vw, 560px);
+  padding: 7px 14px; border-radius: 999px; background: #fff4d6; color: #7a4a00; border: 1px solid #f0c060; font-size: 14px; font-weight: 600;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18); text-align: center; pointer-events: none; }
+#net-notice.on { display: block; }
+.mp-link { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; font-size: 13px; }
+.mp-link input { width: 100%; box-sizing: border-box; font-size: 13px; padding: 6px 8px; border-radius: 8px; border: 1px solid #c9c2ee; }
 #changelog ul { margin: 0; padding-left: 20px; }
 #changelog li { margin: 2px 0; }
 </style>
 <div id="changelog" role="dialog" aria-label="Change log"><div class="cl-box">
 <div class="cl-head"><h3>📜 Change log — 20 แพตช์ล่าสุด</h3><button class="btn sm" id="changelog-close">ปิด ✕</button></div>
 <div class="cl-body">
+<h4>v4.1.36 — 28 ต.ค. 2026</h4>
+<ul><li>เล่นออนไลน์ 2 คนผ่านเซิร์ฟเวอร์ห้องของเกม (Cloudflare) — สร้างห้องได้รหัส 8 ตัว + ลิงก์เชิญ (?room=รหัส) กดลิงก์แล้วเข้าห้องได้ทันที</li>
+<li>รีเฟรชหน้า = กลับเข้าห้อง/เกมเดิมอัตโนมัติ (เจ้าของห้องรีเฟรชก็เล่นต่อจากจุดล่าสุดได้) · แจ้งเตือนเมื่ออีกฝ่ายหลุด/ออกจากห้อง</li>
+<li>ถ้าเซิร์ฟเวอร์ห้องใช้ไม่ได้ จะสลับไปใช้การเชื่อมต่อแบบเดิม (ต่อตรง/ตัวกลาง) ให้เอง · โหมดเล่นกับ CPU ไม่เปลี่ยน</li></ul>
 <h4>v4.1.35 — 28 ต.ค. 2026</h4>
 <ul><li>ซิงก์กับชีตการ์ด: ลบ EQPBR-002, EQPGR-003, EQPWH-002, PRPBL-002, PRPRD-002 · เพิ่มการ์ดใหม่ ACTBK-008 (รวม 175 ใบ)</li>
 <li>ปรับค่า: PRPBR-001/ACTGR-002 cost 0, ACTGR-011 cost 2, Tingting MSCGR-018 cost 6 7/3, Babii MSCGR-007 4/7, Any MSCGR-012 0/1 + ออร่า Character cost 1 ฝ่ายเรา +1/+1, Nilknhake MSCRD-016 5/5 ยิง 3 แต้ม, ค่าพลังใหม่ MSCBR-004/006/016, MSCRD-008, MSCBK-005/013/014/015</li>
